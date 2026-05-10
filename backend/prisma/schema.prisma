@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  password          String
+  name              String
+  avatar            String?
+  theme             String    @default("light")
+  resetToken        String?
+  resetTokenExpiry  DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  projects  Project[]
+  tasks     Task[]
+  tags      Tag[]
+
+  @@map("users")
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  color       String   @default("#6366f1")
+  icon        String   @default("folder")
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks  Task[]
+
+  @@map("projects")
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String
+  color     String   @default("#6366f1")
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks  TaskTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
+}
+
+model Task {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  priority    Priority    @default(MEDIUM)
+  status      TaskStatus  @default(PENDING)
+  dueDate     DateTime?
+  reminder    DateTime?
+  isArchived  Boolean     @default(false)
+  position    Int         @default(0)
+  recurrence  Recurrence?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  completedAt DateTime?
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  parentId String?
+  parent   Task?   @relation("Subtasks", fields: [parentId], references: [id], onDelete: Cascade)
+  subtasks Task[]  @relation("Subtasks")
+
+  tags        TaskTag[]
+  attachments TaskAttachment[]
+
+  @@map("tasks")
+}
+
+model TaskAttachment {
+  id           String   @id @default(uuid())
+  filename     String
+  originalName String
+  url          String
+  mimetype     String
+  size         Int
+  createdAt    DateTime @default(now())
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@map("task_attachments")
+}
+
+model TaskTag {
+  taskId String
+  tagId  String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, tagId])
+  @@map("task_tags")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Recurrence {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
