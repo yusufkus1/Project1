@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Inbox, Sun, CalendarDays, CheckCheck, Tag, Settings,
-  Plus, Hash, LogOut, LayoutDashboard, Calendar, ChevronDown, Flame, Grid2x2, Timer,
+  Plus, Hash, LogOut, LayoutDashboard, Calendar, ChevronDown, Flame, Grid2x2, Timer, X,
 } from "lucide-react";
 import { useState } from "react";
 import { projectsApi } from "../../api/projects";
@@ -11,7 +11,7 @@ import { useAuthStore } from "../../store/auth";
 import { useGamificationStore } from "../../store/gamification";
 import { useNavigate, useLocation } from "react-router-dom";
 
-export function Sidebar() {
+export function Sidebar({ onClose }: { onClose?: () => void }) {
   const { selectedView, setSelectedView, theme, toggleTheme } = useUIStore();
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -30,7 +30,8 @@ export function Sidebar() {
   const isViewActive = (view: View) => location.pathname === "/" && selectedView === view;
   const isPathActive = (path: string) => location.pathname === path;
 
-  const goToView = (view: View) => { navigate("/"); setSelectedView(view); };
+  const goToView = (view: View) => { navigate("/"); setSelectedView(view); onClose?.(); };
+  const goTo = (path: string) => { navigate(path); onClose?.(); };
 
   const itemBase: React.CSSProperties = {
     display: "flex",
@@ -87,6 +88,11 @@ export function Sidebar() {
       {/* User */}
       <div style={{ padding: "1.25rem 1rem 1rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1rem" }}>
+          {onClose && (
+            <button onClick={onClose} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", padding: "0.25rem", display: "flex" }} className="text-gray-400">
+              <X size={18} />
+            </button>
+          )}
           <div style={{
             width: "2rem", height: "2rem", borderRadius: "50%",
             background: "#6366f1", display: "flex", alignItems: "center",
@@ -136,16 +142,16 @@ export function Sidebar() {
         <div style={navItem(isViewActive("inbox"))} onClick={() => goToView("inbox")}>
           <Inbox size={15} style={{ flexShrink: 0 }} /><span>Inbox</span>
         </div>
-        <div style={navItem(isPathActive("/calendar"))} onClick={() => navigate("/calendar")}>
+        <div style={navItem(isPathActive("/calendar"))} onClick={() => goTo("/calendar")}>
           <Calendar size={15} style={{ flexShrink: 0 }} /><span>Calendar</span>
         </div>
-        <div style={navItem(isPathActive("/dashboard"))} onClick={() => navigate("/dashboard")}>
+        <div style={navItem(isPathActive("/dashboard"))} onClick={() => goTo("/dashboard")}>
           <LayoutDashboard size={15} style={{ flexShrink: 0 }} /><span>Dashboard</span>
         </div>
-        <div style={navItem(isPathActive("/matrix"))} onClick={() => navigate("/matrix")}>
+        <div style={navItem(isPathActive("/matrix"))} onClick={() => goTo("/matrix")}>
           <Grid2x2 size={15} style={{ flexShrink: 0 }} /><span>Matrix</span>
         </div>
-        <div style={navItem(isPathActive("/focus"))} onClick={() => navigate("/focus")}>
+        <div style={navItem(isPathActive("/focus"))} onClick={() => goTo("/focus")}>
           <Timer size={15} style={{ flexShrink: 0 }} /><span>Focus</span>
         </div>
 
@@ -162,7 +168,7 @@ export function Sidebar() {
           <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
             <Plus
               size={12}
-              onClick={(e) => { e.stopPropagation(); navigate("/projects/new"); }}
+              onClick={(e) => { e.stopPropagation(); goTo("/projects/new"); }}
               style={{ cursor: "pointer" }}
             />
             <ChevronDown size={11} style={{ transform: listsOpen ? "none" : "rotate(-90deg)", transition: "transform 0.15s" }} />
@@ -214,14 +220,14 @@ export function Sidebar() {
       {/* Bottom */}
       <div style={{ borderTop: "1px solid", padding: "0.5rem" }} className="border-gray-200 dark:border-gray-800">
         {[
-          { label: "Manage Tags", icon: <Tag size={14} />, action: () => navigate("/tags") },
-          { label: "Settings", icon: <Settings size={14} />, action: () => navigate("/settings") },
+          { label: "Manage Tags", icon: <Tag size={14} />, action: () => goTo("/tags") },
+          { label: "Settings", icon: <Settings size={14} />, action: () => goTo("/settings") },
           {
             label: theme === "light" ? "Dark Mode" : "Light Mode",
             icon: <span style={{ fontSize: "0.875rem" }}>{theme === "light" ? "🌙" : "☀️"}</span>,
             action: toggleTheme,
           },
-          { label: "Sign Out", icon: <LogOut size={14} />, action: () => { logout(); navigate("/login"); }, danger: true },
+          { label: "Sign Out", icon: <LogOut size={14} />, action: () => { logout(); navigate("/login"); onClose?.(); }, danger: true },
         ].map(({ label, icon, action, danger }) => (
           <div
             key={label}
