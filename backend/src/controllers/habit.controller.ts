@@ -39,11 +39,11 @@ export async function createHabit(req: AuthRequest, res: Response): Promise<void
 export async function updateHabit(req: AuthRequest, res: Response): Promise<void> {
   try {
     const { title, color, icon } = req.body as { title?: string; color?: string; icon?: string };
-    const habit = await prisma.habit.findFirst({ where: { id: req.params["id"], userId: req.userId } });
+    const habit = await prisma.habit.findFirst({ where: { id: req.params["id"] as string, userId: req.userId } });
     if (!habit) { res.status(404).json({ error: "Not found" }); return; }
 
     const updated = await prisma.habit.update({
-      where: { id: req.params["id"] },
+      where: { id: req.params["id"] as string },
       data: {
         ...(title !== undefined && { title }),
         ...(color !== undefined && { color }),
@@ -57,16 +57,16 @@ export async function updateHabit(req: AuthRequest, res: Response): Promise<void
 
 export async function deleteHabit(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const habit = await prisma.habit.findFirst({ where: { id: req.params["id"], userId: req.userId } });
+    const habit = await prisma.habit.findFirst({ where: { id: req.params["id"] as string, userId: req.userId } });
     if (!habit) { res.status(404).json({ error: "Not found" }); return; }
-    await prisma.habit.update({ where: { id: req.params["id"] }, data: { isArchived: true } });
+    await prisma.habit.update({ where: { id: req.params["id"] as string }, data: { isArchived: true } });
     res.json({ ok: true });
   } catch { res.status(500).json({ error: "Server error" }); }
 }
 
 export async function toggleLog(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const habit = await prisma.habit.findFirst({ where: { id: req.params["id"], userId: req.userId } });
+    const habit = await prisma.habit.findFirst({ where: { id: req.params["id"] as string, userId: req.userId } });
     if (!habit) { res.status(404).json({ error: "Not found" }); return; }
 
     const date = (req.body as { date?: string }).date ?? new Date().toISOString().slice(0, 10);
