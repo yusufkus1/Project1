@@ -76,7 +76,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Add notes…", 
   useEffect(() => {
     if (!editor) return;
     if (editor.getHTML() !== value) {
-      editor.commands.setContent(value || "", false);
+      editor.commands.setContent(value || "", { emitUpdate: false });
     }
   }, [value, editor]);
 

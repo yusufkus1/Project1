@@ -124,7 +124,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
 
         {/* Subtask count */}
         {task.subtasks?.length > 0 && (
-          <span className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem", flexShrink: 0, tabularNums: true }}>
+          <span className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>
             {task.subtasks.filter(s => s.status === "COMPLETED").length}/{task.subtasks.length}
           </span>
         )}
