@@ -42,6 +42,27 @@ interface FormValues {
   tagIds: string[];
 }
 
+function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+      <div style={{
+        width: "2rem", height: "2rem", borderRadius: "0.5rem",
+        background: "rgba(99,102,241,0.1)",
+        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+      }}>
+        <span style={{ color: "#6366f1" }}>{icon}</span>
+      </div>
+      <span className="text-gray-800 dark:text-gray-200" style={{ fontSize: "0.9375rem", fontWeight: 700 }}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function Divider() {
+  return <div className="border-t border-gray-100 dark:border-gray-800" style={{ margin: "0.25rem 0" }} />;
+}
+
 export function TaskProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -79,12 +100,10 @@ export function TaskProfilePage() {
 
   const selectedTagIds = watch("tagIds") ?? [];
 
-  // Sync estimate from task
   useEffect(() => {
     if (task) setEstimateVal(task.estimatedMinutes != null ? String(task.estimatedMinutes) : "");
   }, [task?.estimatedMinutes]);
 
-  // Initialize descriptionHtml from task on first load
   const currentDescription = descriptionHtml ?? (task?.description ?? "");
 
   const update = useMutation({
@@ -179,49 +198,48 @@ export function TaskProfilePage() {
   const totalSubs = task.subtasks?.length ?? 0;
 
   const fieldInput: React.CSSProperties = {
-    width: "100%", fontSize: "0.875rem", padding: "0.625rem 0.875rem",
-    border: "1px solid", borderRadius: "0.625rem", outline: "none",
-    transition: "border-color 0.15s",
+    width: "100%", fontSize: "0.9375rem", padding: "0.875rem 1.125rem",
+    borderRadius: "0.875rem", outline: "none",
+    transition: "border-color 0.15s", border: "1px solid",
   };
 
-  const sectionTitle = (label: string, icon: React.ReactNode) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.875rem" }}>
-      <span className="text-gray-400">{icon}</span>
-      <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase" }}>
-        {label}
-      </span>
-    </div>
-  );
-
   return (
-    <div style={{ maxWidth: "56rem", margin: "0 auto" }}>
+    <div style={{ maxWidth: "64rem", display: "flex", flexDirection: "column", gap: "0" }}>
 
       {/* Back */}
       <button
         onClick={() => navigate(-1)}
         className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
-        style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem", fontSize: "0.875rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+        style={{
+          display: "inline-flex", alignItems: "center", gap: "0.5rem",
+          marginBottom: "1.75rem", fontSize: "0.875rem", fontWeight: 500,
+          background: "none", border: "none", cursor: "pointer", padding: 0,
+        }}
       >
         <ArrowLeft size={16} />
-        <span>Back</span>
+        Back
       </button>
 
       <form onSubmit={handleSubmit(save)}>
 
-        {/* Title row */}
-        <div style={{ marginBottom: "1.5rem" }}>
-          {/* Done circle + title */}
-          <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "1rem" }}>
+        {/* ── Hero card ─────────────────────────────────────────── */}
+        <div
+          className="bg-white dark:bg-gray-900"
+          style={{ borderRadius: "1.25rem", padding: "2rem 2.5rem", marginBottom: "1.75rem" }}
+        >
+          {/* Title */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "1.125rem", marginBottom: "1.5rem" }}>
             <button
               type="button"
               onClick={() => toggleDone.mutate()}
               style={{
-                flexShrink: 0, width: "2rem", height: "2rem", borderRadius: "50%",
-                border: "2px solid", marginTop: "0.375rem",
+                flexShrink: 0, width: "2.375rem", height: "2.375rem",
+                borderRadius: "50%", border: "2.5px solid", marginTop: "0.3rem",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", transition: "all 0.2s",
                 background: isDone ? "#6366f1" : "transparent",
                 borderColor: isDone ? "#6366f1" : "#d1d5db",
+                boxShadow: isDone ? "0 0 0 4px rgba(99,102,241,0.15)" : "none",
               }}
             >
               {isDone && <Check size={14} strokeWidth={3} color="white" />}
@@ -232,25 +250,27 @@ export function TaskProfilePage() {
               placeholder="Task title"
               className="text-gray-900 dark:text-white bg-transparent placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none resize-none"
               style={{
-                flex: 1, fontSize: "1.5rem", fontWeight: 700, lineHeight: 1.35,
-                border: "none", textDecoration: isDone ? "line-through" : "none",
-                color: isDone ? "#9ca3af" : undefined,
+                flex: 1, fontSize: "1.75rem", fontWeight: 800, lineHeight: 1.3,
+                border: "none",
+                textDecoration: isDone ? "line-through" : "none",
+                opacity: isDone ? 0.5 : 1,
               }}
               {...register("title")}
               onBlur={handleSubmit(save)}
             />
           </div>
 
-          {/* Action buttons row */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", paddingLeft: "3rem" }}>
+          {/* Action buttons */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", paddingLeft: "3.5rem", marginBottom: "1.625rem" }}>
             <button
               type="button"
               onClick={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
               style={{
-                display: "flex", alignItems: "center", gap: "0.375rem",
-                padding: "0.5rem 1rem", borderRadius: "0.625rem",
+                display: "flex", alignItems: "center", gap: "0.5rem",
+                padding: "0.625rem 1.25rem", borderRadius: "0.75rem",
                 background: "#6366f1", color: "white", border: "none",
-                fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer",
+                fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
+                boxShadow: "0 4px 14px rgba(99,102,241,0.3)",
               }}
             >
               <Play size={13} fill="white" />
@@ -259,101 +279,109 @@ export function TaskProfilePage() {
             <button
               type="button"
               onClick={() => archiveTask.mutate()}
-              className="text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition rounded-lg"
-              style={{ padding: "0.5rem", background: "none", border: "none", cursor: "pointer" }}
+              className="text-gray-400 hover:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition rounded-xl"
+              style={{ padding: "0.625rem", background: "none", border: "none", cursor: "pointer" }}
               title="Archive"
             >
-              <Archive size={16} />
+              <Archive size={18} />
             </button>
             <button
               type="button"
               onClick={() => { if (confirm("Delete this task?")) deleteTask.mutate(); }}
-              className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition rounded-lg"
-              style={{ padding: "0.5rem", background: "none", border: "none", cursor: "pointer" }}
+              className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition rounded-xl"
+              style={{ padding: "0.625rem", background: "none", border: "none", cursor: "pointer" }}
             >
-              <Trash2 size={16} />
+              <Trash2 size={18} />
             </button>
+          </div>
+
+          {/* Badge pills */}
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", paddingLeft: "3.5rem" }}>
+            <select
+              {...register("status")}
+              onChange={(e) => update.mutate({ status: e.target.value as Task["status"] })}
+              style={{
+                background: statusStyle.bg, color: statusStyle.text,
+                border: "none", borderRadius: "999px", padding: "0.375rem 1rem",
+                fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer", outline: "none",
+              }}
+            >
+              <option value="PENDING">Pending</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+
+            <select
+              {...register("priority")}
+              onChange={(e) => update.mutate({ priority: e.target.value as Task["priority"] })}
+              style={{
+                background: priorityStyle.bg, color: priorityStyle.text,
+                border: `1px solid ${priorityStyle.border}`, borderRadius: "999px",
+                padding: "0.375rem 1rem", fontSize: "0.8125rem",
+                fontWeight: 600, cursor: "pointer", outline: "none",
+              }}
+            >
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="CRITICAL">Critical</option>
+            </select>
+
+            <span style={{
+              display: "flex", alignItems: "center", gap: "0.3rem",
+              background: "rgba(99,102,241,0.1)", color: "#6366f1",
+              borderRadius: "999px", padding: "0.375rem 1rem",
+              fontSize: "0.8125rem", fontWeight: 600,
+            }}>
+              <Star size={12} fill="#6366f1" />
+              +{XP_BY_PRIORITY[task.priority] ?? 20} XP
+            </span>
+
+            {isOverdue && (
+              <span style={{
+                background: "#fef2f2", color: "#dc2626", borderRadius: "999px",
+                padding: "0.375rem 1rem", fontSize: "0.8125rem", fontWeight: 600,
+              }}>
+                Overdue
+              </span>
+            )}
+
+            {task.project && (
+              <span style={{
+                display: "flex", alignItems: "center", gap: "0.375rem",
+                background: task.project.color + "18",
+                borderRadius: "999px", padding: "0.375rem 1rem",
+                fontSize: "0.8125rem", fontWeight: 500, color: "#6b7280",
+              }}>
+                <span style={{ width: "0.5rem", height: "0.5rem", borderRadius: "3px", background: task.project.color, display: "inline-block", flexShrink: 0 }} />
+                {task.project.name}
+              </span>
+            )}
+
+            {task.tags.map(({ tag }) => (
+              <span key={tag.id} style={{
+                background: tag.color + "20", color: tag.color,
+                borderRadius: "999px", padding: "0.375rem 1rem",
+                fontSize: "0.8125rem", fontWeight: 500,
+              }}>
+                {tag.name}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Badge row */}
-        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.625rem", marginBottom: "2.5rem" }}>
-          <select
-            {...register("status")}
-            onChange={(e) => update.mutate({ status: e.target.value as Task["status"] })}
-            style={{
-              background: statusStyle.bg, color: statusStyle.text,
-              border: "none", borderRadius: "999px", padding: "0.3125rem 0.875rem",
-              fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer", outline: "none",
-            }}
-          >
-            <option value="PENDING">Pending</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="COMPLETED">Completed</option>
-          </select>
+        {/* ── Two-column layout ─────────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ marginBottom: "3rem" }}>
 
-          <select
-            {...register("priority")}
-            onChange={(e) => update.mutate({ priority: e.target.value as Task["priority"] })}
-            style={{
-              background: priorityStyle.bg, color: priorityStyle.text,
-              border: `1px solid ${priorityStyle.border}`, borderRadius: "999px",
-              padding: "0.3125rem 0.875rem", fontSize: "0.8125rem",
-              fontWeight: 600, cursor: "pointer", outline: "none",
-            }}
-          >
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
-            <option value="CRITICAL">Critical</option>
-          </select>
+          {/* ── Left: Notes · Attachments · Subtasks ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
-          <span style={{
-            display: "flex", alignItems: "center", gap: "0.3rem",
-            background: "rgba(99,102,241,0.1)", color: "#6366f1",
-            borderRadius: "999px", padding: "0.3125rem 0.875rem",
-            fontSize: "0.8125rem", fontWeight: 600,
-          }}>
-            <Star size={12} fill="#6366f1" />
-            +{XP_BY_PRIORITY[task.priority] ?? 20} XP
-          </span>
-
-          {isOverdue && (
-            <span style={{
-              background: "#fef2f2", color: "#dc2626", borderRadius: "999px",
-              padding: "0.3125rem 0.875rem", fontSize: "0.8125rem", fontWeight: 600,
-            }}>
-              Overdue
-            </span>
-          )}
-
-          {task.project && (
-            <span style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.8125rem", color: "#6b7280" }}>
-              <span style={{ width: "0.625rem", height: "0.625rem", borderRadius: "2px", background: task.project.color, display: "inline-block" }} />
-              {task.project.name}
-            </span>
-          )}
-
-          {task.tags.map(({ tag }) => (
-            <span key={tag.id} style={{
-              background: tag.color + "20", color: tag.color,
-              borderRadius: "999px", padding: "0.3125rem 0.875rem",
-              fontSize: "0.8125rem", fontWeight: 500,
-            }}>
-              {tag.name}
-            </span>
-          ))}
-        </div>
-
-        {/* Two-column layout — stacks to single on mobile */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10" style={{ marginBottom: "3rem" }}>
-
-          {/* Left: notes + attachments + subtasks */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
-
-            {/* Notes — rich text editor */}
-            <div>
-              {sectionTitle("Notes", <AlignLeftIcon />)}
+            {/* Notes card */}
+            <div
+              className="bg-white dark:bg-gray-900"
+              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+            >
+              <SectionHeader icon={<AlignLeftIcon />} label="Notes" />
               <RichTextEditor
                 value={currentDescription}
                 onChange={(html) => setDescriptionHtml(html)}
@@ -362,19 +390,28 @@ export function TaskProfilePage() {
               />
             </div>
 
-            {/* Attachments */}
-            <AttachmentSection
-              taskId={id!}
-              attachments={task.attachments ?? []}
-            />
+            {/* Attachments card */}
+            <div
+              className="bg-white dark:bg-gray-900"
+              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+            >
+              <AttachmentSection taskId={id!} attachments={task.attachments ?? []} />
+            </div>
 
-            {/* Subtasks */}
-            <div>
-              {sectionTitle("Subtasks", <CheckSquare size={14} />)}
+            {/* Subtasks card */}
+            <div
+              className="bg-white dark:bg-gray-900"
+              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+            >
+              <SectionHeader icon={<CheckSquare size={15} />} label="Subtasks" />
+
               {totalSubs > 0 && (
-                <div style={{ marginBottom: "0.75rem" }}>
+                <div style={{ marginBottom: "1rem" }}>
                   <div className="bg-gray-100 dark:bg-gray-800" style={{ borderRadius: "999px", height: "0.375rem", marginBottom: "0.5rem" }}>
-                    <div style={{ background: "#6366f1", borderRadius: "999px", height: "100%", width: `${(completedSubs / totalSubs) * 100}%`, transition: "width 0.4s" }} />
+                    <div style={{
+                      background: "#6366f1", borderRadius: "999px", height: "100%",
+                      width: `${(completedSubs / totalSubs) * 100}%`, transition: "width 0.4s",
+                    }} />
                   </div>
                   <span className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.75rem" }}>
                     {completedSubs} / {totalSubs} completed
@@ -382,12 +419,12 @@ export function TaskProfilePage() {
                 </div>
               )}
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem", marginBottom: "0.75rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem", marginBottom: "0.875rem" }}>
                 {task.subtasks?.map((sub) => (
                   <div
                     key={sub.id}
-                    style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.625rem 0.875rem", borderRadius: "0.625rem", cursor: "pointer" }}
-                    className="bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800/60 transition"
+                    style={{ display: "flex", alignItems: "center", gap: "0.875rem", padding: "0.75rem 1rem", borderRadius: "0.75rem", cursor: "pointer" }}
+                    className="bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition"
                     onClick={() => toggleSubtask.mutate(sub)}
                   >
                     <div style={{
@@ -400,7 +437,11 @@ export function TaskProfilePage() {
                     </div>
                     <span
                       className="text-gray-700 dark:text-gray-300"
-                      style={{ fontSize: "0.875rem", textDecoration: sub.status === "COMPLETED" ? "line-through" : "none", opacity: sub.status === "COMPLETED" ? 0.5 : 1 }}
+                      style={{
+                        fontSize: "0.875rem",
+                        textDecoration: sub.status === "COMPLETED" ? "line-through" : "none",
+                        opacity: sub.status === "COMPLETED" ? 0.5 : 1,
+                      }}
                     >
                       {sub.title}
                     </span>
@@ -408,7 +449,10 @@ export function TaskProfilePage() {
                 ))}
               </div>
 
-              <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800" style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "0.625rem 0.875rem", borderRadius: "0.625rem", border: "1px dashed" }}>
+              <div
+                className="border-gray-200 dark:border-gray-700"
+                style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.75rem 1rem", borderRadius: "0.75rem", border: "1.5px dashed" }}
+              >
                 <Plus size={14} className="text-gray-400" style={{ flexShrink: 0 }} />
                 <input
                   value={newSubtask}
@@ -424,85 +468,106 @@ export function TaskProfilePage() {
             </div>
           </div>
 
-          {/* Right: metadata */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          {/* ── Right: Metadata · Tags · Focus History ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
-            <div>
-              {sectionTitle("Due Date", <Calendar size={14} />)}
-              <input
-                type="datetime-local"
-                {...register("dueDate")}
-                onBlur={handleSubmit(save)}
-                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:border-indigo-400 dark:focus:border-indigo-600"
-                style={fieldInput}
-              />
+            {/* Metadata card */}
+            <div
+              className="bg-white dark:bg-gray-900"
+              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+            >
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+
+                <div>
+                  <SectionHeader icon={<Calendar size={15} />} label="Due Date" />
+                  <input
+                    type="datetime-local"
+                    {...register("dueDate")}
+                    onBlur={handleSubmit(save)}
+                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
+                    style={fieldInput}
+                  />
+                </div>
+
+                <Divider />
+
+                <div>
+                  <SectionHeader icon={<Clock size={15} />} label="Reminder" />
+                  <input
+                    type="datetime-local"
+                    {...register("reminder")}
+                    onBlur={handleSubmit(save)}
+                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
+                    style={fieldInput}
+                  />
+                </div>
+
+                <Divider />
+
+                <div>
+                  <SectionHeader icon={<Timer size={15} />} label="Estimate" />
+                  <select
+                    value={estimateVal}
+                    onChange={(e) => {
+                      setEstimateVal(e.target.value);
+                      update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined });
+                    }}
+                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400"
+                    style={fieldInput}
+                  >
+                    <option value="">No estimate</option>
+                    {[15, 30, 45, 60, 90, 120, 180, 240, 300, 480].map((m) => (
+                      <option key={m} value={m}>
+                        {m < 60 ? `${m} min` : `${m / 60}h${m % 60 ? ` ${m % 60}min` : ""}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <Divider />
+
+                <div>
+                  <SectionHeader icon={<RefreshCw size={15} />} label="Repeat" />
+                  <select
+                    {...register("recurrence")}
+                    onChange={(e) => update.mutate({ recurrence: (e.target.value as Task["recurrence"]) || undefined })}
+                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400"
+                    style={fieldInput}
+                  >
+                    <option value="">Does not repeat</option>
+                    <option value="DAILY">Daily</option>
+                    <option value="WEEKLY">Weekly</option>
+                    <option value="MONTHLY">Monthly</option>
+                    <option value="YEARLY">Yearly</option>
+                  </select>
+                </div>
+
+                <Divider />
+
+                <div>
+                  <SectionHeader icon={<Folder size={15} />} label="List" />
+                  <select
+                    {...register("projectId")}
+                    onChange={(e) => update.mutate({ projectId: e.target.value || undefined })}
+                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400"
+                    style={fieldInput}
+                  >
+                    <option value="">No list</option>
+                    {projects.map((p: { id: string; name: string }) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <div>
-              {sectionTitle("Reminder", <Clock size={14} />)}
-              <input
-                type="datetime-local"
-                {...register("reminder")}
-                onBlur={handleSubmit(save)}
-                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:border-indigo-400 dark:focus:border-indigo-600"
-                style={fieldInput}
-              />
-            </div>
-
-            <div>
-              {sectionTitle("Estimate", <Timer size={14} />)}
-              <select
-                value={estimateVal}
-                onChange={(e) => {
-                  setEstimateVal(e.target.value);
-                  update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined });
-                }}
-                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:border-indigo-400"
-                style={fieldInput}
-              >
-                <option value="">No estimate</option>
-                {[15, 30, 45, 60, 90, 120, 180, 240, 300, 480].map((m) => (
-                  <option key={m} value={m}>
-                    {m < 60 ? `${m} min` : `${m / 60}h${m % 60 ? ` ${m % 60}min` : ""}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              {sectionTitle("Repeat", <RefreshCw size={14} />)}
-              <select
-                {...register("recurrence")}
-                onChange={(e) => update.mutate({ recurrence: (e.target.value as Task["recurrence"]) || undefined })}
-                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:border-indigo-400"
-                style={fieldInput}
-              >
-                <option value="">Does not repeat</option>
-                <option value="DAILY">Daily</option>
-                <option value="WEEKLY">Weekly</option>
-                <option value="MONTHLY">Monthly</option>
-                <option value="YEARLY">Yearly</option>
-              </select>
-            </div>
-
-            <div>
-              {sectionTitle("List", <Folder size={14} />)}
-              <select
-                {...register("projectId")}
-                onChange={(e) => update.mutate({ projectId: e.target.value || undefined })}
-                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:border-indigo-400"
-                style={fieldInput}
-              >
-                <option value="">No list</option>
-                {projects.map((p: { id: string; name: string }) => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-
+            {/* Tags card */}
             {tags.length > 0 && (
-              <div>
-                {sectionTitle("Tags", <Tag size={14} />)}
+              <div
+                className="bg-white dark:bg-gray-900"
+                style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+              >
+                <SectionHeader icon={<Tag size={15} />} label="Tags" />
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                   {tags.map((tag: { id: string; name: string; color: string }) => (
                     <button
@@ -510,11 +575,12 @@ export function TaskProfilePage() {
                       type="button"
                       onClick={() => toggleTag(tag.id)}
                       style={{
-                        padding: "0.375rem 0.875rem", borderRadius: "999px",
-                        fontSize: "0.8125rem", fontWeight: 500, cursor: "pointer",
+                        padding: "0.5rem 1rem", borderRadius: "999px",
+                        fontSize: "0.875rem", fontWeight: 500, cursor: "pointer",
                         border: "none", transition: "all 0.15s",
                         background: selectedTagIds.includes(tag.id) ? tag.color : "rgba(156,163,175,0.12)",
                         color: selectedTagIds.includes(tag.id) ? "white" : "#6b7280",
+                        boxShadow: selectedTagIds.includes(tag.id) ? `0 2px 8px ${tag.color}40` : "none",
                       }}
                     >
                       {tag.name}
@@ -524,28 +590,36 @@ export function TaskProfilePage() {
               </div>
             )}
 
-            {/* Focus History */}
-            <FocusHistory
-              taskId={id!}
-              taskTitle={task.title}
-              sessions={focusSessions}
-              isRunning={focusStatus === "running" && focusCurrentTaskId === id}
-              onStartFocus={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
-              estimatedMinutes={task.estimatedMinutes}
-            />
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {task.createdAt && (
-                <p className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem" }}>
-                  Created {format(new Date(task.createdAt), "MMM d, yyyy · HH:mm")}
-                </p>
-              )}
-              {task.completedAt && (
-                <p className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem" }}>
-                  Completed {format(new Date(task.completedAt), "MMM d, yyyy · HH:mm")}
-                </p>
-              )}
+            {/* Focus History card */}
+            <div
+              className="bg-white dark:bg-gray-900"
+              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+            >
+              <FocusHistory
+                taskId={id!}
+                taskTitle={task.title}
+                sessions={focusSessions}
+                isRunning={focusStatus === "running" && focusCurrentTaskId === id}
+                onStartFocus={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
+                estimatedMinutes={task.estimatedMinutes}
+              />
             </div>
+
+            {/* Timestamps */}
+            {(task.createdAt || task.completedAt) && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem", paddingLeft: "0.25rem" }}>
+                {task.createdAt && (
+                  <p className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem" }}>
+                    Created {format(new Date(task.createdAt), "MMM d, yyyy · HH:mm")}
+                  </p>
+                )}
+                {task.completedAt && (
+                  <p className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem" }}>
+                    Completed {format(new Date(task.completedAt), "MMM d, yyyy · HH:mm")}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </form>
@@ -575,9 +649,9 @@ function FocusHistory({
   estimatedMinutes?: number;
 }) {
   const taskSessions = sessions.filter((s) => s.taskId === taskId);
-  const workSessions  = taskSessions.filter((s) => s.type === "work" && !s.interrupted);
-  const shortBreaks   = taskSessions.filter((s) => s.type === "short_break");
-  const longBreaks    = taskSessions.filter((s) => s.type === "long_break");
+  const workSessions    = taskSessions.filter((s) => s.type === "work" && !s.interrupted);
+  const shortBreaks     = taskSessions.filter((s) => s.type === "short_break");
+  const longBreaks      = taskSessions.filter((s) => s.type === "long_break");
   const interruptedWork = taskSessions.filter((s) => s.type === "work" && s.interrupted);
 
   const focusMins  = workSessions.reduce((a, s) => a + s.duration, 0);
@@ -586,25 +660,31 @@ function FocusHistory({
   const totalCount = taskSessions.length;
 
   const rows = [
-    { emoji: "🍅", label: "Focus sessions",  count: workSessions.length,  mins: focusMins,  show: true },
-    { emoji: "☕", label: "Short breaks",     count: shortBreaks.length,   mins: shortBreaks.reduce((a,s)=>a+s.duration,0),  show: shortBreaks.length > 0 },
-    { emoji: "🛌", label: "Long breaks",      count: longBreaks.length,    mins: longBreaks.reduce((a,s)=>a+s.duration,0),   show: longBreaks.length > 0 },
-    { emoji: "⚡", label: "Interrupted",      count: interruptedWork.length, mins: interruptedWork.reduce((a,s)=>a+s.duration,0), show: interruptedWork.length > 0 },
+    { emoji: "🍅", label: "Focus sessions",  count: workSessions.length,      mins: focusMins,  show: true },
+    { emoji: "☕", label: "Short breaks",     count: shortBreaks.length,       mins: shortBreaks.reduce((a,s)=>a+s.duration,0),    show: shortBreaks.length > 0 },
+    { emoji: "🛌", label: "Long breaks",      count: longBreaks.length,        mins: longBreaks.reduce((a,s)=>a+s.duration,0),     show: longBreaks.length > 0 },
+    { emoji: "⚡", label: "Interrupted",      count: interruptedWork.length,   mins: interruptedWork.reduce((a,s)=>a+s.duration,0), show: interruptedWork.length > 0 },
   ];
 
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.875rem" }}>
-        <span className="text-gray-400"><Timer size={14} /></span>
-        <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
+        <div style={{
+          width: "2rem", height: "2rem", borderRadius: "0.5rem",
+          background: "rgba(99,102,241,0.1)",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <Timer size={15} style={{ color: "#6366f1" }} />
+        </div>
+        <span className="text-gray-800 dark:text-gray-200" style={{ fontSize: "0.9375rem", fontWeight: 700, flex: 1 }}>
           Focus History
         </span>
         {isRunning && (
           <span style={{
             display: "flex", alignItems: "center", gap: "0.3rem",
-            marginLeft: "auto", background: "rgba(99,102,241,0.1)",
-            color: "#6366f1", borderRadius: "999px",
-            padding: "0.1875rem 0.625rem", fontSize: "0.6875rem", fontWeight: 700,
+            background: "rgba(99,102,241,0.1)", color: "#6366f1",
+            borderRadius: "999px", padding: "0.25rem 0.75rem",
+            fontSize: "0.6875rem", fontWeight: 700,
           }}>
             <span style={{ width: "0.4rem", height: "0.4rem", borderRadius: "50%", background: "#6366f1", animation: "pulse 2s infinite" }} />
             In progress
@@ -614,15 +694,17 @@ function FocusHistory({
 
       {/* Estimated vs Actual */}
       {estimatedMinutes && (
-        <div className="bg-gray-50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800"
-          style={{ borderRadius: "0.75rem", border: "1px solid", padding: "0.875rem 1rem", marginBottom: "0.75rem" }}>
+        <div
+          className="bg-gray-50 dark:bg-gray-800/50"
+          style={{ borderRadius: "0.875rem", padding: "1rem 1.25rem", marginBottom: "1rem" }}
+        >
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
             <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 600 }}>Estimated</span>
             <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 600 }}>Actual</span>
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.625rem" }}>
-            <span className="text-gray-800 dark:text-white" style={{ fontSize: "1rem", fontWeight: 700 }}>{fmtMins(estimatedMinutes)}</span>
-            <span style={{ fontSize: "1rem", fontWeight: 700, color: focusMins > estimatedMinutes ? "#ef4444" : "#10b981" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+            <span className="text-gray-800 dark:text-white" style={{ fontSize: "1.125rem", fontWeight: 700 }}>{fmtMins(estimatedMinutes)}</span>
+            <span style={{ fontSize: "1.125rem", fontWeight: 700, color: focusMins > estimatedMinutes ? "#ef4444" : "#10b981" }}>
               {fmtMins(focusMins)}
             </span>
           </div>
@@ -633,10 +715,10 @@ function FocusHistory({
               background: focusMins > estimatedMinutes ? "#ef4444" : "#6366f1",
             }} />
           </div>
-          <p style={{ fontSize: "0.6875rem", marginTop: "0.375rem", textAlign: "right" }}
+          <p style={{ fontSize: "0.6875rem", marginTop: "0.5rem", textAlign: "right" }}
             className={focusMins > estimatedMinutes ? "text-red-400" : "text-gray-400"}>
-            {focusMins === 0 ? "Not started" : focusMins > estimatedMinutes
-              ? `+${fmtMins(focusMins - estimatedMinutes)} over estimate`
+            {focusMins === 0 ? "Not started"
+              : focusMins > estimatedMinutes ? `+${fmtMins(focusMins - estimatedMinutes)} over estimate`
               : focusMins === estimatedMinutes ? "On track"
               : `${fmtMins(estimatedMinutes - focusMins)} remaining`}
           </p>
@@ -644,26 +726,32 @@ function FocusHistory({
       )}
 
       {totalCount === 0 && !isRunning ? (
-        <div className="bg-gray-50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800"
-          style={{ borderRadius: "0.75rem", border: "1px solid", padding: "1.25rem", textAlign: "center" }}>
-          <p className="text-gray-300 dark:text-gray-700" style={{ fontSize: "0.8125rem" }}>No focus sessions yet</p>
+        <div
+          className="bg-gray-50 dark:bg-gray-800/40"
+          style={{ borderRadius: "0.875rem", padding: "1.5rem", textAlign: "center" }}
+        >
+          <p className="text-gray-300 dark:text-gray-700" style={{ fontSize: "0.875rem" }}>No focus sessions yet</p>
         </div>
       ) : (
-        <div className="bg-gray-50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800"
-          style={{ borderRadius: "0.875rem", border: "1px solid", overflow: "hidden" }}>
+        <div
+          className="bg-gray-50 dark:bg-gray-800/40"
+          style={{ borderRadius: "0.875rem", overflow: "hidden" }}
+        >
           {rows.filter((r) => r.show).map((r, i, arr) => (
-            <div key={r.label}
+            <div
+              key={r.label}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
-                padding: "0.625rem 1rem",
+                padding: "0.75rem 1.125rem",
                 borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
-              }}>
+              }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <span style={{ fontSize: "0.875rem" }}>{r.emoji}</span>
-                <span className="text-gray-600 dark:text-gray-400" style={{ fontSize: "0.8125rem" }}>{r.label}</span>
+                <span className="text-gray-600 dark:text-gray-400" style={{ fontSize: "0.875rem" }}>{r.label}</span>
               </div>
               <div style={{ textAlign: "right" }}>
-                <span className="text-gray-900 dark:text-white" style={{ fontSize: "0.8125rem", fontWeight: 700 }}>
+                <span className="text-gray-900 dark:text-white" style={{ fontSize: "0.875rem", fontWeight: 700 }}>
                   {r.count}×
                 </span>
                 {r.mins > 0 && (
@@ -674,11 +762,12 @@ function FocusHistory({
               </div>
             </div>
           ))}
-          {/* Total row */}
-          <div className="bg-white dark:bg-gray-900"
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-            <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.8125rem", fontWeight: 600 }}>Total</span>
-            <span className="text-indigo-600 dark:text-indigo-400" style={{ fontSize: "0.8125rem", fontWeight: 700 }}>
+          <div
+            className="bg-white dark:bg-gray-900"
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.875rem 1.125rem", borderTop: "1px solid rgba(0,0,0,0.06)" }}
+          >
+            <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.875rem", fontWeight: 600 }}>Total</span>
+            <span className="text-indigo-600 dark:text-indigo-400" style={{ fontSize: "0.875rem", fontWeight: 700 }}>
               {fmtMins(totalMins)} · {totalCount} sessions
             </span>
           </div>
@@ -689,12 +778,12 @@ function FocusHistory({
         onClick={onStartFocus}
         className="hover:opacity-90 transition"
         style={{
-          marginTop: "0.75rem", width: "100%",
+          marginTop: "1rem", width: "100%",
           display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
-          padding: "0.625rem 1rem", borderRadius: "0.75rem",
-          background: "rgba(99,102,241,0.1)", color: "#6366f1",
-          border: "1.5px solid rgba(99,102,241,0.25)", cursor: "pointer",
-          fontSize: "0.875rem", fontWeight: 600,
+          padding: "0.75rem 1rem", borderRadius: "0.875rem",
+          background: "rgba(99,102,241,0.08)", color: "#6366f1",
+          border: "1.5px solid rgba(99,102,241,0.2)", cursor: "pointer",
+          fontSize: "0.9375rem", fontWeight: 600,
         }}
       >
         <Play size={14} fill="#6366f1" />
@@ -706,7 +795,7 @@ function FocusHistory({
 
 function AlignLeftIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="21" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" />
       <line x1="21" y1="14" x2="3" y2="14" /><line x1="9" y1="18" x2="3" y2="18" />
     </svg>
