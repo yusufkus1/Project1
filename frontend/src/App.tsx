@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/auth";
 import { useUIStore } from "./store/ui";
 import { usersApi } from "./api/users";
+import { useTaskNotifications } from "./hooks/useTaskNotifications";
 import { AppLayout } from "./components/layout/AppLayout";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -42,6 +43,8 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
       usersApi.getMe().then(setUser).catch(() => {});
     }
   }, [isAuthenticated, setUser]);
+
+  useTaskNotifications();
 
   return <>{children}</>;
 }
