@@ -107,10 +107,11 @@ export function LoginPage() {
 
       {/* Right form panel */}
       <div style={{
-        flex: 1, display: "flex", alignItems: "center",
-        justifyContent: "center", padding: "2rem",
+        flex: 1, display: "flex", alignItems: "flex-start",
+        justifyContent: "center", padding: "2.5rem 1.25rem",
+        minHeight: "100vh", overflowY: "auto",
       }}>
-        <div style={{ width: "100%", maxWidth: "400px" }}>
+        <div style={{ width: "100%", maxWidth: "400px", paddingTop: "1.5rem" }}>
 
           {/* Mobile logo */}
           <div style={{ textAlign: "center", marginBottom: "2rem" }} className="lg:hidden">

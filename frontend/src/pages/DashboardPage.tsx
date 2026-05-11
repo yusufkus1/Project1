@@ -46,7 +46,7 @@ export function DashboardPage() {
   const card = "background:var(--card-bg,white); border:1px solid var(--card-border,#f1f5f9); border-radius:1rem;";
 
   return (
-    <div style={{ maxWidth: "64rem", display: "flex", flexDirection: "column", gap: "3rem" }}>
+    <div style={{ maxWidth: "64rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
 
       {/* Greeting */}
       <div>
@@ -67,8 +67,8 @@ export function DashboardPage() {
         color: "white",
         boxShadow: "0 20px 40px rgba(99,102,241,0.3)",
       }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "2.5rem", flexWrap: "wrap" }}>
-          <div style={{ flex: 1, minWidth: "220px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1.5rem", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: "180px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
               <span style={{ fontSize: "3rem", fontWeight: 900 }}>Lv.{level}</span>
               <span style={{ background: "rgba(255,255,255,0.2)", padding: "0.375rem 1rem", borderRadius: "999px", fontSize: "0.875rem", fontWeight: 600 }}>
@@ -93,7 +93,7 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "3rem" }}>
+          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
             {[
               { value: streak, label: "day streak", Icon: Flame },
               { value: tasksCompletedToday, label: "done today", Icon: Zap },
@@ -111,7 +111,7 @@ export function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1.5rem" }}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-6">
         {isLoading
           ? [...Array(5)].map((_, i) => (
               <div key={i} className="bg-gray-100 dark:bg-gray-800 animate-pulse" style={{ height: "10rem", borderRadius: "1rem" }} />
@@ -131,8 +131,8 @@ export function DashboardPage() {
                   <Icon size={22} style={{ color }} />
                 </div>
                 <div>
-                  <p className="text-gray-900 dark:text-white" style={{ fontSize: "2rem", fontWeight: 700 }}>{value}</p>
-                  <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.875rem", marginTop: "0.375rem" }}>{label}</p>
+                  <p className="text-gray-900 dark:text-white text-2xl sm:text-3xl" style={{ fontWeight: 700 }}>{value}</p>
+                  <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.8125rem", marginTop: "0.375rem" }}>{label}</p>
                 </div>
               </button>
             ))
@@ -140,7 +140,7 @@ export function DashboardPage() {
       </div>
 
       {/* Charts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8">
         <div className="bg-white dark:bg-gray-900" style={{ borderRadius: "1rem", border: "1px solid", borderColor: "rgba(241,245,249,1)", padding: "2rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }}>
             <BarChart2 size={20} color="#6366f1" />
@@ -189,7 +189,7 @@ export function DashboardPage() {
       </div>
 
       {/* Streak row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6">
         {[
           { value: streak, label: "Current streak", Icon: Flame, color: "#f97316", bg: "rgba(249,115,22,0.1)" },
           { value: longestStreak, label: "Longest streak", Icon: Star, color: "#eab308", bg: "rgba(234,179,8,0.1)" },
@@ -212,7 +212,7 @@ export function DashboardPage() {
         <h2 className="text-gray-900 dark:text-white" style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "2rem" }}>
           Achievements
         </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.25rem" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
           {ACHIEVEMENTS.map((a) => {
             const unlocked = unlockedAchievements.includes(a.id);
             return (
