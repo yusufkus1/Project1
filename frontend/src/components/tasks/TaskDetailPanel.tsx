@@ -33,6 +33,7 @@ const RECURRENCE_OPTIONS = [
 interface FormValues {
   title: string; description: string; priority: string; status: string;
   dueDate: string; reminder: string; projectId: string; recurrence: string; tagIds: string[];
+  estimatedMinutes: string;
 }
 
 const sectionLabel: React.CSSProperties = {
@@ -85,6 +86,7 @@ export function TaskDetailPanel() {
         projectId: task.projectId ?? "",
         recurrence: task.recurrence ?? "",
         tagIds: task.tags.map((t) => t.tag.id),
+        estimatedMinutes: task.estimatedMinutes != null ? String(task.estimatedMinutes) : "",
       });
     }
   }, [task, reset]);
@@ -246,8 +248,8 @@ export function TaskDetailPanel() {
         <div>
           <p style={sectionLabel} className="text-gray-400"><Clock size={11} /> Estimate</p>
           <select
-            defaultValue={task.estimatedMinutes ?? ""}
-            onChange={(e) => update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined })}
+            {...register("estimatedMinutes")}
+            onChange={(e) => { update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined }); }}
             className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500"
             style={fieldStyle}
           >
