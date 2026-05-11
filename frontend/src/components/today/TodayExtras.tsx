@@ -34,7 +34,7 @@ function WaterTracker() {
       <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", flexShrink: 0 }}>
         <span style={{ fontSize: "1.125rem" }}>💧</span>
         <span className="text-gray-700 dark:text-gray-200" style={{ fontSize: "0.8125rem", fontWeight: 700 }}>
-          Su
+          Water
         </span>
       </div>
 
@@ -44,7 +44,7 @@ function WaterTracker() {
           <button
             key={i}
             onClick={() => handleClick(i)}
-            title={`${i + 1} bardak`}
+            title={`${i + 1} glass${i + 1 > 1 ? "es" : ""}`}
             style={{
               width: "1.625rem", height: "1.875rem", border: "none", cursor: "pointer",
               borderRadius: "0 0 0.375rem 0.375rem",
@@ -113,14 +113,14 @@ const PRIORITY_COLOR: Record<string, string> = {
   CRITICAL: "#ef4444", HIGH: "#f97316", MEDIUM: "#eab308", LOW: "#94a3b8",
 };
 const PRIORITY_LABEL: Record<string, string> = {
-  CRITICAL: "Kritik", HIGH: "Yüksek", MEDIUM: "Orta", LOW: "Düşük",
+  CRITICAL: "Critical", HIGH: "High", MEDIUM: "Medium", LOW: "Low",
 };
 
 function formatMinutes(mins: number): string {
-  if (mins < 60) return `${mins}dk`;
+  if (mins < 60) return `${mins}m`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return m > 0 ? `${h}s ${m}dk` : `${h}s`;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -156,7 +156,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
       qc.invalidateQueries({ queryKey: ["tasks"] });
       setQuickTitle("");
     },
-    onError: () => toast.error("Görev eklenemedi"),
+    onError: () => toast.error("Failed to add task"),
   });
 
   const handleQuickAdd = (e: React.FormEvent) => {
@@ -184,7 +184,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
               <div style={{ height: "100%", background: "#10b981", width: `${completionPct}%`, borderRadius: "2px", transition: "width 0.4s" }} />
             </div>
             <span className="text-gray-700 dark:text-gray-300" style={{ fontSize: "0.8125rem", fontWeight: 600 }}>
-              {completed}/{total} tamamlandı
+              {completed}/{total} done
             </span>
           </div>
 
@@ -194,7 +194,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
               style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "999px", border: "1px solid" }}>
               <span style={{ fontSize: "0.875rem" }}>⏱️</span>
               <span className="text-gray-700 dark:text-gray-300" style={{ fontSize: "0.8125rem", fontWeight: 600 }}>
-                {formatMinutes(estimatedMins)} kaldı
+                {formatMinutes(estimatedMins)} remaining
               </span>
             </div>
           )}
@@ -204,7 +204,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
             <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
               style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "999px", border: "1px solid" }}>
               <span style={{ fontSize: "0.875rem" }}>🔥</span>
-              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#f97316" }}>{streak} günlük seri</span>
+              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#f97316" }}>{streak} day streak</span>
             </div>
           )}
         </div>
@@ -239,7 +239,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
           <Zap size={18} style={{ color: "#6366f1", flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#6366f1", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
-              En yüksek öncelik
+              Top priority
             </p>
             <p className="text-gray-800 dark:text-gray-100 truncate" style={{ fontSize: "0.9375rem", fontWeight: 600 }}>
               {focusTask.title}
@@ -263,7 +263,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
             }}
           >
             <Play size={13} fill="white" />
-            Focus başlat
+            Start Focus
           </button>
         </div>
       )}
@@ -273,7 +273,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
         <input
           value={quickTitle}
           onChange={(e) => setQuickTitle(e.target.value)}
-          placeholder="Bugüne hızlı görev ekle…"
+          placeholder="Add a task for today…"
           className="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600"
           style={{
             flex: 1, padding: "0.625rem 1rem", borderRadius: "0.625rem",

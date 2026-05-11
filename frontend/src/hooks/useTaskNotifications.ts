@@ -37,7 +37,7 @@ export function useTaskNotifications() {
       // Water / break reminder — every 2 hours regardless of tasks
       const lastWater = Number(localStorage.getItem(WATER_KEY) ?? 0);
       if (now - lastWater >= WATER_INTERVAL_MS) {
-        notify("💧 Su içmeyi unutma!", "Biraz su iç ve kısa bir mola ver.", "water-reminder");
+        notify("💧 Stay hydrated!", "Time for a glass of water and a short break.", "water-reminder");
         localStorage.setItem(WATER_KEY, String(now));
       }
 

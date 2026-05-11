@@ -68,7 +68,7 @@ export function WeatherWidget() {
         <span className="text-gray-600 dark:text-gray-300" style={{ fontWeight: 600 }}>
           {data.temp}°C
         </span>
-        <span style={{ color: "#cbd5e1" }}>/ hissedilen {data.feelsLike}°C</span>
+        <span style={{ color: "#cbd5e1" }}>/ feels like {data.feelsLike}°C</span>
       </span>
 
       <span style={{ color: "#e2e8f0", userSelect: "none" }}>·</span>
