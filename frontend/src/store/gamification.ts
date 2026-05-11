@@ -46,6 +46,8 @@ function xpForNextLevel(level: number): number {
   return LEVEL_THRESHOLDS[level] ?? LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1]!;
 }
 
+export interface XPLogEntry { date: string; amount: number } // date = "YYYY-MM-DD"
+
 interface GamificationState {
   xp: number;
   totalTasksCompleted: number;
@@ -55,6 +57,7 @@ interface GamificationState {
   longestStreak: number;
   lastActiveDate: string | null;
   unlockedAchievements: string[];
+  xpLog: XPLogEntry[];
 
   completeTask: (priority: string) => { xpGained: number; leveledUp: boolean; newAchievements: Achievement[] };
   undoTask: (priority: string) => void;
@@ -63,6 +66,7 @@ interface GamificationState {
   getXPProgress: () => number;
   getXPForCurrentLevel: () => number;
   getXPForNextLevel: () => number;
+  getWeekXP: (start: Date, end: Date) => number;
 }
 
 export const useGamificationStore = create<GamificationState>()(
@@ -76,6 +80,7 @@ export const useGamificationStore = create<GamificationState>()(
       longestStreak: 0,
       lastActiveDate: null,
       unlockedAchievements: [],
+      xpLog: [],
 
       completeTask: (priority: string) => {
         const state = get();
@@ -125,6 +130,9 @@ export const useGamificationStore = create<GamificationState>()(
         check("tasks_10", newTotal >= 10);
         check("tasks_50", newTotal >= 50);
 
+        const dateKey = new Date().toISOString().slice(0, 10);
+        const xpLog = [...state.xpLog, { date: dateKey, amount: xpGained }].slice(-365);
+
         set({
           xp: newXP,
           totalTasksCompleted: newTotal,
@@ -134,6 +142,7 @@ export const useGamificationStore = create<GamificationState>()(
           longestStreak: newLongest,
           lastActiveDate: today,
           unlockedAchievements: newUnlocked,
+          xpLog,
         });
 
         return { xpGained, leveledUp, newAchievements };
@@ -144,7 +153,9 @@ export const useGamificationStore = create<GamificationState>()(
         const oldLevel = computeLevel(state.xp);
         const newXP = state.xp + amount;
         const newLevel = computeLevel(newXP);
-        set({ xp: newXP });
+        const dateKey = new Date().toISOString().slice(0, 10);
+        const xpLog = [...state.xpLog, { date: dateKey, amount }].slice(-365);
+        set({ xp: newXP, xpLog });
         return { xpGained: amount, leveledUp: newLevel > oldLevel };
       },
 
@@ -158,6 +169,11 @@ export const useGamificationStore = create<GamificationState>()(
         });
       },
 
+      getWeekXP: (start, end) => {
+        const s = start.toISOString().slice(0, 10);
+        const e = end.toISOString().slice(0, 10);
+        return get().xpLog.filter((entry) => entry.date >= s && entry.date <= e).reduce((sum, e) => sum + e.amount, 0);
+      },
       getLevel: () => computeLevel(get().xp),
       getXPProgress: () => {
         const { xp } = get();
