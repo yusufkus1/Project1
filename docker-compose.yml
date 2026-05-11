@@ -27,7 +27,7 @@ services:
       JWT_EXPIRES_IN: 15m
       JWT_REFRESH_EXPIRES_IN: 7d
       PORT: 3001
-      FRONTEND_URL: http://${HOST_IP:-192.168.1.77}
+      FRONTEND_URL: https://${HOST_IP:-192.168.1.77}
       UPLOADS_DIR: /app/uploads
     volumes:
       - uploads:/app/uploads
@@ -37,10 +37,12 @@ services:
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - backend
     volumes:
       - uploads:/app/uploads:ro
+      - ./certs:/etc/nginx/certs:ro
 
 volumes:
   postgres_data:
