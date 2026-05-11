@@ -21,6 +21,7 @@ export interface Task {
   isArchived: boolean;
   position: number;
   recurrence?: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
+  estimatedMinutes?: number;
   projectId?: string;
   parentId?: string;
   createdAt: string;

@@ -504,6 +504,7 @@ export function TaskProfilePage() {
               sessions={focusSessions}
               isRunning={focusStatus === "running" && focusCurrentTaskId === id}
               onStartFocus={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
+              estimatedMinutes={task.estimatedMinutes}
             />
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -537,13 +538,14 @@ function fmtMins(mins: number) {
 }
 
 function FocusHistory({
-  taskId, taskTitle, sessions, isRunning, onStartFocus,
+  taskId, taskTitle, sessions, isRunning, onStartFocus, estimatedMinutes,
 }: {
   taskId: string;
   taskTitle: string;
   sessions: FocusSession[];
   isRunning: boolean;
   onStartFocus: () => void;
+  estimatedMinutes?: number;
 }) {
   const taskSessions = sessions.filter((s) => s.taskId === taskId);
   const workSessions  = taskSessions.filter((s) => s.type === "work" && !s.interrupted);
@@ -582,6 +584,37 @@ function FocusHistory({
           </span>
         )}
       </div>
+
+      {/* Estimated vs Actual */}
+      {estimatedMinutes && (
+        <div className="bg-gray-50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800"
+          style={{ borderRadius: "0.75rem", border: "1px solid", padding: "0.875rem 1rem", marginBottom: "0.75rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+            <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 600 }}>Estimated</span>
+            <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 600 }}>Actual</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.625rem" }}>
+            <span className="text-gray-800 dark:text-white" style={{ fontSize: "1rem", fontWeight: 700 }}>{fmtMins(estimatedMinutes)}</span>
+            <span style={{ fontSize: "1rem", fontWeight: 700, color: focusMins > estimatedMinutes ? "#ef4444" : "#10b981" }}>
+              {fmtMins(focusMins)}
+            </span>
+          </div>
+          <div className="bg-gray-200 dark:bg-gray-700" style={{ borderRadius: "999px", height: "6px", overflow: "hidden" }}>
+            <div style={{
+              height: "100%", borderRadius: "999px", transition: "width 0.4s ease",
+              width: `${Math.min(100, Math.round((focusMins / estimatedMinutes) * 100))}%`,
+              background: focusMins > estimatedMinutes ? "#ef4444" : "#6366f1",
+            }} />
+          </div>
+          <p style={{ fontSize: "0.6875rem", marginTop: "0.375rem", textAlign: "right" }}
+            className={focusMins > estimatedMinutes ? "text-red-400" : "text-gray-400"}>
+            {focusMins === 0 ? "Not started" : focusMins > estimatedMinutes
+              ? `+${fmtMins(focusMins - estimatedMinutes)} over estimate`
+              : focusMins === estimatedMinutes ? "On track"
+              : `${fmtMins(estimatedMinutes - focusMins)} remaining`}
+          </p>
+        </div>
+      )}
 
       {totalCount === 0 && !isRunning ? (
         <div className="bg-gray-50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800"

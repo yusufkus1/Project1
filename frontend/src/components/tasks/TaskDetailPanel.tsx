@@ -242,6 +242,22 @@ export function TaskDetailPanel() {
           />
         </div>
 
+        {/* Estimated time */}
+        <div>
+          <p style={sectionLabel} className="text-gray-400"><Clock size={11} /> Estimate</p>
+          <select
+            defaultValue={task.estimatedMinutes ?? ""}
+            onChange={(e) => update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined })}
+            className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500"
+            style={fieldStyle}
+          >
+            <option value="">No estimate</option>
+            {[15, 30, 45, 60, 90, 120, 180, 240, 300, 480].map((m) => (
+              <option key={m} value={m}>{m < 60 ? `${m}m` : `${m / 60}h${m % 60 ? ` ${m % 60}m` : ""}`}</option>
+            ))}
+          </select>
+        </div>
+
         {/* Repeat */}
         <div>
           <p style={sectionLabel} className="text-gray-400"><RefreshCw size={11} /> Repeat</p>

@@ -67,8 +67,9 @@ model Task {
   reminder    DateTime?
   isArchived  Boolean     @default(false)
   position    Int         @default(0)
-  recurrence  Recurrence?
-  createdAt   DateTime    @default(now())
+  recurrence       Recurrence?
+  estimatedMinutes Int?
+  createdAt        DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   completedAt DateTime?
 

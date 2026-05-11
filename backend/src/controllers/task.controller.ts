@@ -66,11 +66,12 @@ export async function createTask(req: AuthRequest, res: Response): Promise<void>
   try {
     const {
       title, description, priority, dueDate, reminder,
-      projectId, parentId, tagIds, recurrence,
+      projectId, parentId, tagIds, recurrence, estimatedMinutes,
     } = req.body as {
       title: string; description?: string; priority?: Priority;
       dueDate?: string; reminder?: string; projectId?: string;
       parentId?: string; tagIds?: string[]; recurrence?: Recurrence;
+      estimatedMinutes?: number;
     };
 
     const maxPos = await prisma.task.aggregate({
@@ -86,6 +87,7 @@ export async function createTask(req: AuthRequest, res: Response): Promise<void>
         dueDate: dueDate ? new Date(dueDate) : undefined,
         reminder: reminder ? new Date(reminder) : undefined,
         recurrence,
+        estimatedMinutes,
         position: (maxPos._max.position ?? -1) + 1,
         userId: req.userId!,
         projectId: projectId ?? null,
@@ -122,12 +124,12 @@ export async function updateTask(req: AuthRequest, res: Response): Promise<void>
 
     const {
       title, description, priority, status, dueDate, reminder,
-      projectId, tagIds, recurrence, isArchived, position,
+      projectId, tagIds, recurrence, isArchived, position, estimatedMinutes,
     } = req.body as {
       title?: string; description?: string; priority?: Priority;
       status?: TaskStatus; dueDate?: string | null; reminder?: string | null;
       projectId?: string | null; tagIds?: string[]; recurrence?: Recurrence | null;
-      isArchived?: boolean; position?: number;
+      isArchived?: boolean; position?: number; estimatedMinutes?: number | null;
     };
 
     // Recurring task completed → reset to PENDING with next due date
@@ -175,6 +177,7 @@ export async function updateTask(req: AuthRequest, res: Response): Promise<void>
         ...(reminder !== undefined && { reminder: reminder ? new Date(reminder) : null }),
         ...(projectId !== undefined && { projectId }),
         ...(recurrence !== undefined && { recurrence }),
+        ...(estimatedMinutes !== undefined && { estimatedMinutes }),
         ...(isArchived !== undefined && { isArchived }),
         ...(position !== undefined && { position }),
         ...(tagIds !== undefined && {
