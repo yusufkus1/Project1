@@ -5,6 +5,8 @@ import { useAuthStore } from "../store/auth";
 
 const CHECK_INTERVAL_MS = 60_000;
 const SOON_THRESHOLD_MS = 30 * 60 * 1000;
+const WATER_INTERVAL_MS = 2 * 60 * 60 * 1000;
+const WATER_KEY = "todoapp_last_water_reminder";
 
 function notify(title: string, body: string, tag: string) {
   if (Notification.permission !== "granted") return;
@@ -31,6 +33,13 @@ export function useTaskNotifications() {
       }
 
       const now = Date.now();
+
+      // Water / break reminder — every 2 hours regardless of tasks
+      const lastWater = Number(localStorage.getItem(WATER_KEY) ?? 0);
+      if (now - lastWater >= WATER_INTERVAL_MS) {
+        notify("💧 Su içmeyi unutma!", "Biraz su iç ve kısa bir mola ver.", "water-reminder");
+        localStorage.setItem(WATER_KEY, String(now));
+      }
 
       for (const task of tasks) {
         if (task.status === "COMPLETED" || task.isArchived) continue;

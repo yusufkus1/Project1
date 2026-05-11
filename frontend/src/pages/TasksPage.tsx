@@ -14,6 +14,7 @@ import { useUIStore, View } from "../store/ui";
 import { TaskRow } from "../components/tasks/TaskRow";
 import { InlineAdd } from "../components/tasks/InlineAdd";
 import { WeatherWidget } from "../components/WeatherWidget";
+import { TodayExtras } from "../components/today/TodayExtras";
 
 const VIEW_TITLES: Record<string, string> = {
   inbox: "Tasks",
@@ -127,6 +128,8 @@ export function TasksPage() {
         </div>
         {selectedView === "today" && <WeatherWidget />}
       </div>
+
+      {selectedView === "today" && <TodayExtras todayTasks={filtered} />}
 
       {/* Add task bar */}
       {selectedView !== "completed" && selectedView !== "today" && (
