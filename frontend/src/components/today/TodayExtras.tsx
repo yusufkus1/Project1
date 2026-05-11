@@ -2,10 +2,82 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Play, Plus, Zap } from "lucide-react";
+import { format } from "date-fns";
 import { tasksApi, Task } from "../../api/tasks";
 import { useFocusStore } from "../../store/focus";
 import { useGamificationStore } from "../../store/gamification";
 import toast from "react-hot-toast";
+
+// ─── Water tracker ────────────────────────────────────────────────────────────
+const WATER_GOAL = 8;
+
+function waterKey() {
+  return `todoapp_water_${format(new Date(), "yyyy-MM-dd")}`;
+}
+
+function WaterTracker() {
+  const [count, setCount] = useState(() => Number(localStorage.getItem(waterKey()) ?? 0));
+
+  const set = (n: number) => {
+    setCount(n);
+    localStorage.setItem(waterKey(), String(n));
+  };
+
+  const handleClick = (i: number) => {
+    // clicking the last filled cup removes it; otherwise fill up to i+1
+    set(i + 1 === count ? i : i + 1);
+  };
+
+  return (
+    <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
+      style={{ borderRadius: "0.875rem", border: "1px solid", padding: "0.875rem 1.125rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", flexShrink: 0 }}>
+        <span style={{ fontSize: "1.125rem" }}>💧</span>
+        <span className="text-gray-700 dark:text-gray-200" style={{ fontSize: "0.8125rem", fontWeight: 700 }}>
+          Su
+        </span>
+      </div>
+
+      {/* Cup buttons */}
+      <div style={{ display: "flex", gap: "0.3rem", flex: 1 }}>
+        {Array.from({ length: WATER_GOAL }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => handleClick(i)}
+            title={`${i + 1} bardak`}
+            style={{
+              width: "1.625rem", height: "1.875rem", border: "none", cursor: "pointer",
+              borderRadius: "0 0 0.375rem 0.375rem",
+              background: i < count ? "#38bdf8" : undefined,
+              transition: "all 0.15s",
+              display: "flex", alignItems: "flex-end", justifyContent: "center",
+              padding: 0,
+              position: "relative",
+            }}
+            className={i < count ? "" : "bg-gray-100 dark:bg-gray-800"}
+          >
+            {/* cup shape via border-radius */}
+            <span style={{
+              display: "block", width: "100%", height: "100%",
+              borderRadius: "0 0 5px 5px",
+              background: i < count
+                ? `linear-gradient(180deg, #7dd3fc 0%, #0ea5e9 100%)`
+                : undefined,
+            }}
+              className={i < count ? "" : "bg-gray-200 dark:bg-gray-700"}
+            />
+          </button>
+        ))}
+      </div>
+
+      <span style={{ fontSize: "0.8125rem", fontWeight: 700, flexShrink: 0 }}
+        className={count >= WATER_GOAL ? "text-sky-500" : "text-gray-400 dark:text-gray-500"}>
+        {count}/{WATER_GOAL}
+        {count >= WATER_GOAL && " ✓"}
+      </span>
+    </div>
+  );
+}
 
 // ─── Quotes ─────────────────────────────────────────────────────────────────
 const QUOTES = [
@@ -137,6 +209,9 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
           )}
         </div>
       )}
+
+      {/* ── Water tracker ── */}
+      <WaterTracker />
 
       {/* ── Daily quote ── */}
       <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
