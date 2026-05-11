@@ -25,14 +25,14 @@ export function Modal({ open, onClose, title, children, size = "md" }: ModalProp
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       <div className={`relative w-full ${sizes[size]} bg-white dark:bg-gray-900 rounded-2xl shadow-2xl flex flex-col max-h-[90vh]`}>
         {title && (
-          <div className="flex items-center justify-between px-7 py-5 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800" style={{ padding: "1.5rem 2rem" }}>
+            <h2 className="text-gray-900 dark:text-white" style={{ fontSize: "1.25rem", fontWeight: 800 }}>{title}</h2>
             <button onClick={onClose} className="p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
               <X size={20} />
             </button>
           </div>
         )}
-        <div className="overflow-y-auto flex-1 px-7 py-6">{children}</div>
+        <div className="overflow-y-auto flex-1" style={{ padding: "2rem" }}>{children}</div>
       </div>
     </div>
   );

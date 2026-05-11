@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { TaskDetailPanel } from "../tasks/TaskDetailPanel";
 import { useUIStore } from "../../store/ui";
+import { useTaskNotifications } from "../../hooks/useTaskNotifications";
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -17,8 +18,10 @@ function useIsMobile() {
 
 export function AppLayout() {
   const selectedTaskId = useUIStore((s) => s.selectedTaskId);
+  const setSelectedTaskId = useUIStore((s) => s.setSelectedTaskId);
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  useTaskNotifications();
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -72,12 +75,29 @@ export function AppLayout() {
         )}
 
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          <main
-            style={{ flex: 1, overflowY: "auto", padding: isMobile ? "1.25rem 1rem" : "3rem 4rem" }}
-          >
+          <main style={{ flex: 1, overflowY: "auto", padding: isMobile ? "1.25rem 1rem" : "3rem 4rem" }}>
             <Outlet />
           </main>
-          {selectedTaskId && <TaskDetailPanel />}
+
+          {/* Desktop: side panel */}
+          {selectedTaskId && !isMobile && <TaskDetailPanel />}
+
+          {/* Mobile: full-screen drawer */}
+          {selectedTaskId && isMobile && (
+            <>
+              <div
+                onClick={() => setSelectedTaskId(null)}
+                style={{ position: "fixed", inset: 0, zIndex: 40, background: "rgba(0,0,0,0.45)", backdropFilter: "blur(2px)" }}
+              />
+              <div style={{
+                position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 50,
+                width: "min(92vw, 420px)",
+                boxShadow: "-4px 0 32px rgba(0,0,0,0.18)",
+              }}>
+                <TaskDetailPanel />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

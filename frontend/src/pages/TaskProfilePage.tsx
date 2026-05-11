@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -53,6 +53,7 @@ export function TaskProfilePage() {
   const setFocusTask = useFocusStore((s) => s.setTask);
   const [newSubtask, setNewSubtask] = useState("");
   const [descriptionHtml, setDescriptionHtml] = useState<string | null>(null);
+  const [estimateVal, setEstimateVal] = useState<string>("");
 
   const { data: task, isLoading } = useQuery<Task>({
     queryKey: ["task", id],
@@ -77,6 +78,11 @@ export function TaskProfilePage() {
   });
 
   const selectedTagIds = watch("tagIds") ?? [];
+
+  // Sync estimate from task
+  useEffect(() => {
+    if (task) setEstimateVal(task.estimatedMinutes != null ? String(task.estimatedMinutes) : "");
+  }, [task?.estimatedMinutes]);
 
   // Initialize descriptionHtml from task on first load
   const currentDescription = descriptionHtml ?? (task?.description ?? "");
@@ -194,7 +200,7 @@ export function TaskProfilePage() {
       <button
         onClick={() => navigate(-1)}
         className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition"
-        style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "2rem", fontSize: "0.875rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}
+        style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem", fontSize: "0.875rem", background: "none", border: "none", cursor: "pointer", padding: 0 }}
       >
         <ArrowLeft size={16} />
         <span>Back</span>
@@ -202,49 +208,50 @@ export function TaskProfilePage() {
 
       <form onSubmit={handleSubmit(save)}>
 
-        {/* Title + completion */}
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "1.25rem", marginBottom: "2rem" }}>
-          <button
-            type="button"
-            onClick={() => toggleDone.mutate()}
-            style={{
-              flexShrink: 0, width: "2rem", height: "2rem", borderRadius: "50%",
-              border: "2px solid", marginTop: "0.25rem",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", transition: "all 0.2s",
-              background: isDone ? "#6366f1" : "transparent",
-              borderColor: isDone ? "#6366f1" : "#d1d5db",
-            }}
-          >
-            {isDone && <Check size={14} strokeWidth={3} color="white" />}
-          </button>
+        {/* Title row */}
+        <div style={{ marginBottom: "1.5rem" }}>
+          {/* Done circle + title */}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", marginBottom: "1rem" }}>
+            <button
+              type="button"
+              onClick={() => toggleDone.mutate()}
+              style={{
+                flexShrink: 0, width: "2rem", height: "2rem", borderRadius: "50%",
+                border: "2px solid", marginTop: "0.375rem",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", transition: "all 0.2s",
+                background: isDone ? "#6366f1" : "transparent",
+                borderColor: isDone ? "#6366f1" : "#d1d5db",
+              }}
+            >
+              {isDone && <Check size={14} strokeWidth={3} color="white" />}
+            </button>
 
-          <textarea
-            rows={2}
-            placeholder="Task title"
-            className="text-gray-900 dark:text-white bg-transparent placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none resize-none"
-            style={{
-              flex: 1, fontSize: "1.75rem", fontWeight: 700, lineHeight: 1.3,
-              border: "none", textDecoration: isDone ? "line-through" : "none",
-              color: isDone ? "#9ca3af" : undefined,
-            }}
-            {...register("title")}
-            onBlur={handleSubmit(save)}
-          />
+            <textarea
+              rows={2}
+              placeholder="Task title"
+              className="text-gray-900 dark:text-white bg-transparent placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none resize-none"
+              style={{
+                flex: 1, fontSize: "1.5rem", fontWeight: 700, lineHeight: 1.35,
+                border: "none", textDecoration: isDone ? "line-through" : "none",
+                color: isDone ? "#9ca3af" : undefined,
+              }}
+              {...register("title")}
+              onBlur={handleSubmit(save)}
+            />
+          </div>
 
-          <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0, alignItems: "center" }}>
-            {/* Start Focus */}
+          {/* Action buttons row */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", paddingLeft: "3rem" }}>
             <button
               type="button"
               onClick={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
-              className="hover:opacity-90 transition"
               style={{
                 display: "flex", alignItems: "center", gap: "0.375rem",
-                padding: "0.4rem 0.875rem", borderRadius: "0.625rem",
+                padding: "0.5rem 1rem", borderRadius: "0.625rem",
                 background: "#6366f1", color: "white", border: "none",
                 fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer",
               }}
-              title="Focus on this task"
             >
               <Play size={13} fill="white" />
               Focus
@@ -270,7 +277,7 @@ export function TaskProfilePage() {
         </div>
 
         {/* Badge row */}
-        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "3rem" }}>
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.625rem", marginBottom: "2.5rem" }}>
           <select
             {...register("status")}
             onChange={(e) => update.mutate({ status: e.target.value as Task["status"] })}
@@ -338,8 +345,8 @@ export function TaskProfilePage() {
           ))}
         </div>
 
-        {/* Two-column layout */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2.5rem", marginBottom: "3rem" }}>
+        {/* Two-column layout — stacks to single on mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10" style={{ marginBottom: "3rem" }}>
 
           {/* Left: notes + attachments + subtasks */}
           <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
@@ -440,6 +447,26 @@ export function TaskProfilePage() {
                 className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:border-indigo-400 dark:focus:border-indigo-600"
                 style={fieldInput}
               />
+            </div>
+
+            <div>
+              {sectionTitle("Estimate", <Timer size={14} />)}
+              <select
+                value={estimateVal}
+                onChange={(e) => {
+                  setEstimateVal(e.target.value);
+                  update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined });
+                }}
+                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:border-indigo-400"
+                style={fieldInput}
+              >
+                <option value="">No estimate</option>
+                {[15, 30, 45, 60, 90, 120, 180, 240, 300, 480].map((m) => (
+                  <option key={m} value={m}>
+                    {m < 60 ? `${m} min` : `${m / 60}h${m % 60 ? ` ${m % 60}min` : ""}`}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
