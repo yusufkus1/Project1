@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { X, Trash2, Archive, Calendar, Clock, RefreshCw, AlignLeft, Tag, Folder, Flag, CheckSquare, Loader2 } from "lucide-react";
@@ -72,6 +72,7 @@ export function TaskDetailPanel() {
 
   const { register, handleSubmit, reset, watch, setValue } = useForm<FormValues>();
   const selectedTagIds = watch("tagIds") ?? [];
+  const [estimateVal, setEstimateVal] = useState("");
 
   useEffect(() => {
     if (task) {
@@ -86,6 +87,7 @@ export function TaskDetailPanel() {
         recurrence: task.recurrence ?? "",
         tagIds: task.tags.map((t) => t.tag.id),
       });
+      setEstimateVal(task.estimatedMinutes != null ? String(task.estimatedMinutes) : "");
     }
   }, [task, reset]);
 
@@ -246,8 +248,11 @@ export function TaskDetailPanel() {
         <div>
           <p style={sectionLabel} className="text-gray-400"><Clock size={11} /> Estimate</p>
           <select
-            value={task.estimatedMinutes ?? ""}
-            onChange={(e) => update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined })}
+            value={estimateVal}
+            onChange={(e) => {
+              setEstimateVal(e.target.value);
+              update.mutate({ estimatedMinutes: e.target.value ? Number(e.target.value) : undefined });
+            }}
             className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500"
             style={fieldStyle}
           >
