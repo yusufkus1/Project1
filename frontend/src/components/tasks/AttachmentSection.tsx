@@ -4,7 +4,7 @@ import { Upload, X, FileText, Image, File, Download } from "lucide-react";
 import { tasksApi, TaskAttachment } from "../../api/tasks";
 import toast from "react-hot-toast";
 
-const BACKEND = "http://localhost:3001";
+const BACKEND = import.meta.env.VITE_BACKEND_URL ?? "";
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
