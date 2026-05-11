@@ -12,9 +12,13 @@ if ! /opt/homebrew/opt/postgresql@16/bin/pg_isready -q 2>/dev/null; then
   sleep 2
 fi
 
+# Apply DB migrations
+echo "🗄️  Veritabanı migration'ları uygulanıyor..."
+cd "$SCRIPT_DIR/backend"
+/opt/homebrew/bin/npx prisma migrate deploy
+
 # Start backend
 echo "⚙️  Backend başlatılıyor (port 3001)..."
-cd "$SCRIPT_DIR/backend"
 /opt/homebrew/bin/npx ts-node --compiler-options '{"module":"CommonJS"}' src/index.ts &
 BACKEND_PID=$!
 
