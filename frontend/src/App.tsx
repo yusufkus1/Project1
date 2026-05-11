@@ -17,6 +17,7 @@ import { ProjectsNewPage, ProjectsListPage } from "./pages/ProjectsPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { TaskProfilePage } from "./pages/TaskProfilePage";
 import { EisenhowerPage } from "./pages/EisenhowerPage";
+import { FocusPage } from "./pages/FocusPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -70,6 +71,7 @@ export default function App() {
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/tasks/:id" element={<TaskProfilePage />} />
               <Route path="/matrix" element={<EisenhowerPage />} />
+              <Route path="/focus" element={<FocusPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

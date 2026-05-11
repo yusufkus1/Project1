@@ -58,6 +58,7 @@ interface GamificationState {
 
   completeTask: (priority: string) => { xpGained: number; leveledUp: boolean; newAchievements: Achievement[] };
   undoTask: (priority: string) => void;
+  addXP: (amount: number) => { xpGained: number; leveledUp: boolean };
   getLevel: () => number;
   getXPProgress: () => number;
   getXPForCurrentLevel: () => number;
@@ -136,6 +137,15 @@ export const useGamificationStore = create<GamificationState>()(
         });
 
         return { xpGained, leveledUp, newAchievements };
+      },
+
+      addXP: (amount: number) => {
+        const state = get();
+        const oldLevel = computeLevel(state.xp);
+        const newXP = state.xp + amount;
+        const newLevel = computeLevel(newXP);
+        set({ xp: newXP });
+        return { xpGained: amount, leveledUp: newLevel > oldLevel };
       },
 
       undoTask: (priority: string) => {

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Inbox, Sun, CalendarDays, CheckCheck, Tag, Settings,
-  Plus, Hash, LogOut, LayoutDashboard, Calendar, ChevronDown, Flame, Grid2x2,
+  Plus, Hash, LogOut, LayoutDashboard, Calendar, ChevronDown, Flame, Grid2x2, Timer,
 } from "lucide-react";
 import { useState } from "react";
 import { projectsApi } from "../../api/projects";
@@ -144,6 +144,9 @@ export function Sidebar() {
         </div>
         <div style={navItem(isPathActive("/matrix"))} onClick={() => navigate("/matrix")}>
           <Grid2x2 size={15} style={{ flexShrink: 0 }} /><span>Matrix</span>
+        </div>
+        <div style={navItem(isPathActive("/focus"))} onClick={() => navigate("/focus")}>
+          <Timer size={15} style={{ flexShrink: 0 }} /><span>Focus</span>
         </div>
 
         {/* Divider */}

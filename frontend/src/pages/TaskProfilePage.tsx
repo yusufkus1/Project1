@@ -3,14 +3,17 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
-  ArrowLeft, Calendar, Clock, RefreshCw, Folder, Tag, Flag, Check,
-  Plus, Trash2, Archive, Star, CheckSquare,
+  ArrowLeft, Calendar, Clock, RefreshCw, Folder, Tag, Check,
+  Plus, Trash2, Archive, Star, CheckSquare, Timer, Play,
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { tasksApi, Task } from "../api/tasks";
 import { projectsApi } from "../api/projects";
 import { tagsApi } from "../api/tags";
 import { useGamificationStore } from "../store/gamification";
+import { useFocusStore } from "../store/focus";
+import { RichTextEditor } from "../components/ui/RichTextEditor";
+import { AttachmentSection } from "../components/tasks/AttachmentSection";
 import toast from "react-hot-toast";
 
 const PRIORITY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -30,7 +33,6 @@ const XP_BY_PRIORITY: Record<string, number> = { LOW: 10, MEDIUM: 20, HIGH: 35, 
 
 interface FormValues {
   title: string;
-  description: string;
   status: string;
   priority: string;
   dueDate: string;
@@ -45,10 +47,15 @@ export function TaskProfilePage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { completeTask, undoTask } = useGamificationStore();
+  const focusSessions = useFocusStore((s) => s.sessions);
+  const focusStatus = useFocusStore((s) => s.status);
+  const focusCurrentTaskId = useFocusStore((s) => s.currentTaskId);
+  const setFocusTask = useFocusStore((s) => s.setTask);
   const [newSubtask, setNewSubtask] = useState("");
+  const [descriptionHtml, setDescriptionHtml] = useState<string | null>(null);
 
   const { data: task, isLoading } = useQuery<Task>({
-    queryKey: ["tasks", id],
+    queryKey: ["task", id],
     queryFn: () => tasksApi.getOne(id!),
     enabled: !!id,
   });
@@ -59,7 +66,6 @@ export function TaskProfilePage() {
   const { register, handleSubmit, watch, setValue } = useForm<FormValues>({
     values: task ? {
       title: task.title,
-      description: task.description ?? "",
       status: task.status,
       priority: task.priority,
       dueDate: task.dueDate ? task.dueDate.slice(0, 16) : "",
@@ -72,17 +78,27 @@ export function TaskProfilePage() {
 
   const selectedTagIds = watch("tagIds") ?? [];
 
+  // Initialize descriptionHtml from task on first load
+  const currentDescription = descriptionHtml ?? (task?.description ?? "");
+
   const update = useMutation({
     mutationFn: (data: Partial<Task> & { tagIds?: string[] }) => tasksApi.update(id!, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks", id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["task", id] });
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+    },
   });
+
+  const saveDescription = () => {
+    update.mutate({ description: currentDescription || undefined });
+  };
 
   const toggleDone = useMutation({
     mutationFn: () => tasksApi.update(id!, {
       status: task?.status === "COMPLETED" ? "PENDING" : "COMPLETED",
     }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tasks", id] });
+      qc.invalidateQueries({ queryKey: ["task", id] });
       qc.invalidateQueries({ queryKey: ["tasks"] });
       if (task?.status !== "COMPLETED") {
         const { xpGained, leveledUp, newAchievements } = completeTask(task?.priority ?? "MEDIUM");
@@ -98,7 +114,7 @@ export function TaskProfilePage() {
   const addSubtask = useMutation({
     mutationFn: () => tasksApi.create({ title: newSubtask.trim(), parentId: id }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["tasks", id] });
+      qc.invalidateQueries({ queryKey: ["task", id] });
       setNewSubtask("");
     },
   });
@@ -107,7 +123,7 @@ export function TaskProfilePage() {
     mutationFn: (sub: Task) => tasksApi.update(sub.id, {
       status: sub.status === "COMPLETED" ? "PENDING" : "COMPLETED",
     }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks", id] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["task", id] }),
   });
 
   const deleteTask = useMutation({
@@ -122,7 +138,6 @@ export function TaskProfilePage() {
 
   const save = (data: FormValues) => update.mutate({
     title: data.title,
-    description: data.description || undefined,
     status: data.status as Task["status"],
     priority: data.priority as Task["priority"],
     dueDate: data.dueDate || undefined,
@@ -173,7 +188,7 @@ export function TaskProfilePage() {
   );
 
   return (
-    <div style={{ maxWidth: "52rem", margin: "0 auto" }}>
+    <div style={{ maxWidth: "56rem", margin: "0 auto" }}>
 
       {/* Back */}
       <button
@@ -217,8 +232,23 @@ export function TaskProfilePage() {
             onBlur={handleSubmit(save)}
           />
 
-          {/* Actions */}
-          <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0, alignItems: "center" }}>
+            {/* Start Focus */}
+            <button
+              type="button"
+              onClick={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
+              className="hover:opacity-90 transition"
+              style={{
+                display: "flex", alignItems: "center", gap: "0.375rem",
+                padding: "0.4rem 0.875rem", borderRadius: "0.625rem",
+                background: "#6366f1", color: "white", border: "none",
+                fontSize: "0.8125rem", fontWeight: 600, cursor: "pointer",
+              }}
+              title="Focus on this task"
+            >
+              <Play size={13} fill="white" />
+              Focus
+            </button>
             <button
               type="button"
               onClick={() => archiveTask.mutate()}
@@ -241,7 +271,6 @@ export function TaskProfilePage() {
 
         {/* Badge row */}
         <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.75rem", marginBottom: "3rem" }}>
-          {/* Status */}
           <select
             {...register("status")}
             onChange={(e) => update.mutate({ status: e.target.value as Task["status"] })}
@@ -256,7 +285,6 @@ export function TaskProfilePage() {
             <option value="COMPLETED">Completed</option>
           </select>
 
-          {/* Priority */}
           <select
             {...register("priority")}
             onChange={(e) => update.mutate({ priority: e.target.value as Task["priority"] })}
@@ -273,7 +301,6 @@ export function TaskProfilePage() {
             <option value="CRITICAL">Critical</option>
           </select>
 
-          {/* XP badge */}
           <span style={{
             display: "flex", alignItems: "center", gap: "0.3rem",
             background: "rgba(99,102,241,0.1)", color: "#6366f1",
@@ -284,7 +311,6 @@ export function TaskProfilePage() {
             +{XP_BY_PRIORITY[task.priority] ?? 20} XP
           </span>
 
-          {/* Overdue */}
           {isOverdue && (
             <span style={{
               background: "#fef2f2", color: "#dc2626", borderRadius: "999px",
@@ -294,7 +320,6 @@ export function TaskProfilePage() {
             </span>
           )}
 
-          {/* Project */}
           {task.project && (
             <span style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.8125rem", color: "#6b7280" }}>
               <span style={{ width: "0.625rem", height: "0.625rem", borderRadius: "2px", background: task.project.color, display: "inline-block" }} />
@@ -302,7 +327,6 @@ export function TaskProfilePage() {
             </span>
           )}
 
-          {/* Tags */}
           {task.tags.map(({ tag }) => (
             <span key={tag.id} style={{
               background: tag.color + "20", color: tag.color,
@@ -317,21 +341,25 @@ export function TaskProfilePage() {
         {/* Two-column layout */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2.5rem", marginBottom: "3rem" }}>
 
-          {/* Left: notes + subtasks */}
+          {/* Left: notes + attachments + subtasks */}
           <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
 
-            {/* Notes */}
+            {/* Notes — rich text editor */}
             <div>
               {sectionTitle("Notes", <AlignLeftIcon />)}
-              <textarea
-                rows={6}
+              <RichTextEditor
+                value={currentDescription}
+                onChange={(html) => setDescriptionHtml(html)}
+                onBlur={saveDescription}
                 placeholder="Add notes, context, links…"
-                className="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 placeholder-gray-300 dark:placeholder-gray-600 focus:border-indigo-400 dark:focus:border-indigo-600 resize-none"
-                style={{ ...fieldInput, lineHeight: 1.6 }}
-                {...register("description")}
-                onBlur={handleSubmit(save)}
               />
             </div>
+
+            {/* Attachments */}
+            <AttachmentSection
+              taskId={id!}
+              attachments={task.attachments ?? []}
+            />
 
             {/* Subtasks */}
             <div>
@@ -373,8 +401,7 @@ export function TaskProfilePage() {
                 ))}
               </div>
 
-              {/* Add subtask */}
-              <div className="bg-white dark:bg-gray-900" style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "0.625rem 0.875rem", borderRadius: "0.625rem", border: "1px dashed" }} >
+              <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800" style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "0.625rem 0.875rem", borderRadius: "0.625rem", border: "1px dashed" }}>
                 <Plus size={14} className="text-gray-400" style={{ flexShrink: 0 }} />
                 <input
                   value={newSubtask}
@@ -393,7 +420,6 @@ export function TaskProfilePage() {
           {/* Right: metadata */}
           <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
 
-            {/* Due Date */}
             <div>
               {sectionTitle("Due Date", <Calendar size={14} />)}
               <input
@@ -405,7 +431,6 @@ export function TaskProfilePage() {
               />
             </div>
 
-            {/* Reminder */}
             <div>
               {sectionTitle("Reminder", <Clock size={14} />)}
               <input
@@ -417,7 +442,6 @@ export function TaskProfilePage() {
               />
             </div>
 
-            {/* Repeat */}
             <div>
               {sectionTitle("Repeat", <RefreshCw size={14} />)}
               <select
@@ -434,7 +458,6 @@ export function TaskProfilePage() {
               </select>
             </div>
 
-            {/* List */}
             <div>
               {sectionTitle("List", <Folder size={14} />)}
               <select
@@ -450,7 +473,6 @@ export function TaskProfilePage() {
               </select>
             </div>
 
-            {/* Tags */}
             {tags.length > 0 && (
               <div>
                 {sectionTitle("Tags", <Tag size={14} />)}
@@ -475,8 +497,16 @@ export function TaskProfilePage() {
               </div>
             )}
 
-            {/* Timestamps */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", paddingTop: "0.5rem" }}>
+            {/* Focus History */}
+            <FocusHistory
+              taskId={id!}
+              taskTitle={task.title}
+              sessions={focusSessions}
+              isRunning={focusStatus === "running" && focusCurrentTaskId === id}
+              onStartFocus={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
+            />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               {task.createdAt && (
                 <p className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem" }}>
                   Created {format(new Date(task.createdAt), "MMM d, yyyy · HH:mm")}
@@ -491,6 +521,125 @@ export function TaskProfilePage() {
           </div>
         </div>
       </form>
+    </div>
+  );
+}
+
+// ─── Focus History ────────────────────────────────────────────────────────────
+import type { FocusSession } from "../store/focus";
+
+function fmtMins(mins: number) {
+  if (mins === 0) return "0 min";
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m > 0 ? `${h}h ${m}min` : `${h}h`;
+}
+
+function FocusHistory({
+  taskId, taskTitle, sessions, isRunning, onStartFocus,
+}: {
+  taskId: string;
+  taskTitle: string;
+  sessions: FocusSession[];
+  isRunning: boolean;
+  onStartFocus: () => void;
+}) {
+  const taskSessions = sessions.filter((s) => s.taskId === taskId);
+  const workSessions  = taskSessions.filter((s) => s.type === "work" && !s.interrupted);
+  const shortBreaks   = taskSessions.filter((s) => s.type === "short_break");
+  const longBreaks    = taskSessions.filter((s) => s.type === "long_break");
+  const interruptedWork = taskSessions.filter((s) => s.type === "work" && s.interrupted);
+
+  const focusMins  = workSessions.reduce((a, s) => a + s.duration, 0);
+  const breakMins  = [...shortBreaks, ...longBreaks].reduce((a, s) => a + s.duration, 0);
+  const totalMins  = focusMins + breakMins;
+  const totalCount = taskSessions.length;
+
+  const rows = [
+    { emoji: "🍅", label: "Focus sessions",  count: workSessions.length,  mins: focusMins,  show: true },
+    { emoji: "☕", label: "Short breaks",     count: shortBreaks.length,   mins: shortBreaks.reduce((a,s)=>a+s.duration,0),  show: shortBreaks.length > 0 },
+    { emoji: "🛌", label: "Long breaks",      count: longBreaks.length,    mins: longBreaks.reduce((a,s)=>a+s.duration,0),   show: longBreaks.length > 0 },
+    { emoji: "⚡", label: "Interrupted",      count: interruptedWork.length, mins: interruptedWork.reduce((a,s)=>a+s.duration,0), show: interruptedWork.length > 0 },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.875rem" }}>
+        <span className="text-gray-400"><Timer size={14} /></span>
+        <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase" }}>
+          Focus History
+        </span>
+        {isRunning && (
+          <span style={{
+            display: "flex", alignItems: "center", gap: "0.3rem",
+            marginLeft: "auto", background: "rgba(99,102,241,0.1)",
+            color: "#6366f1", borderRadius: "999px",
+            padding: "0.1875rem 0.625rem", fontSize: "0.6875rem", fontWeight: 700,
+          }}>
+            <span style={{ width: "0.4rem", height: "0.4rem", borderRadius: "50%", background: "#6366f1", animation: "pulse 2s infinite" }} />
+            In progress
+          </span>
+        )}
+      </div>
+
+      {totalCount === 0 && !isRunning ? (
+        <div className="bg-gray-50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800"
+          style={{ borderRadius: "0.75rem", border: "1px solid", padding: "1.25rem", textAlign: "center" }}>
+          <p className="text-gray-300 dark:text-gray-700" style={{ fontSize: "0.8125rem" }}>No focus sessions yet</p>
+        </div>
+      ) : (
+        <div className="bg-gray-50 dark:bg-gray-800/40 border-gray-100 dark:border-gray-800"
+          style={{ borderRadius: "0.875rem", border: "1px solid", overflow: "hidden" }}>
+          {rows.filter((r) => r.show).map((r, i, arr) => (
+            <div key={r.label}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "0.625rem 1rem",
+                borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,0.05)" : "none",
+              }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.875rem" }}>{r.emoji}</span>
+                <span className="text-gray-600 dark:text-gray-400" style={{ fontSize: "0.8125rem" }}>{r.label}</span>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <span className="text-gray-900 dark:text-white" style={{ fontSize: "0.8125rem", fontWeight: 700 }}>
+                  {r.count}×
+                </span>
+                {r.mins > 0 && (
+                  <span className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.75rem", marginLeft: "0.375rem" }}>
+                    {fmtMins(r.mins)}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+          {/* Total row */}
+          <div className="bg-white dark:bg-gray-900"
+            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+            <span className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.8125rem", fontWeight: 600 }}>Total</span>
+            <span className="text-indigo-600 dark:text-indigo-400" style={{ fontSize: "0.8125rem", fontWeight: 700 }}>
+              {fmtMins(totalMins)} · {totalCount} sessions
+            </span>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={onStartFocus}
+        className="hover:opacity-90 transition"
+        style={{
+          marginTop: "0.75rem", width: "100%",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
+          padding: "0.625rem 1rem", borderRadius: "0.75rem",
+          background: "rgba(99,102,241,0.1)", color: "#6366f1",
+          border: "1.5px solid rgba(99,102,241,0.25)", cursor: "pointer",
+          fontSize: "0.875rem", fontWeight: 600,
+        }}
+      >
+        <Play size={14} fill="#6366f1" />
+        Start focusing on this task
+      </button>
     </div>
   );
 }
