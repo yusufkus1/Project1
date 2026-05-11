@@ -140,7 +140,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           <CalendarDays size={15} style={{ flexShrink: 0 }} /><span>Next 7 Days</span>
         </div>
         <div style={navItem(isViewActive("inbox"))} onClick={() => goToView("inbox")}>
-          <Inbox size={15} style={{ flexShrink: 0 }} /><span>Inbox</span>
+          <Inbox size={15} style={{ flexShrink: 0 }} /><span>Tasks</span>
         </div>
         <div style={navItem(isPathActive("/calendar"))} onClick={() => goTo("/calendar")}>
           <Calendar size={15} style={{ flexShrink: 0 }} /><span>Calendar</span>

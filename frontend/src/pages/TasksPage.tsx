@@ -13,9 +13,10 @@ import { tasksApi, Task } from "../api/tasks";
 import { useUIStore, View } from "../store/ui";
 import { TaskRow } from "../components/tasks/TaskRow";
 import { InlineAdd } from "../components/tasks/InlineAdd";
+import { WeatherWidget } from "../components/WeatherWidget";
 
 const VIEW_TITLES: Record<string, string> = {
-  inbox: "Inbox",
+  inbox: "Tasks",
   today: "Today",
   upcoming: "Next 7 Days",
   completed: "Completed",
@@ -112,20 +113,23 @@ export function TasksPage() {
   return (
     <div className="flex flex-col max-w-3xl w-full">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem" }}>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
-        <div className="flex items-center gap-1">
-          <button className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-            <ArrowUpDown size={16} />
-          </button>
-          <button className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
-            <MoreHorizontal size={16} />
-          </button>
+      <div style={{ marginBottom: "2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
+          <div className="flex items-center gap-1">
+            <button className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+              <ArrowUpDown size={16} />
+            </button>
+            <button className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+              <MoreHorizontal size={16} />
+            </button>
+          </div>
         </div>
+        {selectedView === "today" && <WeatherWidget />}
       </div>
 
       {/* Add task bar */}
-      {selectedView !== "completed" && (
+      {selectedView !== "completed" && selectedView !== "today" && (
         <div style={{ marginBottom: "2rem" }}>
           <InlineAdd projectId={projectId} />
         </div>
