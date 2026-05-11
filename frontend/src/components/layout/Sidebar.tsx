@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Inbox, Sun, CalendarDays, CheckCheck, Tag, Settings,
-  Plus, Hash, LogOut, LayoutDashboard, Calendar, ChevronDown, Flame, Grid2x2, Timer, X, BarChart2,
+  Plus, Hash, LogOut, LayoutDashboard, Calendar, ChevronDown, Flame, Grid2x2, Timer, X, BarChart2, Activity,
 } from "lucide-react";
 import { useState } from "react";
 import { projectsApi } from "../../api/projects";
@@ -156,6 +156,9 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         </div>
         <div style={navItem(isPathActive("/review"))} onClick={() => goTo("/review")}>
           <BarChart2 size={15} style={{ flexShrink: 0 }} /><span>Weekly Review</span>
+        </div>
+        <div style={navItem(isPathActive("/habits"))} onClick={() => goTo("/habits")}>
+          <Activity size={15} style={{ flexShrink: 0 }} /><span>Habits</span>
         </div>
 
         {/* Divider */}

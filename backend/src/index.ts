@@ -7,6 +7,7 @@ import userRoutes from "./routes/users";
 import taskRoutes from "./routes/tasks";
 import projectRoutes from "./routes/projects";
 import tagRoutes from "./routes/tags";
+import habitRoutes from "./routes/habits";
 
 const app = express();
 const PORT = process.env["PORT"] ?? 3001;
@@ -21,6 +22,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tags", tagRoutes);
+app.use("/api/habits", habitRoutes);
 
 app.get("/api/health", (_, res) => res.json({ status: "ok" }));
 

@@ -22,9 +22,11 @@ model User {
   projects  Project[]
   tasks     Task[]
   tags      Tag[]
+  habits    Habit[]
 
   @@map("users")
 }
+
 
 model Project {
   id          String   @id @default(uuid())
@@ -111,6 +113,34 @@ model TaskTag {
 
   @@id([taskId, tagId])
   @@map("task_tags")
+}
+
+model Habit {
+  id          String   @id @default(uuid())
+  title       String
+  color       String   @default("#6366f1")
+  icon        String   @default("⭐")
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  logs   HabitLog[]
+
+  @@map("habits")
+}
+
+model HabitLog {
+  id        String   @id @default(uuid())
+  date      String   // "YYYY-MM-DD"
+  createdAt DateTime @default(now())
+
+  habitId String
+  habit   Habit  @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, date])
+  @@map("habit_logs")
 }
 
 enum Priority {
