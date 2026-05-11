@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Check, Star, Calendar, GripVertical, MoreHorizontal } from "lucide-react";
+import { Check, Star, Calendar, GripVertical, MoreHorizontal, Repeat2 } from "lucide-react";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { tasksApi, Task } from "../../api/tasks";
@@ -45,15 +45,19 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
     mutationFn: () => tasksApi.update(task.id, {
       status: task.status === "COMPLETED" ? "PENDING" : "COMPLETED",
     }),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
       if (task.status !== "COMPLETED") {
         const { xpGained, leveledUp, newAchievements } = completeTask(task.priority);
         const popupId = Date.now();
         setXpPopups((prev) => [...prev, { id: popupId, amount: xpGained }]);
         setTimeout(() => setXpPopups((prev) => prev.filter((p) => p.id !== popupId)), 1200);
-        if (leveledUp) toast("Level up!", { icon: "⬆️", duration: 3000 });
-        newAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
+        if ((data as { recycled?: boolean }).recycled) {
+          toast("Recurring task rescheduled", { icon: "🔁", duration: 2500 });
+        } else {
+          if (leveledUp) toast("Level up!", { icon: "⬆️", duration: 3000 });
+          newAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
+        }
       } else {
         undoTask(task.priority);
       }
@@ -142,6 +146,11 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
             {tag.name}
           </span>
         ))}
+
+        {/* Recurrence indicator */}
+        {task.recurrence && (
+          <Repeat2 size={12} style={{ flexShrink: 0, color: "#6366f1", opacity: 0.7 }} />
+        )}
 
         {/* Due date */}
         {due && (

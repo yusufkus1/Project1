@@ -104,6 +104,17 @@ export async function createTask(req: AuthRequest, res: Response): Promise<void>
   } catch { res.status(500).json({ error: "Sunucu hatası" }); }
 }
 
+function nextRecurrenceDate(from: Date, recurrence: Recurrence): Date {
+  const d = new Date(from);
+  switch (recurrence) {
+    case "DAILY":   d.setDate(d.getDate() + 1); break;
+    case "WEEKLY":  d.setDate(d.getDate() + 7); break;
+    case "MONTHLY": d.setMonth(d.getMonth() + 1); break;
+    case "YEARLY":  d.setFullYear(d.getFullYear() + 1); break;
+  }
+  return d;
+}
+
 export async function updateTask(req: AuthRequest, res: Response): Promise<void> {
   try {
     const existing = await prisma.task.findFirst({ where: { id: req.params["id"] as string, userId: req.userId } });
@@ -118,6 +129,33 @@ export async function updateTask(req: AuthRequest, res: Response): Promise<void>
       projectId?: string | null; tagIds?: string[]; recurrence?: Recurrence | null;
       isArchived?: boolean; position?: number;
     };
+
+    // Recurring task completed → reset to PENDING with next due date
+    const effectiveRecurrence = recurrence !== undefined ? recurrence : existing.recurrence;
+    if (status === "COMPLETED" && existing.status !== "COMPLETED" && effectiveRecurrence) {
+      const base = dueDate ? new Date(dueDate) : (existing.dueDate ?? new Date());
+      const nextDue = nextRecurrenceDate(base, effectiveRecurrence);
+      const task = await prisma.task.update({
+        where: { id: req.params["id"] as string },
+        data: {
+          ...(title !== undefined && { title }),
+          ...(description !== undefined && { description }),
+          ...(priority !== undefined && { priority }),
+          ...(recurrence !== undefined && { recurrence }),
+          status: "PENDING",
+          completedAt: null,
+          dueDate: nextDue,
+        },
+        include: {
+          subtasks: { include: { tags: { include: { tag: true } } } },
+          tags: { include: { tag: true } },
+          project: { select: { id: true, name: true, color: true } },
+          attachments: { orderBy: { createdAt: "asc" } },
+        },
+      });
+      res.json({ ...task, recycled: true });
+      return;
+    }
 
     const completedAt =
       status === "COMPLETED" && existing.status !== "COMPLETED"
