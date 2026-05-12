@@ -4,6 +4,7 @@ import { Menu } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { TaskDetailPanel } from "../tasks/TaskDetailPanel";
 import { QuickCapture } from "../tasks/QuickCapture";
+import { DailyRitual, useDailyRitualTrigger } from "../DailyRitual";
 import { useUIStore } from "../../store/ui";
 import { useTaskNotifications } from "../../hooks/useTaskNotifications";
 
@@ -36,11 +37,19 @@ export function AppLayout() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const shouldShowRitual = useDailyRitualTrigger();
+  const [ritualOpen, setRitualOpen] = useState(() => {
+    // Only show in morning hours (5am–12pm)
+    const h = new Date().getHours();
+    return shouldShowRitual && h >= 5 && h < 12;
+  });
+
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <>
     {quickCaptureOpen && <QuickCapture onClose={() => setQuickCaptureOpen(false)} />}
+    {ritualOpen && <DailyRitual onClose={() => setRitualOpen(false)} />}
     <div style={{ display: "flex", height: "100svh", overflow: "hidden" }} className="bg-gray-50 dark:bg-gray-950">
 
       {/* Desktop sidebar */}

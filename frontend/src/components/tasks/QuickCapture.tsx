@@ -1,42 +1,118 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Mic, MicOff, Plus, Zap, X } from "lucide-react";
 import { tasksApi } from "../../api/tasks";
+import { projectsApi, Project } from "../../api/projects";
 import confetti from "canvas-confetti";
 import toast from "react-hot-toast";
 
-// Natural-language date parsing (basic)
-function parseTitle(raw: string): { title: string; dueDate?: string } {
-  const lower = raw.toLowerCase();
+// ─── Inline parsing ──────────────────────────────────────────────────────────
+interface ParsedCapture {
+  title: string;
+  dueDate?: string;
+  priority?: string;
+  projectId?: string;
+  estimatedMinutes?: number;
+  // raw tokens kept for preview
+  _dateToken?: string;
+  _priorityToken?: string;
+  _projectToken?: string;
+  _timeToken?: string;
+}
+
+const PRIORITY_MAP: Record<string, string> = {
+  "!low": "LOW", "!l": "LOW",
+  "!medium": "MEDIUM", "!med": "MEDIUM", "!m": "MEDIUM",
+  "!high": "HIGH", "!h": "HIGH",
+  "!critical": "CRITICAL", "!crit": "CRITICAL", "!c": "CRITICAL",
+};
+
+function parseDate(token: string): string | undefined {
+  const lower = token.toLowerCase();
   const now = new Date();
-  let dueDate: Date | undefined;
+  let d: Date | undefined;
+  if (lower === "@today" || lower === "@bugun") {
+    d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59);
+  } else if (lower === "@tomorrow" || lower === "@yarin") {
+    d = new Date(now); d.setDate(d.getDate() + 1); d.setHours(23, 59, 0, 0);
+  } else if (lower === "@nextweek" || lower === "@next-week") {
+    d = new Date(now); d.setDate(d.getDate() + 7); d.setHours(23, 59, 0, 0);
+  } else {
+    const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+    const name = lower.replace("@", "");
+    const idx = days.indexOf(name);
+    if (idx !== -1) {
+      const cur = now.getDay();
+      const diff = (idx - cur + 7) % 7 || 7;
+      d = new Date(now); d.setDate(d.getDate() + diff); d.setHours(23, 59, 0, 0);
+    }
+  }
+  return d ? d.toISOString() : undefined;
+}
 
-  const patterns: [RegExp, () => Date][] = [
-    [/\b(bugun|today)\b/,   () => new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59)],
-    [/\b(yarin|tomorrow)\b/, () => { const d = new Date(now); d.setDate(d.getDate() + 1); d.setHours(23, 59, 0, 0); return d; }],
-    [/\bnext week\b/,        () => { const d = new Date(now); d.setDate(d.getDate() + 7); d.setHours(23, 59, 0, 0); return d; }],
-  ];
+function parseTime(token: string): number | undefined {
+  // ~30m, ~1h, ~90m, ~1.5h
+  const lower = token.toLowerCase().replace("~", "");
+  const mMatch = lower.match(/^(\d+)m$/);
+  if (mMatch) return parseInt(mMatch[1]!);
+  const hMatch = lower.match(/^(\d+(?:\.\d+)?)h$/);
+  if (hMatch) return Math.round(parseFloat(hMatch[1]!) * 60);
+  return undefined;
+}
 
-  for (const [pattern, fn] of patterns) {
-    if (pattern.test(lower)) { dueDate = fn(); break; }
+function parseCapture(raw: string, projects: Project[]): ParsedCapture {
+  const tokens = raw.trim().split(/\s+/);
+  const titleParts: string[] = [];
+  let priority: string | undefined;
+  let dueDate: string | undefined;
+  let estimatedMinutes: number | undefined;
+  let projectId: string | undefined;
+  let _dateToken: string | undefined;
+  let _priorityToken: string | undefined;
+  let _projectToken: string | undefined;
+  let _timeToken: string | undefined;
+
+  for (const tok of tokens) {
+    if (tok.startsWith("!") && PRIORITY_MAP[tok.toLowerCase()]) {
+      priority = PRIORITY_MAP[tok.toLowerCase()];
+      _priorityToken = tok;
+    } else if (tok.startsWith("@")) {
+      const d = parseDate(tok);
+      if (d) { dueDate = d; _dateToken = tok; } else { titleParts.push(tok); }
+    } else if (tok.startsWith("~")) {
+      const m = parseTime(tok);
+      if (m) { estimatedMinutes = m; _timeToken = tok; } else { titleParts.push(tok); }
+    } else if (tok.startsWith("#")) {
+      const name = tok.slice(1).toLowerCase();
+      const proj = projects.find((p) => p.name.toLowerCase().startsWith(name));
+      if (proj) { projectId = proj.id; _projectToken = tok; } else { titleParts.push(tok); }
+    } else {
+      titleParts.push(tok);
+    }
   }
 
-  // Time: "at 3pm", "saat 15:00"
-  const timeMatch = lower.match(/\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/);
-  if (timeMatch && dueDate) {
-    let h = parseInt(timeMatch[1]!);
-    const m = parseInt(timeMatch[2] ?? "0");
-    if (timeMatch[3] === "pm" && h < 12) h += 12;
-    if (timeMatch[3] === "am" && h === 12) h = 0;
-    dueDate.setHours(h, m, 0, 0);
+  // Also parse natural-language date words in the title portion
+  if (!dueDate) {
+    const lower = titleParts.join(" ").toLowerCase();
+    const now = new Date();
+    const nlPatterns: [RegExp, () => Date, string][] = [
+      [/\b(bugun|today)\b/, () => new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59), "today"],
+      [/\b(yarin|tomorrow)\b/, () => { const d = new Date(now); d.setDate(d.getDate() + 1); d.setHours(23, 59, 0, 0); return d; }, "tomorrow"],
+      [/\bnext week\b/, () => { const d = new Date(now); d.setDate(d.getDate() + 7); d.setHours(23, 59, 0, 0); return d; }, "next week"],
+    ];
+    for (const [pat, fn, label] of nlPatterns) {
+      if (pat.test(lower)) { dueDate = fn().toISOString(); _dateToken = label; break; }
+    }
   }
 
   return {
-    title: raw.trim(),
-    dueDate: dueDate ? dueDate.toISOString() : undefined,
+    title: titleParts.join(" ").trim() || raw.trim(),
+    dueDate, priority, projectId, estimatedMinutes,
+    _dateToken, _priorityToken, _projectToken, _timeToken,
   };
 }
 
+// ─── Speech ──────────────────────────────────────────────────────────────────
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
 }
@@ -85,27 +161,56 @@ function useSpeech(onResult: (text: string) => void) {
   return { listening, start, stop, supported };
 }
 
+// ─── Preview tags ─────────────────────────────────────────────────────────────
+const PRIORITY_COLORS: Record<string, string> = {
+  LOW: "#6366f1", MEDIUM: "#10b981", HIGH: "#f97316", CRITICAL: "#ef4444",
+};
+
+function PreviewTag({ children, color }: { children: React.ReactNode; color: string }) {
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: "0.2rem",
+      padding: "0.1875rem 0.5rem", borderRadius: "999px",
+      background: `${color}15`, color,
+      fontSize: "0.75rem", fontWeight: 600,
+    }}>
+      {children}
+    </span>
+  );
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export function QuickCapture({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
-  const [title, setTitle] = useState("");
+  const [raw, setRaw] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { data: projects = [] } = useQuery<Project[]>({
+    queryKey: ["projects"],
+    queryFn: projectsApi.getAll,
+  });
+
+  const parsed = parseCapture(raw, projects);
+
   const create = useMutation({
-    mutationFn: () => {
-      const parsed = parseTitle(title);
-      return tasksApi.create({ title: parsed.title, dueDate: parsed.dueDate });
-    },
+    mutationFn: () => tasksApi.create({
+      title: parsed.title,
+      dueDate: parsed.dueDate,
+      priority: parsed.priority as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | undefined,
+      projectId: parsed.projectId,
+      estimatedMinutes: parsed.estimatedMinutes,
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
       confetti({ particleCount: 40, spread: 55, origin: { y: 0.5 }, colors: ["#6366f1", "#22c55e", "#f59e0b"] });
       toast.success("Task added!");
-      setTitle("");
+      setRaw("");
       inputRef.current?.focus();
     },
     onError: () => toast.error("Failed to add task"),
   });
 
-  const { listening, start, stop, supported } = useSpeech((text) => setTitle(text));
+  const { listening, start, stop, supported } = useSpeech((text) => setRaw(text));
 
   useEffect(() => {
     setTimeout(() => inputRef.current?.focus(), 50);
@@ -117,7 +222,9 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const submit = () => { if (title.trim()) create.mutate(); };
+  const submit = () => { if (parsed.title.trim()) create.mutate(); };
+
+  const hasPreview = parsed._dateToken || parsed._priorityToken || parsed._projectToken || parsed._timeToken;
 
   return (
     <div
@@ -143,7 +250,7 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
             <Zap size={15} style={{ color: "#6366f1" }} />
           </div>
           <span className="text-gray-800 dark:text-white" style={{ fontWeight: 700, fontSize: "0.9375rem", flex: 1 }}>Quick Capture</span>
-          <kbd className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.6875rem", background: "rgba(0,0,0,0.06)", borderRadius: "0.375rem", padding: "0.125rem 0.5rem" }}>Esc</kbd>
+          <kbd className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.6875rem", background: "rgba(0,0,0,0.06)", borderRadius: "0.375rem", padding: "0.125rem 0.5rem" }}>⌘K</kbd>
           <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "0.25rem", borderRadius: "0.5rem" }} className="text-gray-400 hover:text-gray-600">
             <X size={16} />
           </button>
@@ -153,10 +260,10 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
         <div style={{ padding: "1.25rem 1.5rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <input
             ref={inputRef}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={raw}
+            onChange={(e) => setRaw(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
-            placeholder={listening ? "Listening…" : "Task title… (say 'today' or 'tomorrow' to set due date)"}
+            placeholder={listening ? "Listening…" : "Task title… !high #project @today ~30m"}
             className="text-gray-800 dark:text-white bg-transparent placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none"
             style={{ flex: 1, fontSize: "1.0625rem" }}
           />
@@ -182,13 +289,13 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
           {/* Add button */}
           <button
             onClick={submit}
-            disabled={!title.trim() || create.isPending}
+            disabled={!parsed.title.trim() || create.isPending}
             style={{
               flexShrink: 0, display: "flex", alignItems: "center", gap: "0.375rem",
               padding: "0.5625rem 1.125rem", borderRadius: "0.75rem",
-              background: title.trim() ? "#6366f1" : "rgba(99,102,241,0.2)",
-              color: title.trim() ? "white" : "#a5b4fc",
-              border: "none", cursor: title.trim() ? "pointer" : "default",
+              background: parsed.title.trim() ? "#6366f1" : "rgba(99,102,241,0.2)",
+              color: parsed.title.trim() ? "white" : "#a5b4fc",
+              border: "none", cursor: parsed.title.trim() ? "pointer" : "default",
               fontSize: "0.875rem", fontWeight: 600, transition: "all 0.15s",
             }}
           >
@@ -196,10 +303,29 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
           </button>
         </div>
 
-        {/* Recent tasks hint */}
-        <div className="border-t border-gray-50 dark:border-gray-800/60" style={{ padding: "0.75rem 1.5rem", display: "flex", alignItems: "center", gap: "1rem" }}>
-          <span className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem" }}>
-            Press <kbd style={{ background: "rgba(0,0,0,0.06)", borderRadius: "0.25rem", padding: "0.1rem 0.35rem", fontSize: "0.6875rem" }}>Enter</kbd> to add &nbsp;·&nbsp; Say "today" or "tomorrow" to set due date
+        {/* Preview tags */}
+        {hasPreview && (
+          <div style={{ padding: "0 1.5rem 1rem", display: "flex", flexWrap: "wrap", gap: "0.375rem", alignItems: "center" }}>
+            <span className="text-gray-400" style={{ fontSize: "0.6875rem", fontWeight: 600, marginRight: "0.25rem" }}>Parsed:</span>
+            {parsed._priorityToken && (
+              <PreviewTag color={PRIORITY_COLORS[parsed.priority!] ?? "#6366f1"}>
+                ↑ {parsed.priority!.toLowerCase()}
+              </PreviewTag>
+            )}
+            {parsed._dateToken && <PreviewTag color="#3b82f6">📅 {parsed._dateToken}</PreviewTag>}
+            {parsed._timeToken && <PreviewTag color="#f59e0b">⏱ {parsed._timeToken.replace("~", "")} → {parsed.estimatedMinutes}m</PreviewTag>}
+            {parsed._projectToken && <PreviewTag color="#8b5cf6">#{projects.find((p) => p.id === parsed.projectId)?.name ?? parsed._projectToken}</PreviewTag>}
+          </div>
+        )}
+
+        {/* Hint bar */}
+        <div className="border-t border-gray-50 dark:border-gray-800/60" style={{ padding: "0.75rem 1.5rem" }}>
+          <span className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.6875rem" }}>
+            <kbd style={{ background: "rgba(0,0,0,0.06)", borderRadius: "0.25rem", padding: "0.1rem 0.35rem", fontSize: "0.6875rem" }}>Enter</kbd> add &nbsp;·&nbsp;
+            <span style={{ color: "#ef4444" }}>!high</span> priority &nbsp;·&nbsp;
+            <span style={{ color: "#3b82f6" }}>@today</span> date &nbsp;·&nbsp;
+            <span style={{ color: "#8b5cf6" }}>#project</span> &nbsp;·&nbsp;
+            <span style={{ color: "#f59e0b" }}>~30m</span> time estimate
           </span>
         </div>
       </div>

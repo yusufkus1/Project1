@@ -9,13 +9,14 @@ import {
   SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { isToday, isFuture, isPast, format } from "date-fns";
-import { Loader2, Archive, List, LayoutGrid, Calendar, Sparkles, Zap, X } from "lucide-react";
+import { Loader2, Archive, List, LayoutGrid, Calendar, Sparkles, Zap, X, AlertTriangle } from "lucide-react";
 import { tasksApi, Task } from "../api/tasks";
 import { useUIStore, View } from "../store/ui";
 import { TaskRow } from "../components/tasks/TaskRow";
 import { InlineAdd } from "../components/tasks/InlineAdd";
 import { WeatherWidget } from "../components/WeatherWidget";
 import { TodayExtras } from "../components/today/TodayExtras";
+import { PanicMode } from "../components/PanicMode";
 import confetti from "canvas-confetti";
 
 const VIEW_TITLES: Record<string, string> = {
@@ -410,10 +411,12 @@ export function TasksPage() {
 
   const showToggle = selectedView !== "completed" && selectedView !== "today";
   const [brainDumpOpen, setBrainDumpOpen] = useState(false);
+  const [panicOpen, setPanicOpen] = useState(false);
 
   return (
     <div className="flex flex-col max-w-3xl w-full">
       {brainDumpOpen && <BrainDump onClose={() => setBrainDumpOpen(false)} />}
+      {panicOpen && <PanicMode tasks={allTasks} onClose={() => setPanicOpen(false)} />}
 
       {/* Header */}
       <div style={{ marginBottom: "1.75rem" }}>
@@ -432,6 +435,18 @@ export function TasksPage() {
                 title="Brain dump — rapidly add everything on your mind"
               >
                 <Zap size={14} /> Dump
+              </button>
+            )}
+
+            {/* Panic mode button */}
+            {selectedView !== "completed" && (
+              <button
+                onClick={() => setPanicOpen(true)}
+                style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.8125rem", fontWeight: 600, background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+                className="hover:bg-red-50 dark:hover:bg-red-900/20 transition"
+                title="Panic mode — one task at a time"
+              >
+                <AlertTriangle size={14} /> Panic
               </button>
             )}
 

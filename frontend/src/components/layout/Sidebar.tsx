@@ -3,7 +3,7 @@ import {
   Sun, CalendarDays, CheckCheck, Tag, Settings,
   Plus, Hash, LogOut, LayoutDashboard, Calendar,
   ChevronDown, Flame, Grid2x2, Timer, X, BarChart2,
-  Activity, Inbox,
+  Activity, Inbox, Moon,
 } from "lucide-react";
 import { useState } from "react";
 import { projectsApi } from "../../api/projects";
@@ -12,6 +12,7 @@ import { useUIStore, View } from "../../store/ui";
 import { useAuthStore } from "../../store/auth";
 import { useGamificationStore } from "../../store/gamification";
 import { useNavigate, useLocation } from "react-router-dom";
+import { DaySummary } from "../DaySummary";
 
 export function Sidebar({ onClose }: { onClose?: () => void }) {
   const { selectedView, setSelectedView, theme, toggleTheme } = useUIStore();
@@ -20,6 +21,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   const location = useLocation();
   const [listsOpen, setListsOpen] = useState(true);
   const [tagsOpen, setTagsOpen] = useState(true);
+  const [daySummaryOpen, setDaySummaryOpen] = useState(false);
 
   const { xp, streak, getLevel, getXPProgress, getXPForNextLevel } = useGamificationStore();
   const level = getLevel();
@@ -106,6 +108,8 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
+    <>
+    {daySummaryOpen && <DaySummary onClose={() => setDaySummaryOpen(false)} />}
     <aside className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800" style={{
       width: "248px", flexShrink: 0, height: "100%",
       display: "flex", flexDirection: "column",
@@ -232,6 +236,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
       {/* ── Bottom ── */}
       <div className="border-gray-100 dark:border-gray-800" style={{ borderTop: "1px solid", padding: "0.75rem 0.625rem" }}>
         {[
+          { label: "End Day", icon: <Moon size={15} />, action: () => setDaySummaryOpen(true) },
           { label: "Manage Tags", icon: <Tag size={15} />, action: () => goTo("/tags") },
           { label: "Settings",    icon: <Settings size={15} />, action: () => goTo("/settings") },
           {
@@ -261,5 +266,6 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         ))}
       </div>
     </aside>
+    </>
   );
 }

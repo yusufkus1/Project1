@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Play, Pause, RotateCcw, SkipForward, Settings, X,
-  Flame, Clock, Trophy, CheckCircle, Coffee, Brain, ChevronDown,
+  Flame, Clock, Trophy, CheckCircle, Coffee, Brain, ChevronDown, Users,
 } from "lucide-react";
 import { format, isToday } from "date-fns";
 import { useFocusStore, FocusMode, FocusSession } from "../store/focus";
 import { useGamificationStore } from "../store/gamification";
 import { tasksApi, Task } from "../api/tasks";
+import { focusApi } from "../api/focus";
+import { ParkIt } from "../components/ParkIt";
 import toast from "react-hot-toast";
 
 // ─── Audio ──────────────────────────────────────────────────────────────────
@@ -197,6 +199,7 @@ export function FocusPage() {
   const [showSettings, setShowSettings] = useState(false);
   const [showTaskPicker, setShowTaskPicker] = useState(false);
   const [, forceRender] = useState(0);
+  const [focuserCount, setFocuserCount] = useState(0);
   const finishedRef = useRef(false);
 
   const { data } = useQuery({
@@ -242,6 +245,24 @@ export function FocusPage() {
 
     return () => clearInterval(interval);
   }, [status, settings.soundEnabled, settings.xpPerSession]);
+
+  // Body doubling: checkin/out + poll count
+  useEffect(() => {
+    if (status === "running") {
+      focusApi.checkin().catch(() => {});
+    } else {
+      focusApi.checkout().catch(() => {});
+    }
+  }, [status]);
+
+  useEffect(() => {
+    const poll = async () => {
+      try { const { count } = await focusApi.count(); setFocuserCount(count); } catch { /* ignore */ }
+    };
+    poll();
+    const id = setInterval(poll, 30_000);
+    return () => clearInterval(id);
+  }, []);
 
   // Today's sessions
   const todaySessions = store.sessions.filter((s) => isToday(new Date(s.completedAt)));
@@ -410,6 +431,20 @@ export function FocusPage() {
         </div>
       </div>
 
+      {/* Body doubling counter */}
+      {focuserCount > 1 && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: "0.75rem",
+          padding: "0.875rem 1.25rem", borderRadius: "0.875rem",
+          background: "rgba(139,92,246,0.08)", border: "1.5px solid rgba(139,92,246,0.2)",
+        }}>
+          <Users size={16} style={{ color: "#8b5cf6", flexShrink: 0 }} />
+          <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "#8b5cf6" }}>
+            {focuserCount} people are focusing with you right now
+          </span>
+        </div>
+      )}
+
       {/* Live in-progress banner */}
       {status === "running" && (
         <div style={{
@@ -533,6 +568,9 @@ export function FocusPage() {
       {showTaskPicker && (
         <div style={{ position: "fixed", inset: 0, zIndex: 10 }} onClick={() => setShowTaskPicker(false)} />
       )}
+
+      {/* Park It — floating thought capture (only during active focus) */}
+      {status === "running" && <ParkIt />}
     </div>
   );
 }

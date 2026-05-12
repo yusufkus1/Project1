@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
-import { Play, Plus, Zap } from "lucide-react";
+import { Play, Plus, Zap, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { tasksApi, Task } from "../../api/tasks";
 import { useFocusStore } from "../../store/focus";
 import { useGamificationStore } from "../../store/gamification";
+import { useSeasonalTheme } from "../../hooks/useSeasonalTheme";
+import { ScheduleView } from "./ScheduleView";
 import toast from "react-hot-toast";
 
 // ─── Water tracker ────────────────────────────────────────────────────────────
@@ -124,11 +126,58 @@ function formatMinutes(mins: number): string {
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
+const DAILY_CAPACITY_MINS = 360; // 6 hours
+
+function CapacityBar({ tasks }: { tasks: Task[] }) {
+  const total = tasks
+    .filter((t) => t.status !== "COMPLETED" && t.estimatedMinutes)
+    .reduce((acc, t) => acc + (t.estimatedMinutes ?? 0), 0);
+
+  if (total === 0) return null;
+
+  const pct = Math.min(100, (total / DAILY_CAPACITY_MINS) * 100);
+  const over = total > DAILY_CAPACITY_MINS;
+  const warning = total > DAILY_CAPACITY_MINS * 0.8 && !over;
+
+  return (
+    <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
+      style={{ borderRadius: "0.875rem", border: "1px solid", padding: "0.875rem 1.125rem" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
+          {over ? <AlertCircle size={14} style={{ color: "#ef4444" }} /> : <span style={{ fontSize: "1rem" }}>📅</span>}
+          <span className="text-gray-700 dark:text-gray-200" style={{ fontSize: "0.8125rem", fontWeight: 700 }}>
+            Daily capacity
+          </span>
+        </div>
+        <span style={{
+          fontSize: "0.8125rem", fontWeight: 700,
+          color: over ? "#ef4444" : warning ? "#f59e0b" : "#10b981",
+        }}>
+          {total < 60 ? `${total}m` : `${Math.floor(total / 60)}h ${total % 60}m`} / 6h
+        </span>
+      </div>
+      <div style={{ height: "6px", borderRadius: "999px", background: "rgba(0,0,0,0.08)", overflow: "hidden" }}>
+        <div style={{
+          height: "100%", borderRadius: "999px",
+          background: over ? "#ef4444" : warning ? "#f59e0b" : "#10b981",
+          width: `${pct}%`, transition: "width 0.4s",
+        }} />
+      </div>
+      {(over || warning) && (
+        <p style={{ fontSize: "0.75rem", marginTop: "0.375rem", color: over ? "#ef4444" : "#f59e0b" }}>
+          {over ? "You're over capacity — consider rescheduling some tasks." : "Getting close to capacity. Prioritize wisely."}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const focusStore = useFocusStore();
   const { streak } = useGamificationStore();
+  const seasonal = useSeasonalTheme();
   const [quickTitle, setQuickTitle] = useState("");
 
   // Summary stats
@@ -173,6 +222,12 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.75rem" }}>
 
+      {/* ── Seasonal banner ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "0.625rem 1rem", borderRadius: "0.75rem", background: `${seasonal.accent}10`, border: `1px solid ${seasonal.accent}25` }}>
+        <span style={{ fontSize: "1rem" }}>{seasonal.emoji}</span>
+        <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: seasonal.accent }}>{seasonal.greeting}</span>
+      </div>
+
       {/* ── Summary pills ── */}
       {total > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.625rem", alignItems: "center" }}>
@@ -209,6 +264,9 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
           )}
         </div>
       )}
+
+      {/* ── Capacity bar ── */}
+      <CapacityBar tasks={todayTasks} />
 
       {/* ── Water tracker ── */}
       <WaterTracker />
@@ -267,6 +325,9 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
           </button>
         </div>
       )}
+
+      {/* ── Auto schedule ── */}
+      <ScheduleView tasks={todayTasks} />
 
       {/* ── Quick add ── */}
       <form onSubmit={handleQuickAdd} style={{ display: "flex", gap: "0.5rem" }}>
