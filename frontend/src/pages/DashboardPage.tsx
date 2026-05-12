@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { usersApi } from "../api/users";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { useAuthStore } from "../store/auth";
 import { useGamificationStore, ACHIEVEMENTS } from "../store/gamification";
 import { useUIStore } from "../store/ui";
@@ -34,6 +35,7 @@ export function DashboardPage() {
   const xpNext = getXPForNextLevel();
   const levelTitle = LEVEL_TITLES[level] ?? "Grandmaster";
   const completionRate = stats?.total ? Math.round((stats.completed / stats.total) * 100) : 0;
+  const isMobile = useIsMobile();
 
   const statCards = [
     { label: "Total Tasks",  value: stats?.total ?? 0,      icon: ListTodo,     color: "#6366f1", bg: "rgba(99,102,241,0.1)", view: "inbox"       },
@@ -50,11 +52,11 @@ export function DashboardPage() {
 
       {/* Greeting */}
       <div>
-        <h1 style={{ fontSize: "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
+        <h1 style={{ fontSize: isMobile ? "1.75rem" : "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
             className="text-gray-900 dark:text-white">
           Hello, {user?.name?.split(" ")[0]} 👋
         </h1>
-        <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: "1rem" }}>
+        <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.9375rem" }}>
           Here's your progress overview
         </p>
       </div>
@@ -63,15 +65,15 @@ export function DashboardPage() {
       <div style={{
         background: "linear-gradient(135deg, #6366f1, #9333ea)",
         borderRadius: "1.5rem",
-        padding: "2.5rem",
+        padding: isMobile ? "1.5rem" : "2.5rem",
         color: "white",
         boxShadow: "0 20px 40px rgba(99,102,241,0.3)",
       }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1.5rem", flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: "180px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.5rem" }}>
-              <span style={{ fontSize: "3rem", fontWeight: 900 }}>Lv.{level}</span>
-              <span style={{ background: "rgba(255,255,255,0.2)", padding: "0.375rem 1rem", borderRadius: "999px", fontSize: "0.875rem", fontWeight: 600 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+              <span style={{ fontSize: isMobile ? "2rem" : "3rem", fontWeight: 900 }}>Lv.{level}</span>
+              <span style={{ background: "rgba(255,255,255,0.2)", padding: "0.375rem 0.875rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 600 }}>
                 {levelTitle}
               </span>
             </div>
@@ -93,14 +95,14 @@ export function DashboardPage() {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "1.25rem", flexWrap: "wrap" }}>
             {[
               { value: streak, label: "day streak", Icon: Flame },
               { value: tasksCompletedToday, label: "done today", Icon: Zap },
               { value: totalTasksCompleted, label: "all time", Icon: Trophy },
             ].map(({ value, label, Icon }) => (
               <div key={label} style={{ textAlign: "center" }}>
-                <div style={{ fontSize: "2.5rem", fontWeight: 900 }}>{value}</div>
+                <div style={{ fontSize: isMobile ? "1.75rem" : "2.5rem", fontWeight: 900 }}>{value}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", justifyContent: "center", marginTop: "0.5rem", color: "rgba(199,210,254,1)", fontSize: "0.75rem" }}>
                   <Icon size={12} /> {label}
                 </div>
@@ -123,12 +125,12 @@ export function DashboardPage() {
                 className="bg-white dark:bg-gray-900 hover:shadow-md transition-all"
                 style={{
                   borderRadius: "1rem", border: "1px solid", borderColor: "var(--tw-border-color, #f1f5f9)",
-                  padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.25rem",
+                  padding: isMobile ? "1rem" : "1.75rem", display: "flex", flexDirection: "column", gap: isMobile ? "0.75rem" : "1.25rem",
                   cursor: "pointer", textAlign: "left", width: "100%",
                 }}
               >
-                <div style={{ width: "3rem", height: "3rem", background: bg, borderRadius: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <Icon size={22} style={{ color }} />
+                <div style={{ width: isMobile ? "2.25rem" : "3rem", height: isMobile ? "2.25rem" : "3rem", background: bg, borderRadius: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Icon size={isMobile ? 17 : 22} style={{ color }} />
                 </div>
                 <div>
                   <p className="text-gray-900 dark:text-white text-2xl sm:text-3xl" style={{ fontWeight: 700 }}>{value}</p>

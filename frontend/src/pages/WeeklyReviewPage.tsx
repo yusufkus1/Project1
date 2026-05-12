@@ -6,6 +6,7 @@ import { tasksApi, Task } from "../api/tasks";
 import { useFocusStore } from "../store/focus";
 import { useGamificationStore } from "../store/gamification";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 function getWeekRange(offset: number) {
   const base = addWeeks(new Date(), offset);
@@ -18,6 +19,7 @@ const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function WeeklyReviewPage() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [weekOffset, setWeekOffset] = useState(0);
   const { start, end } = useMemo(() => getWeekRange(weekOffset), [weekOffset]);
 
@@ -76,7 +78,7 @@ export function WeeklyReviewPage() {
         {icon}
         <span style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
       </div>
-      <div style={{ fontSize: "2rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.03em" }} className="dark:text-white">
+      <div style={{ fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.03em" }} className="dark:text-white">
         {value}
       </div>
       {sub && <div style={{ fontSize: "0.8125rem", color: "#94a3b8" }}>{sub}</div>}
@@ -89,7 +91,7 @@ export function WeeklyReviewPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em", marginBottom: "0.25rem" }} className="dark:text-white">
+          <h1 style={{ fontSize: isMobile ? "1.5rem" : "1.75rem", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em", marginBottom: "0.25rem" }} className="dark:text-white">
             Weekly Review
           </h1>
           <p style={{ fontSize: "0.9375rem", color: "#64748b" }}>
@@ -115,7 +117,7 @@ export function WeeklyReviewPage() {
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
         {statCard(<CheckCircle2 size={14} />, "Completed", weekCompleted.length, `of ${totalTasksCompleted} total`)}
         {statCard(<Clock size={14} />, "Focus time", `${weekFocusMinutes}m`, `${weekWorkSessions.length} sessions`, "#0ea5e9")}
         {statCard(<Zap size={14} />, "XP earned", weekXP, "this week", "#f59e0b")}
@@ -162,7 +164,7 @@ export function WeeklyReviewPage() {
         )}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "2rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1rem", marginBottom: "2rem" }}>
 
         {/* Completed tasks */}
         <div style={{

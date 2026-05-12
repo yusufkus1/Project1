@@ -230,26 +230,26 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
 
       {/* ── Summary pills ── */}
       {total > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.625rem", alignItems: "center" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center" }}>
 
           {/* Progress */}
           <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
-            style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "0.5rem 0.875rem", borderRadius: "999px", border: "1px solid" }}>
-            <div style={{ width: "3rem", height: "4px", borderRadius: "2px", background: "#e2e8f0", overflow: "hidden" }}>
+            style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.4375rem 0.75rem", borderRadius: "999px", border: "1px solid" }}>
+            <div style={{ width: "2.5rem", height: "4px", borderRadius: "2px", background: "#e2e8f0", overflow: "hidden" }}>
               <div style={{ height: "100%", background: "#10b981", width: `${completionPct}%`, borderRadius: "2px", transition: "width 0.4s" }} />
             </div>
             <span className="text-gray-700 dark:text-gray-300" style={{ fontSize: "0.8125rem", fontWeight: 600 }}>
-              {completed}/{total} done
+              {completed}/{total}
             </span>
           </div>
 
           {/* Estimated time */}
           {estimatedMins > 0 && (
             <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
-              style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "999px", border: "1px solid" }}>
-              <span style={{ fontSize: "0.875rem" }}>⏱️</span>
+              style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.4375rem 0.75rem", borderRadius: "999px", border: "1px solid" }}>
+              <span style={{ fontSize: "0.8125rem" }}>⏱️</span>
               <span className="text-gray-700 dark:text-gray-300" style={{ fontSize: "0.8125rem", fontWeight: 600 }}>
-                {formatMinutes(estimatedMins)} remaining
+                {formatMinutes(estimatedMins)}
               </span>
             </div>
           )}
@@ -257,9 +257,9 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
           {/* Streak */}
           {streak > 0 && (
             <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
-              style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "999px", border: "1px solid" }}>
-              <span style={{ fontSize: "0.875rem" }}>🔥</span>
-              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#f97316" }}>{streak} day streak</span>
+              style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.4375rem 0.75rem", borderRadius: "999px", border: "1px solid" }}>
+              <span style={{ fontSize: "0.8125rem" }}>🔥</span>
+              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#f97316" }}>{streak}d</span>
             </div>
           )}
         </div>

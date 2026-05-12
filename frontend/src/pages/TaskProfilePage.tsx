@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { useForm } from "react-hook-form";
 import {
   ArrowLeft, Calendar, Clock, RefreshCw, Folder, Tag, Check,
@@ -80,6 +81,7 @@ export function TaskProfilePage() {
   const [breakdownText, setBreakdownText] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<AIAnalysis | null>(null);
+  const isMobile = useIsMobile();
 
   const { data: task, isLoading } = useQuery<Task>({
     queryKey: ["task", id],
@@ -266,15 +268,15 @@ export function TaskProfilePage() {
         {/* ── Hero card ─────────────────────────────────────────── */}
         <div
           className="bg-white dark:bg-gray-900"
-          style={{ borderRadius: "1.25rem", padding: "2rem 2.5rem", marginBottom: "1.75rem" }}
+          style={{ borderRadius: "1.25rem", padding: isMobile ? "1.25rem 1rem" : "2rem 2.5rem", marginBottom: "1.75rem" }}
         >
           {/* Title */}
-          <div style={{ display: "flex", alignItems: "flex-start", gap: "1.125rem", marginBottom: "1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: isMobile ? "0.75rem" : "1.125rem", marginBottom: "1.25rem" }}>
             <button
               type="button"
               onClick={() => toggleDone.mutate()}
               style={{
-                flexShrink: 0, width: "2.375rem", height: "2.375rem",
+                flexShrink: 0, width: isMobile ? "1.875rem" : "2.375rem", height: isMobile ? "1.875rem" : "2.375rem",
                 borderRadius: "50%", border: "2.5px solid", marginTop: "0.3rem",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", transition: "all 0.2s",
@@ -283,15 +285,15 @@ export function TaskProfilePage() {
                 boxShadow: isDone ? "0 0 0 4px rgba(99,102,241,0.15)" : "none",
               }}
             >
-              {isDone && <Check size={14} strokeWidth={3} color="white" />}
+              {isDone && <Check size={12} strokeWidth={3} color="white" />}
             </button>
 
             <textarea
-              rows={2}
+              rows={isMobile ? 3 : 2}
               placeholder="Task title"
               className="text-gray-900 dark:text-white bg-transparent placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none resize-none"
               style={{
-                flex: 1, fontSize: "1.75rem", fontWeight: 800, lineHeight: 1.3,
+                flex: 1, fontSize: isMobile ? "1.25rem" : "1.75rem", fontWeight: 800, lineHeight: 1.3,
                 border: "none",
                 textDecoration: isDone ? "line-through" : "none",
                 opacity: isDone ? 0.5 : 1,
@@ -302,7 +304,7 @@ export function TaskProfilePage() {
           </div>
 
           {/* Action buttons */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", paddingLeft: "3.5rem", marginBottom: "1.625rem", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", paddingLeft: isMobile ? "0" : "3.5rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
@@ -412,7 +414,7 @@ export function TaskProfilePage() {
           )}
 
           {/* Badge pills */}
-          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", paddingLeft: "3.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", paddingLeft: isMobile ? "0" : "3.5rem" }}>
             <select
               {...register("status")}
               onChange={(e) => update.mutate({ status: e.target.value as Task["status"] })}
@@ -495,7 +497,7 @@ export function TaskProfilePage() {
             {/* Notes card */}
             <div
               className="bg-white dark:bg-gray-900"
-              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+              style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem" }}
             >
               <SectionHeader icon={<AlignLeftIcon />} label="Notes" />
               <RichTextEditor
@@ -509,7 +511,7 @@ export function TaskProfilePage() {
             {/* Attachments card */}
             <div
               className="bg-white dark:bg-gray-900"
-              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+              style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem" }}
             >
               <AttachmentSection taskId={id!} attachments={task.attachments ?? []} />
             </div>
@@ -517,7 +519,7 @@ export function TaskProfilePage() {
             {/* Subtasks card */}
             <div
               className="bg-white dark:bg-gray-900"
-              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+              style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem" }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
@@ -626,7 +628,7 @@ export function TaskProfilePage() {
             {/* Metadata card */}
             <div
               className="bg-white dark:bg-gray-900"
-              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+              style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem" }}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
@@ -717,7 +719,7 @@ export function TaskProfilePage() {
             {tags.length > 0 && (
               <div
                 className="bg-white dark:bg-gray-900"
-                style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+                style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem" }}
               >
                 <SectionHeader icon={<Tag size={15} />} label="Tags" />
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
@@ -745,7 +747,7 @@ export function TaskProfilePage() {
             {/* Focus History card */}
             <div
               className="bg-white dark:bg-gray-900"
-              style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
+              style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem" }}
             >
               <FocusHistory
                 taskId={id!}

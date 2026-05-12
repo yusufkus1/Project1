@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "../hooks/useIsMobile";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -119,8 +120,8 @@ function NextTaskCard({ tasks }: { tasks: Task[] }) {
         <Sparkles size={14} />
         <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Focus on this next</span>
       </div>
-      <p style={{ fontSize: "1.125rem", fontWeight: 700, marginBottom: "1.125rem", lineHeight: 1.35 }}>{next.title}</p>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", flexWrap: "wrap" }}>
+      <p style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem", lineHeight: 1.35 }}>{next.title}</p>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
         {isOverdue && <span style={{ background: "rgba(239,68,68,0.3)", borderRadius: "999px", padding: "0.25rem 0.75rem", fontSize: "0.75rem", fontWeight: 700 }}>Overdue</span>}
         {isQuick && <span style={{ background: "rgba(34,197,94,0.25)", borderRadius: "999px", padding: "0.25rem 0.75rem", fontSize: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.25rem" }}><Zap size={10} fill="white" /> 2 min</span>}
         {next.estimatedMinutes && !isQuick && <span style={{ opacity: 0.8, fontSize: "0.75rem" }}>~{next.estimatedMinutes}min</span>}
@@ -340,6 +341,8 @@ function TaskCard({ task }: { task: Task }) {
 }
 
 function CardWall({ tasks }: { tasks: Task[] }) {
+  const isMobile = useIsMobile();
+
   if (tasks.length === 0) return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✓</div>
@@ -348,7 +351,7 @@ function CardWall({ tasks }: { tasks: Task[] }) {
   );
 
   return (
-    <div style={{ columns: "2", columnGap: "0.875rem" }} className="sm:columns-2 md:columns-3">
+    <div style={{ columns: isMobile ? "1" : "2", columnGap: "0.875rem" }} className="md:columns-3">
       {tasks.map((task) => <TaskCard key={task.id} task={task} />)}
     </div>
   );
@@ -412,6 +415,7 @@ export function TasksPage() {
   const showToggle = selectedView !== "completed" && selectedView !== "today";
   const [brainDumpOpen, setBrainDumpOpen] = useState(false);
   const [panicOpen, setPanicOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <div className="flex flex-col max-w-3xl w-full">
@@ -420,21 +424,21 @@ export function TasksPage() {
 
       {/* Header */}
       <div style={{ marginBottom: "1.75rem" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-          <h1 className="text-gray-900 dark:text-white" style={{ fontSize: "2rem", fontWeight: 800 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap" }}>
+          <h1 className="text-gray-900 dark:text-white" style={{ fontSize: isMobile ? "1.625rem" : "2rem", fontWeight: 800 }}>
             {title}
           </h1>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", flexShrink: 0 }}>
             {/* Brain dump button */}
             {selectedView !== "completed" && (
               <button
                 onClick={() => setBrainDumpOpen(true)}
-                style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.8125rem", fontWeight: 600, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+                style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: isMobile ? "0.4375rem 0.625rem" : "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
                 className="hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition"
-                title="Brain dump — rapidly add everything on your mind"
+                title="Brain dump"
               >
-                <Zap size={14} /> Dump
+                <Zap size={13} /> {isMobile ? "" : "Dump"}
               </button>
             )}
 
@@ -442,11 +446,11 @@ export function TasksPage() {
             {selectedView !== "completed" && (
               <button
                 onClick={() => setPanicOpen(true)}
-                style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.8125rem", fontWeight: 600, background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
+                style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: isMobile ? "0.4375rem 0.625rem" : "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600, background: "rgba(239,68,68,0.08)", color: "#ef4444" }}
                 className="hover:bg-red-50 dark:hover:bg-red-900/20 transition"
                 title="Panic mode — one task at a time"
               >
-                <AlertTriangle size={14} /> Panic
+                <AlertTriangle size={13} /> {isMobile ? "" : "Panic"}
               </button>
             )}
 
@@ -470,7 +474,7 @@ export function TasksPage() {
                     }}
                     className={viewMode === mode ? "text-gray-900 dark:text-white dark:bg-gray-700" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}
                   >
-                    <Icon size={16} />
+                    <Icon size={15} />
                   </button>
                 ))}
               </div>

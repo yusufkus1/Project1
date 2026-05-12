@@ -71,7 +71,7 @@ export function PanicMode({ tasks, onClose }: { tasks: Task[]; onClose: () => vo
           </span>
         </div>
 
-        <p style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)", fontWeight: 900, lineHeight: 1.2, marginBottom: "1.5rem", textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>
+        <p style={{ fontSize: "clamp(1.5rem, 6vw, 3rem)", fontWeight: 900, lineHeight: 1.2, marginBottom: "1.5rem", textShadow: "0 2px 20px rgba(0,0,0,0.3)" }}>
           {task.title}
         </p>
 
@@ -81,24 +81,24 @@ export function PanicMode({ tasks, onClose }: { tasks: Task[]; onClose: () => vo
           </p>
         )}
 
-        <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
           <button
             onClick={() => { setFocusTask(task.id, task.title); navigate("/focus"); onClose(); }}
-            style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "1rem 2rem", borderRadius: "1rem", background: "white", color: "#4f46e5", border: "none", cursor: "pointer", fontSize: "1rem", fontWeight: 800, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}
+            style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 1.5rem", borderRadius: "1rem", background: "white", color: "#4f46e5", border: "none", cursor: "pointer", fontSize: "0.9375rem", fontWeight: 800, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}
           >
-            <Play size={18} fill="#4f46e5" /> Start Focus
+            <Play size={16} fill="#4f46e5" /> Start Focus
           </button>
           <button
             onClick={() => complete.mutate()}
-            style={{ display: "flex", alignItems: "center", gap: "0.625rem", padding: "1rem 2rem", borderRadius: "1rem", background: "rgba(34,197,94,0.25)", color: "white", border: "2px solid rgba(34,197,94,0.5)", cursor: "pointer", fontSize: "1rem", fontWeight: 700 }}
+            style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 1.5rem", borderRadius: "1rem", background: "rgba(34,197,94,0.25)", color: "white", border: "2px solid rgba(34,197,94,0.5)", cursor: "pointer", fontSize: "0.9375rem", fontWeight: 700 }}
           >
-            ✓ Done already
+            ✓ Done
           </button>
           <button
-            onClick={() => { /* cycle to next */ onClose(); }}
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "1rem 1.5rem", borderRadius: "1rem", background: "rgba(255,255,255,0.1)", color: "white", border: "2px solid rgba(255,255,255,0.2)", cursor: "pointer", fontSize: "0.9375rem", fontWeight: 600 }}
+            onClick={() => { onClose(); }}
+            style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 1.25rem", borderRadius: "1rem", background: "rgba(255,255,255,0.1)", color: "white", border: "2px solid rgba(255,255,255,0.2)", cursor: "pointer", fontSize: "0.9375rem", fontWeight: 600 }}
           >
-            <SkipForward size={16} /> Skip
+            <SkipForward size={15} /> Skip
           </button>
         </div>
 

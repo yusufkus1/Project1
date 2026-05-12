@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { tasksApi, Task } from "../../api/tasks";
 import { useUIStore } from "../../store/ui";
 import { useGamificationStore } from "../../store/gamification";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import confetti from "canvas-confetti";
 import toast from "react-hot-toast";
 
@@ -72,6 +73,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
   const isSelected = selectedTaskId === task.id;
   const isQuick = !isDone && task.estimatedMinutes != null && task.estimatedMinutes <= 2;
   const daysOpen = !isDone && task.createdAt ? differenceInDays(new Date(), new Date(task.createdAt)) : 0;
+  const isMobile = useIsMobile();
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
@@ -92,8 +94,8 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
         }`}
         style={{ padding: "0.9rem 1.25rem", paddingLeft: depth > 0 ? "3rem" : "1.25rem" }}
       >
-        {/* Drag handle */}
-        {depth === 0 && (
+        {/* Drag handle — hidden on mobile */}
+        {depth === 0 && !isMobile && (
           <button
             {...attributes}
             {...listeners}
@@ -137,8 +139,8 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
           </span>
         )}
 
-        {/* Tags (max 2) */}
-        {task.tags.slice(0, 2).map(({ tag }) => (
+        {/* Tags — hide on mobile to save space */}
+        {!isMobile && task.tags.slice(0, 2).map(({ tag }) => (
           <span
             key={tag.id}
             style={{
@@ -154,19 +156,19 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
         {/* 2-min rule badge */}
         {isQuick && (
           <span title="Quick win — under 2 min" style={{ display: "flex", alignItems: "center", gap: "0.2rem", background: "rgba(34,197,94,0.12)", color: "#16a34a", borderRadius: "999px", padding: "0.125rem 0.5rem", fontSize: "0.625rem", fontWeight: 700, flexShrink: 0 }}>
-            <Zap size={9} fill="#16a34a" /> 2min
+            <Zap size={9} fill="#16a34a" /> {isMobile ? "2m" : "2min"}
           </span>
         )}
 
-        {/* Days open */}
-        {daysOpen >= 3 && (
+        {/* Days open — only on desktop */}
+        {!isMobile && daysOpen >= 3 && (
           <span title={`Open for ${daysOpen} days`} style={{ background: daysOpen >= 7 ? "rgba(239,68,68,0.1)" : "rgba(249,115,22,0.1)", color: daysOpen >= 7 ? "#dc2626" : "#ea580c", borderRadius: "999px", padding: "0.125rem 0.5rem", fontSize: "0.625rem", fontWeight: 700, flexShrink: 0 }}>
             {daysOpen}d
           </span>
         )}
 
         {/* Recurrence indicator */}
-        {task.recurrence && (
+        {task.recurrence && !isMobile && (
           <Repeat2 size={12} style={{ flexShrink: 0, color: "#6366f1", opacity: 0.7 }} />
         )}
 
@@ -178,12 +180,14 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
           </span>
         )}
 
-        {/* Priority star */}
-        <Star
-          size={14}
-          className={`flex-shrink-0 transition-opacity ${PRIORITY_FLAG[task.priority]} ${task.priority === "LOW" ? "opacity-0 group-hover:opacity-30" : ""}`}
-          fill={task.priority === "HIGH" || task.priority === "CRITICAL" ? "currentColor" : "none"}
-        />
+        {/* Priority star — hide LOW on mobile */}
+        {(!isMobile || task.priority !== "LOW") && (
+          <Star
+            size={14}
+            className={`flex-shrink-0 transition-opacity ${PRIORITY_FLAG[task.priority]} ${task.priority === "LOW" ? "opacity-0 group-hover:opacity-30" : ""}`}
+            fill={task.priority === "HIGH" || task.priority === "CRITICAL" ? "currentColor" : "none"}
+          />
+        )}
 
         {/* 3-dot → open side panel */}
         <button

@@ -10,6 +10,7 @@ import {
   User, Lock, Moon, Sun, Bell, BellOff, Timer, Droplets, Trash2,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 interface ProfileForm { name: string; email: string }
 interface PasswordForm { currentPassword: string; newPassword: string; confirm: string }
@@ -77,6 +78,7 @@ export function SettingsPage() {
   const { theme, toggleTheme } = useUIStore();
   const { settings: focusSettings, updateSettings } = useFocusStore();
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
 
   const [tab, setTab] = useState<"profile" | "password">("profile");
 
@@ -128,7 +130,7 @@ export function SettingsPage() {
 
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
+        <h1 style={{ fontSize: isMobile ? "1.75rem" : "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
             className="text-gray-900 dark:text-white">
           Settings
         </h1>
@@ -159,7 +161,7 @@ export function SettingsPage() {
           ))}
         </div>
 
-        <div style={{ padding: "2.5rem" }}>
+        <div style={{ padding: isMobile ? "1.5rem 1.25rem" : "2.5rem" }}>
           {tab === "profile" && (
             <form onSubmit={handleProfile((v) => updateProfile.mutate(v))}
                   style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
@@ -244,7 +246,7 @@ export function SettingsPage() {
       </div>
 
       {/* ── Appearance card ── */}
-      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: "1.75rem 2rem" }}>
+      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: isMobile ? "1.25rem 1rem" : "1.75rem 2rem" }}>
         <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
           Appearance
         </p>
@@ -260,7 +262,7 @@ export function SettingsPage() {
       </div>
 
       {/* ── Notifications card ── */}
-      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: "1.75rem 2rem" }}>
+      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: isMobile ? "1.25rem 1rem" : "1.75rem 2rem" }}>
         <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
           Notifications
         </p>
@@ -294,7 +296,7 @@ export function SettingsPage() {
       </div>
 
       {/* ── Focus card ── */}
-      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: "1.75rem 2rem" }}>
+      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: isMobile ? "1.25rem 1rem" : "1.75rem 2rem" }}>
         <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
           Focus Timer
         </p>
@@ -331,7 +333,7 @@ export function SettingsPage() {
       </div>
 
       {/* ── Data card ── */}
-      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: "1.75rem 2rem" }}>
+      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: isMobile ? "1.25rem 1rem" : "1.75rem 2rem" }}>
         <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
           Data
         </p>

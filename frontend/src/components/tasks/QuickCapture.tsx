@@ -386,14 +386,15 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
         )}
 
         {/* Hint bar */}
-        <div className="border-t border-gray-50 dark:border-gray-800/60" style={{ padding: "0.75rem 1.5rem" }}>
+        <div className="border-t border-gray-50 dark:border-gray-800/60" style={{ padding: "0.625rem 1.5rem", display: "flex", flexWrap: "wrap", gap: "0.375rem", alignItems: "center" }}>
           <span className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.6875rem" }}>
-            <kbd style={{ background: "rgba(0,0,0,0.06)", borderRadius: "0.25rem", padding: "0.1rem 0.35rem", fontSize: "0.6875rem" }}>Enter</kbd> add &nbsp;·&nbsp;
-            <span style={{ color: "#ef4444" }}>!high</span> priority &nbsp;·&nbsp;
-            <span style={{ color: "#3b82f6" }}>@today</span> date &nbsp;·&nbsp;
-            <span style={{ color: "#8b5cf6" }}>#project</span> &nbsp;·&nbsp;
-            <span style={{ color: "#f59e0b" }}>~30m</span> time estimate
+            <kbd style={{ background: "rgba(0,0,0,0.06)", borderRadius: "0.25rem", padding: "0.1rem 0.35rem", fontSize: "0.6875rem" }}>Enter</kbd> to add
           </span>
+          <span className="text-gray-300 dark:text-gray-700" style={{ fontSize: "0.6875rem" }}>·</span>
+          <span style={{ color: "#ef4444", fontSize: "0.6875rem" }}>!high</span>
+          <span style={{ color: "#3b82f6", fontSize: "0.6875rem" }}>@today</span>
+          <span style={{ color: "#8b5cf6", fontSize: "0.6875rem" }}>#project</span>
+          <span style={{ color: "#f59e0b", fontSize: "0.6875rem" }}>~30m</span>
         </div>
       </div>
     </div>

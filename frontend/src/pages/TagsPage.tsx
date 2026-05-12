@@ -5,11 +5,13 @@ import { tagsApi } from "../api/tags";
 import { Modal } from "../components/ui/Modal";
 import { Input } from "../components/ui/Input";
 import toast from "react-hot-toast";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const COLORS = ["#6366f1","#8b5cf6","#ec4899","#ef4444","#f97316","#eab308","#22c55e","#14b8a6","#3b82f6","#64748b"];
 
 export function TagsPage() {
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [editTag, setEditTag] = useState<{ id: string; name: string; color: string } | null>(null);
   const [name, setName] = useState("");
@@ -46,7 +48,7 @@ export function TagsPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
         <div>
-          <h1 style={{ fontSize: "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
+          <h1 style={{ fontSize: isMobile ? "1.75rem" : "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
               className="text-gray-900 dark:text-white">
             Tags
           </h1>

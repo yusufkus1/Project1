@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useIsMobile } from "../hooks/useIsMobile";
 import {
   Play, Pause, RotateCcw, SkipForward, Settings, X,
   Flame, Clock, Trophy, CheckCircle, Coffee, Brain, ChevronDown, Users,
@@ -201,6 +202,7 @@ export function FocusPage() {
   const [, forceRender] = useState(0);
   const [focuserCount, setFocuserCount] = useState(0);
   const finishedRef = useRef(false);
+  const isMobile = useIsMobile();
 
   const { data } = useQuery({
     queryKey: ["tasks"],
@@ -278,13 +280,13 @@ export function FocusPage() {
   const meta = MODE_META[mode];
 
   return (
-    <div style={{ maxWidth: "40rem", margin: "0 auto", display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+    <div style={{ maxWidth: "40rem", margin: "0 auto", display: "flex", flexDirection: "column", gap: isMobile ? "1.5rem" : "2.5rem" }}>
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div>
-          <h1 className="text-gray-900 dark:text-white" style={{ fontSize: "1.875rem", fontWeight: 800 }}>Focus Timer</h1>
-          <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.9375rem", marginTop: "0.375rem" }}>
+          <h1 className="text-gray-900 dark:text-white" style={{ fontSize: isMobile ? "1.5rem" : "1.875rem", fontWeight: 800 }}>Focus Timer</h1>
+          <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.875rem", marginTop: "0.25rem" }}>
             Deep work with the Pomodoro technique
           </p>
         </div>
@@ -299,7 +301,7 @@ export function FocusPage() {
 
       {/* Timer card */}
       <div className="bg-white dark:bg-gray-900"
-        style={{ borderRadius: "1.5rem", border: "1px solid", borderColor: "rgba(229,231,235,0.8)", padding: "2.5rem 2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "2rem" }}>
+        style={{ borderRadius: "1.5rem", border: "1px solid", borderColor: "rgba(229,231,235,0.8)", padding: isMobile ? "1.5rem 1rem" : "2.5rem 2rem", display: "flex", flexDirection: "column", alignItems: "center", gap: isMobile ? "1.25rem" : "2rem" }}>
 
         {/* Mode tabs */}
         <div className="bg-gray-100 dark:bg-gray-800"
@@ -473,7 +475,7 @@ export function FocusPage() {
       )}
 
       {/* Stats row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(3, 1fr)", gap: "0.75rem" }}>
         {[
           {
             value: todayFocusMinutes >= 60
@@ -502,7 +504,7 @@ export function FocusPage() {
           },
         ].map(({ value, label, icon, color, bg }) => (
           <div key={label} className="bg-white dark:bg-gray-900"
-            style={{ borderRadius: "1rem", border: "1px solid rgba(229,231,235,0.8)", padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+            style={{ borderRadius: "1rem", border: "1px solid rgba(229,231,235,0.8)", padding: isMobile ? "0.875rem" : "1.25rem", display: "flex", flexDirection: "column", gap: "0.625rem" }}>
             <div style={{ width: "2.25rem", height: "2.25rem", background: bg, borderRadius: "0.625rem", display: "flex", alignItems: "center", justifyContent: "center", color }}>
               {icon}
             </div>

@@ -7,6 +7,7 @@ import { Input } from "../components/ui/Input";
 import { useNavigate } from "react-router-dom";
 import { useFiltersStore } from "../store/filters";
 import toast from "react-hot-toast";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const COLORS = ["#6366f1","#8b5cf6","#ec4899","#ef4444","#f97316","#22c55e","#14b8a6","#3b82f6","#64748b","#a16207"];
 
@@ -41,6 +42,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
 export function ProjectsNewPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState(COLORS[0]!);
@@ -60,7 +62,7 @@ export function ProjectsNewPage() {
 
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
+        <h1 style={{ fontSize: isMobile ? "1.75rem" : "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
             className="text-gray-900 dark:text-white">
           New List
         </h1>
@@ -71,7 +73,7 @@ export function ProjectsNewPage() {
 
       {/* Form card */}
       <div className="bg-white dark:bg-gray-900"
-           style={{ borderRadius: "1rem", border: "1px solid rgba(241,245,249,1)", padding: "2.5rem", display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+           style={{ borderRadius: "1rem", border: "1px solid rgba(241,245,249,1)", padding: isMobile ? "1.5rem 1.25rem" : "2.5rem", display: "flex", flexDirection: "column", gap: "1.75rem" }}>
         <Input label="List Name" placeholder="e.g. Work, Personal, Side Project" value={name} onChange={(e) => setName(e.target.value)} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -121,6 +123,7 @@ export function ProjectsNewPage() {
 export function ProjectsListPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const setProjectId = useFiltersStore((s) => s.setProjectId);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [editName, setEditName] = useState("");
@@ -144,7 +147,7 @@ export function ProjectsListPage() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
         <div>
-          <h1 style={{ fontSize: "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
+          <h1 style={{ fontSize: isMobile ? "1.75rem" : "2.25rem", fontWeight: 800, marginBottom: "0.5rem" }}
               className="text-gray-900 dark:text-white">
             Lists
           </h1>
