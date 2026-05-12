@@ -50,7 +50,7 @@ export function AppLayout() {
     <>
     {quickCaptureOpen && <QuickCapture onClose={() => setQuickCaptureOpen(false)} />}
     {ritualOpen && <DailyRitual onClose={() => setRitualOpen(false)} />}
-    <div style={{ display: "flex", height: "100svh", overflow: "hidden" }} className="bg-gray-50 dark:bg-gray-950">
+    <div style={{ display: "flex", height: "100svh", overflow: "hidden", background: "var(--color-bg)" }}>
 
       {/* Desktop sidebar */}
       {!isMobile && <Sidebar />}
@@ -78,11 +78,7 @@ export function AppLayout() {
 
         {/* Mobile top bar */}
         {isMobile && (
-          <div style={{
-            display: "flex", alignItems: "center", gap: "0.75rem",
-            padding: "0.875rem 1rem", borderBottom: "1px solid",
-            flexShrink: 0,
-          }} className="bg-gray-100/80 dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.875rem 1rem", borderBottom: "1px solid var(--color-border)", flexShrink: 0, background: "var(--color-surface)" }}>
             <button
               onClick={() => setSidebarOpen(true)}
               style={{
@@ -94,7 +90,7 @@ export function AppLayout() {
             >
               <Menu size={22} />
             </button>
-            <span style={{ fontSize: "1rem", fontWeight: 700, color: "#6366f1" }}>TodoApp</span>
+            <span style={{ fontSize: "1rem", fontWeight: 700, color: "#7c6ff7" }}>TodoApp</span>
           </div>
         )}
 

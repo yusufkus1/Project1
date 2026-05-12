@@ -38,7 +38,7 @@ export function PanicMode({ tasks, onClose }: { tasks: Task[]; onClose: () => vo
     mutationFn: () => tasksApi.update(task!.id, { status: "COMPLETED" }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
-      confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 }, colors: ["#6366f1", "#22c55e", "#f59e0b"] });
+      confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 }, colors: ["#7c6ff7", "#22c55e", "#f59e0b"] });
       onClose();
     },
   });
@@ -84,9 +84,9 @@ export function PanicMode({ tasks, onClose }: { tasks: Task[]; onClose: () => vo
         <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
           <button
             onClick={() => { setFocusTask(task.id, task.title); navigate("/focus"); onClose(); }}
-            style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 1.5rem", borderRadius: "1rem", background: "white", color: "#4f46e5", border: "none", cursor: "pointer", fontSize: "0.9375rem", fontWeight: 800, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}
+            style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.875rem 1.5rem", borderRadius: "1rem", background: "white", color: "#6c5ff5", border: "none", cursor: "pointer", fontSize: "0.9375rem", fontWeight: 800, boxShadow: "0 8px 24px rgba(0,0,0,0.3)" }}
           >
-            <Play size={16} fill="#4f46e5" /> Start Focus
+            <Play size={16} fill="#6c5ff5" /> Start Focus
           </button>
           <button
             onClick={() => complete.mutate()}

@@ -33,12 +33,12 @@ export function LoginPage() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", background: "#f8fafc" }}>
+    <div style={{ minHeight: "100vh", display: "flex", background: "var(--color-bg)" }}>
 
       {/* Left branding panel */}
       <div style={{
         flex: "0 0 45%",
-        background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%)",
+        background: "linear-gradient(135deg, #6c5ff5 0%, #7c6ff7 50%, #a89df9 100%)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -115,7 +115,7 @@ export function LoginPage() {
 
           {/* Mobile logo */}
           <div style={{ textAlign: "center", marginBottom: "2rem" }} className="lg:hidden">
-            <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "#6366f1", letterSpacing: "-0.02em" }}>
+            <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "#7c6ff7", letterSpacing: "-0.02em" }}>
               TodoApp
             </span>
           </div>
@@ -147,7 +147,7 @@ export function LoginPage() {
                   transition: "border-color 0.15s",
                   boxSizing: "border-box",
                 }}
-                onFocus={(e) => { if (!errors.email) e.target.style.borderColor = "#6366f1"; }}
+                onFocus={(e) => { if (!errors.email) e.target.style.borderColor = "#7c6ff7"; }}
                 onBlur={(e) => { if (!errors.email) e.target.style.borderColor = "#e2e8f0"; }}
               />
               {errors.email && (
@@ -175,7 +175,7 @@ export function LoginPage() {
                     transition: "border-color 0.15s",
                     boxSizing: "border-box",
                   }}
-                  onFocus={(e) => { if (!errors.password) e.target.style.borderColor = "#6366f1"; }}
+                  onFocus={(e) => { if (!errors.password) e.target.style.borderColor = "#7c6ff7"; }}
                   onBlur={(e) => { if (!errors.password) e.target.style.borderColor = "#e2e8f0"; }}
                 />
                 <button
@@ -200,7 +200,7 @@ export function LoginPage() {
 
             {/* Forgot password */}
             <div style={{ textAlign: "right", marginBottom: "1.5rem" }}>
-              <Link to="/forgot-password" style={{ fontSize: "0.8125rem", color: "#6366f1", textDecoration: "none", fontWeight: 500 }}>
+              <Link to="/forgot-password" style={{ fontSize: "0.8125rem", color: "#7c6ff7", textDecoration: "none", fontWeight: 500 }}>
                 Forgot password?
               </Link>
             </div>
@@ -211,7 +211,7 @@ export function LoginPage() {
               disabled={mutation.isPending}
               style={{
                 width: "100%", padding: "0.8125rem",
-                background: mutation.isPending ? "#a5b4fc" : "#6366f1",
+                background: mutation.isPending ? "#c4bbfd" : "#7c6ff7",
                 color: "white", border: "none", borderRadius: "0.625rem",
                 fontSize: "0.9375rem", fontWeight: 600, cursor: mutation.isPending ? "not-allowed" : "pointer",
                 transition: "background 0.15s",
@@ -233,7 +233,7 @@ export function LoginPage() {
 
           <p style={{ textAlign: "center", fontSize: "0.875rem", color: "#64748b", marginTop: "1.5rem" }}>
             Don't have an account?{" "}
-            <Link to="/register" style={{ color: "#6366f1", fontWeight: 600, textDecoration: "none" }}>
+            <Link to="/register" style={{ color: "#7c6ff7", fontWeight: 600, textDecoration: "none" }}>
               Sign up free
             </Link>
           </p>

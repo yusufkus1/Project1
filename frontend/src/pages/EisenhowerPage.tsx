@@ -154,8 +154,8 @@ function TaskCard({
           border: "2px solid", display: "flex", alignItems: "center",
           justifyContent: "center", cursor: "pointer", background: "none",
           padding: 0, marginTop: "0.15rem",
-          borderColor: isDone ? (quadrantColor ?? "#6366f1") : "#d1d5db",
-          backgroundColor: isDone ? (quadrantColor ?? "#6366f1") : "transparent",
+          borderColor: isDone ? (quadrantColor ?? "#7c6ff7") : "#d1d5db",
+          backgroundColor: isDone ? (quadrantColor ?? "#7c6ff7") : "transparent",
           transition: "all 0.2s",
         }}
       >

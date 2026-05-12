@@ -150,11 +150,11 @@ export function AttachmentSection({ taskId, attachments }: Props) {
         className="border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-600 transition-colors cursor-pointer"
         style={{
           border: `2px dashed`,
-          borderColor: dragging ? "#6366f1" : undefined,
+          borderColor: dragging ? "#7c6ff7" : undefined,
           borderRadius: "0.625rem",
           padding: "1rem",
           textAlign: "center",
-          background: dragging ? "rgba(99,102,241,0.04)" : "transparent",
+          background: dragging ? "rgba(124,111,247,0.04)" : "transparent",
           marginBottom: attachments.length > 0 ? "0.875rem" : 0,
           transition: "all 0.15s",
         }}

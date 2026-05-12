@@ -26,9 +26,9 @@ const VIEW_TITLES: Record<string, string> = {
 };
 
 const PRIORITY_PILL: Record<string, { bg: string; color: string; dot: string }> = {
-  LOW:      { bg: "rgba(99,102,241,0.1)",  color: "#6366f1", dot: "#818cf8" },
+  LOW:      { bg: "rgba(124,111,247,0.1)",  color: "#7c6ff7", dot: "#a89df9" },
   MEDIUM:   { bg: "rgba(16,185,129,0.1)",  color: "#059669", dot: "#34d399" },
-  HIGH:     { bg: "rgba(249,115,22,0.1)",  color: "#ea580c", dot: "#fb923c" },
+  HIGH:     { bg: "rgba(251,146,60,0.1)",  color: "#ea580c", dot: "#fb923c" },
   CRITICAL: { bg: "rgba(239,68,68,0.1)",   color: "#dc2626", dot: "#f87171" },
 };
 
@@ -95,7 +95,7 @@ function NextTaskCard({ tasks }: { tasks: Task[] }) {
     mutationFn: () => tasksApi.update(next!.id, { status: "COMPLETED" }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 }, colors: ["#6366f1", "#22c55e", "#f59e0b"] });
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 }, colors: ["#7c6ff7", "#22c55e", "#f59e0b"] });
       setDismissed(false);
     },
   });
@@ -107,10 +107,10 @@ function NextTaskCard({ tasks }: { tasks: Task[] }) {
 
   return (
     <div style={{
-      background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+      background: "linear-gradient(135deg, #7c6ff7, #a78bfa)",
       borderRadius: "1.25rem", padding: "1.5rem 1.75rem",
       marginBottom: "1.75rem", color: "white",
-      boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
+      boxShadow: "0 8px 24px rgba(124,111,247,0.3)",
       position: "relative",
     }}>
       <button onClick={() => setDismissed(true)} style={{ position: "absolute", top: "1rem", right: "1rem", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: "1.5rem", height: "1.5rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
@@ -133,7 +133,7 @@ function NextTaskCard({ tasks }: { tasks: Task[] }) {
         >Done ✓</button>
         <button
           onClick={() => navigate(`/tasks/${next.id}`)}
-          style={{ background: "white", border: "none", borderRadius: "0.625rem", padding: "0.5rem 1rem", color: "#6366f1", fontWeight: 700, fontSize: "0.8125rem", cursor: "pointer" }}
+          style={{ background: "white", border: "none", borderRadius: "0.625rem", padding: "0.5rem 1rem", color: "#7c6ff7", fontWeight: 700, fontSize: "0.8125rem", cursor: "pointer" }}
         >Open →</button>
       </div>
     </div>
@@ -153,7 +153,7 @@ function BrainDump({ onClose }: { onClose: () => void }) {
     setSaving(true);
     await Promise.all(titles.map((title) => tasksApi.create({ title })));
     qc.invalidateQueries({ queryKey: ["tasks"] });
-    confetti({ particleCount: 60, spread: 65, origin: { y: 0.5 }, colors: ["#6366f1", "#22c55e"] });
+    confetti({ particleCount: 60, spread: 65, origin: { y: 0.5 }, colors: ["#7c6ff7", "#22c55e"] });
     setSaving(false);
     onClose();
   };
@@ -180,8 +180,8 @@ function BrainDump({ onClose }: { onClose: () => void }) {
       <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }} onClick={onClose} />
       <div className="bg-white dark:bg-gray-900" style={{ position: "relative", zIndex: 1, width: "min(640px, 92vw)", borderRadius: "1.5rem", boxShadow: "0 32px 80px rgba(0,0,0,0.25)", overflow: "hidden" }}>
         <div className="border-b border-gray-100 dark:border-gray-800" style={{ padding: "1.25rem 1.75rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div style={{ width: "2rem", height: "2rem", borderRadius: "0.5rem", background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Zap size={15} style={{ color: "#6366f1" }} />
+          <div style={{ width: "2rem", height: "2rem", borderRadius: "0.5rem", background: "rgba(124,111,247,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Zap size={15} style={{ color: "#7c6ff7" }} />
           </div>
           <div style={{ flex: 1 }}>
             <p className="text-gray-900 dark:text-white" style={{ fontWeight: 800, fontSize: "1rem" }}>Brain Dump</p>
@@ -212,7 +212,7 @@ function BrainDump({ onClose }: { onClose: () => void }) {
           <button
             onClick={saveAll}
             disabled={saving || !lines.some(l => l.trim())}
-            style={{ padding: "0.625rem 1.5rem", borderRadius: "0.75rem", border: "none", background: "#6366f1", color: "white", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(99,102,241,0.3)" }}
+            style={{ padding: "0.625rem 1.5rem", borderRadius: "0.75rem", border: "none", background: "#7c6ff7", color: "white", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(124,111,247,0.3)" }}
           >{saving ? "Saving…" : `Save ${lines.filter(l => l.trim()).length} tasks`}</button>
         </div>
       </div>
@@ -248,11 +248,11 @@ function TaskCard({ task }: { task: Task }) {
       style={{
         breakInside: "avoid", marginBottom: "0.875rem",
         borderRadius: "1rem", border: "1px solid",
-        borderColor: isSelected ? "#6366f1" : "rgba(226,232,240,0.8)",
+        borderColor: isSelected ? "#7c6ff7" : "rgba(226,232,240,0.8)",
         padding: "1.125rem 1.25rem",
         cursor: "pointer",
         boxShadow: isSelected
-          ? "0 0 0 2px rgba(99,102,241,0.2)"
+          ? "0 0 0 2px rgba(124,111,247,0.2)"
           : "0 1px 6px rgba(0,0,0,0.05)",
         transition: "box-shadow 0.15s, border-color 0.15s",
         opacity: isDone ? 0.55 : 1,
@@ -269,8 +269,8 @@ function TaskCard({ task }: { task: Task }) {
             width: "1.125rem", height: "1.125rem", borderRadius: "50%",
             border: "2px solid", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center",
-            background: isDone ? "#6366f1" : "transparent",
-            borderColor: isDone ? "#6366f1" : "#d1d5db",
+            background: isDone ? "#7c6ff7" : "transparent",
+            borderColor: isDone ? "#7c6ff7" : "#d1d5db",
             transition: "all 0.15s",
           }}
         >
@@ -434,7 +434,7 @@ export function TasksPage() {
             {selectedView !== "completed" && (
               <button
                 onClick={() => setBrainDumpOpen(true)}
-                style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: isMobile ? "0.4375rem 0.625rem" : "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+                style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: isMobile ? "0.4375rem 0.625rem" : "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600, background: "rgba(124,111,247,0.1)", color: "#7c6ff7" }}
                 className="hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition"
                 title="Brain dump"
               >

@@ -31,7 +31,7 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
       style={{
         position: "relative", width: "3.25rem", height: "1.75rem",
         borderRadius: "999px", border: "none", cursor: "pointer",
-        background: on ? "#6366f1" : "#e5e7eb",
+        background: on ? "#7c6ff7" : "#e5e7eb",
         transition: "background 0.2s", flexShrink: 0,
       }}
     >
@@ -122,7 +122,7 @@ export function SettingsPage() {
   ];
 
   const card = {
-    borderRadius: "1rem", border: "1px solid rgba(241,245,249,1)",
+    borderRadius: "1rem", border: "1px solid var(--color-border)",
   };
 
   return (
@@ -151,8 +151,8 @@ export function SettingsPage() {
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
                 padding: "1.25rem 1.5rem", fontSize: "0.9375rem", fontWeight: 600,
                 borderBottom: "2px solid", cursor: "pointer", background: "none",
-                borderBottomColor: tab === id ? "#6366f1" : "transparent",
-                color: tab === id ? "#6366f1" : "#9ca3af",
+                borderBottomColor: tab === id ? "#7c6ff7" : "transparent",
+                color: tab === id ? "#7c6ff7" : "#9ca3af",
                 transition: "all 0.15s",
               }}
             >
@@ -184,7 +184,7 @@ export function SettingsPage() {
                 disabled={updateProfile.isPending}
                 style={{
                   width: "100%", padding: "1rem",
-                  background: updateProfile.isPending ? "#a5b4fc" : "#6366f1",
+                  background: updateProfile.isPending ? "#c4bbfd" : "#7c6ff7",
                   color: "white", border: "none", borderRadius: "0.875rem",
                   fontWeight: 700, fontSize: "1rem",
                   cursor: updateProfile.isPending ? "not-allowed" : "pointer",
@@ -231,7 +231,7 @@ export function SettingsPage() {
                 disabled={changePassword.isPending}
                 style={{
                   width: "100%", padding: "1rem",
-                  background: changePassword.isPending ? "#a5b4fc" : "#6366f1",
+                  background: changePassword.isPending ? "#c4bbfd" : "#7c6ff7",
                   color: "white", border: "none", borderRadius: "0.875rem",
                   fontWeight: 700, fontSize: "1rem",
                   cursor: changePassword.isPending ? "not-allowed" : "pointer",
@@ -252,9 +252,9 @@ export function SettingsPage() {
         </p>
 
         <SettingRow
-          icon={theme === "dark" ? <Moon size={18} color="#6366f1" /> : <Sun size={18} color="#f59e0b" />}
-          color={theme === "dark" ? "#6366f1" : "#f59e0b"}
-          bg={theme === "dark" ? "rgba(99,102,241,0.1)" : "rgba(245,158,11,0.1)"}
+          icon={theme === "dark" ? <Moon size={18} color="#7c6ff7" /> : <Sun size={18} color="#f59e0b" />}
+          color={theme === "dark" ? "#7c6ff7" : "#f59e0b"}
+          bg={theme === "dark" ? "rgba(124,111,247,0.1)" : "rgba(245,158,11,0.1)"}
           title="Theme"
           subtitle={`Currently using ${theme === "dark" ? "dark" : "light"} mode`}
           right={<Toggle on={theme === "dark"} onToggle={toggleTheme} />}
@@ -268,9 +268,9 @@ export function SettingsPage() {
         </p>
 
         <SettingRow
-          icon={<Bell size={18} color="#6366f1" />}
-          color="#6366f1"
-          bg="rgba(99,102,241,0.1)"
+          icon={<Bell size={18} color="#7c6ff7" />}
+          color="#7c6ff7"
+          bg="rgba(124,111,247,0.1)"
           title="Due Soon Alerts"
           subtitle="Notify 30 minutes before a task is due"
           right={<Toggle on={notifDue} onToggle={() => toggleNotif("due", !notifDue)} />}
@@ -317,8 +317,8 @@ export function SettingsPage() {
                     padding: "0.375rem 0.75rem",
                     borderRadius: "0.5rem",
                     border: "1.5px solid",
-                    borderColor: focusSettings.workDuration === mins ? "#6366f1" : "rgba(229,231,235,1)",
-                    background: focusSettings.workDuration === mins ? "#6366f1" : "transparent",
+                    borderColor: focusSettings.workDuration === mins ? "#7c6ff7" : "rgba(229,231,235,1)",
+                    background: focusSettings.workDuration === mins ? "#7c6ff7" : "transparent",
                     color: focusSettings.workDuration === mins ? "white" : "#6b7280",
                     fontWeight: 600, fontSize: "0.8125rem", cursor: "pointer",
                     transition: "all 0.15s",

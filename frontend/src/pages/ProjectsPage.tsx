@@ -9,7 +9,7 @@ import { useFiltersStore } from "../store/filters";
 import toast from "react-hot-toast";
 import { useIsMobile } from "../hooks/useIsMobile";
 
-const COLORS = ["#6366f1","#8b5cf6","#ec4899","#ef4444","#f97316","#22c55e","#14b8a6","#3b82f6","#64748b","#a16207"];
+const COLORS = ["#7c6ff7","#a78bfa","#ec4899","#ef4444","#fb923c","#22c55e","#14b8a6","#3b82f6","#64748b","#a16207"];
 
 function ColorPicker({ value, onChange }: { value: string; onChange: (c: string) => void }) {
   return (
@@ -73,7 +73,7 @@ export function ProjectsNewPage() {
 
       {/* Form card */}
       <div className="bg-white dark:bg-gray-900"
-           style={{ borderRadius: "1rem", border: "1px solid rgba(241,245,249,1)", padding: isMobile ? "1.5rem 1.25rem" : "2.5rem", display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+           style={{ borderRadius: "1rem", border: "1px solid var(--color-border)", padding: isMobile ? "1.5rem 1.25rem" : "2.5rem", display: "flex", flexDirection: "column", gap: "1.75rem" }}>
         <Input label="List Name" placeholder="e.g. Work, Personal, Side Project" value={name} onChange={(e) => setName(e.target.value)} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -107,7 +107,7 @@ export function ProjectsNewPage() {
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending || !name.trim()}
           style={{
-            padding: "0.9375rem", background: !name.trim() ? "#e5e7eb" : mutation.isPending ? "#a5b4fc" : "#6366f1",
+            padding: "0.9375rem", background: !name.trim() ? "#e5e7eb" : mutation.isPending ? "#c4bbfd" : "#7c6ff7",
             color: !name.trim() ? "#9ca3af" : "white",
             border: "none", borderRadius: "0.75rem", fontWeight: 600,
             fontSize: "0.9375rem", cursor: !name.trim() ? "not-allowed" : "pointer",
@@ -159,7 +159,7 @@ export function ProjectsListPage() {
           onClick={() => navigate("/projects/new")}
           style={{
             display: "flex", alignItems: "center", gap: "0.5rem",
-            padding: "0.75rem 1.5rem", background: "#6366f1", color: "white",
+            padding: "0.75rem 1.5rem", background: "#7c6ff7", color: "white",
             border: "none", borderRadius: "0.75rem", fontWeight: 600,
             fontSize: "0.9375rem", cursor: "pointer", whiteSpace: "nowrap",
           }}
@@ -171,16 +171,16 @@ export function ProjectsListPage() {
       {/* Empty state */}
       {projects.length === 0 ? (
         <div className="bg-white dark:bg-gray-900" style={{
-          borderRadius: "1.5rem", border: "1px solid rgba(241,245,249,1)",
+          borderRadius: "1.5rem", border: "1px solid var(--color-border)",
           padding: "5rem 2rem", display: "flex", flexDirection: "column",
           alignItems: "center", gap: "1.5rem",
         }}>
           <div style={{
             width: "5rem", height: "5rem", borderRadius: "1.5rem",
-            background: "rgba(99,102,241,0.1)", display: "flex",
+            background: "rgba(124,111,247,0.1)", display: "flex",
             alignItems: "center", justifyContent: "center",
           }}>
-            <Folder size={32} color="#6366f1" />
+            <Folder size={32} color="#7c6ff7" />
           </div>
           <div style={{ textAlign: "center" }}>
             <p className="text-gray-900 dark:text-white" style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem" }}>
@@ -194,7 +194,7 @@ export function ProjectsListPage() {
             onClick={() => navigate("/projects/new")}
             style={{
               display: "flex", alignItems: "center", gap: "0.5rem",
-              padding: "0.75rem 1.5rem", background: "#6366f1", color: "white",
+              padding: "0.75rem 1.5rem", background: "#7c6ff7", color: "white",
               border: "none", borderRadius: "0.75rem", fontWeight: 600,
               fontSize: "0.9375rem", cursor: "pointer",
             }}
@@ -208,7 +208,7 @@ export function ProjectsListPage() {
             <div
               key={project.id}
               className="bg-white dark:bg-gray-900 group hover:shadow-md transition-all"
-              style={{ borderRadius: "1rem", border: "1px solid rgba(241,245,249,1)", padding: "1.75rem" }}
+              style={{ borderRadius: "1rem", border: "1px solid var(--color-border)", padding: "1.75rem" }}
             >
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.25rem" }}>
                 <div style={{
@@ -242,7 +242,7 @@ export function ProjectsListPage() {
                 </p>
               )}
 
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "1.25rem", paddingTop: "1.25rem", borderTop: "1px solid rgba(241,245,249,1)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "1.25rem", paddingTop: "1.25rem", borderTop: "1px solid var(--color-border)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.375rem" }}>
                   <ListTodo size={14} className="text-gray-400" />
                   <span className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.8125rem" }}>
@@ -251,7 +251,7 @@ export function ProjectsListPage() {
                 </div>
                 <button
                   onClick={() => { setProjectId(project.id); navigate("/tasks"); }}
-                  style={{ fontSize: "0.8125rem", color: "#6366f1", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}
+                  style={{ fontSize: "0.8125rem", color: "#7c6ff7", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}
                 >
                   View tasks →
                 </button>
@@ -269,7 +269,7 @@ export function ProjectsListPage() {
             onClick={() => updateMutation.mutate()}
             disabled={updateMutation.isPending || !editName.trim()}
             style={{
-              width: "100%", padding: "1.0625rem", background: "#6366f1", color: "white",
+              width: "100%", padding: "1.0625rem", background: "#7c6ff7", color: "white",
               border: "none", borderRadius: "0.875rem", fontWeight: 700,
               fontSize: "1rem", cursor: "pointer",
             }}

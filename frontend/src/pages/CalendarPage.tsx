@@ -15,9 +15,9 @@ import { useUIStore } from "../store/ui";
 
 // Softer palette — works in both light and dark
 const PILL: Record<string, { bg: string; dot: string; text: string }> = {
-  LOW:      { bg: "rgba(99,102,241,0.12)",  dot: "#818cf8", text: "#6366f1" },
+  LOW:      { bg: "rgba(124,111,247,0.12)",  dot: "#a89df9", text: "#7c6ff7" },
   MEDIUM:   { bg: "rgba(16,185,129,0.12)",  dot: "#34d399", text: "#059669" },
-  HIGH:     { bg: "rgba(249,115,22,0.12)",  dot: "#fb923c", text: "#ea580c" },
+  HIGH:     { bg: "rgba(251,146,60,0.12)",  dot: "#fb923c", text: "#ea580c" },
   CRITICAL: { bg: "rgba(239,68,68,0.12)",   dot: "#f87171", text: "#dc2626" },
 };
 
@@ -77,12 +77,12 @@ function DayCell({ date, tasks, isCurrentMonth }: { date: Date; tasks: Task[]; i
       style={{
         minHeight: "clamp(4rem, 14vw, 7rem)",
         padding: "0.375rem 0.4rem",
-        borderBottom: "1px solid rgba(241,245,249,1)",
-        borderRight: "1px solid rgba(241,245,249,1)",
+        borderBottom: "1px solid var(--color-border)",
+        borderRight: "1px solid var(--color-border)",
         background: isOver
-          ? "rgba(99,102,241,0.06)"
+          ? "rgba(124,111,247,0.06)"
           : today
-          ? "rgba(99,102,241,0.03)"
+          ? "rgba(124,111,247,0.03)"
           : isCurrentMonth
           ? undefined
           : "rgba(248,250,252,0.5)",
@@ -98,7 +98,7 @@ function DayCell({ date, tasks, isCurrentMonth }: { date: Date; tasks: Task[]; i
           borderRadius: "50%",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: "0.6875rem", fontWeight: today ? 800 : 500,
-          background: today ? "#6366f1" : "transparent",
+          background: today ? "#7c6ff7" : "transparent",
           color: today ? "white" : isCurrentMonth ? undefined : "rgba(156,163,175,1)",
           flexShrink: 0,
         }} className={!today ? (isCurrentMonth ? "text-gray-700 dark:text-gray-400" : "text-gray-300 dark:text-gray-700") : ""}>
@@ -191,7 +191,7 @@ export function CalendarPage() {
         <div className="bg-white dark:bg-gray-900" style={{
           flex: 1, display: "flex", flexDirection: "column", overflow: "hidden",
           borderRadius: "1.25rem",
-          border: "1px solid rgba(226,232,240,0.8)",
+          border: "1px solid var(--color-border)",
           boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
         }}>
 
@@ -199,7 +199,7 @@ export function CalendarPage() {
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "space-between",
             padding: "1.25rem 1.5rem", flexShrink: 0,
-            borderBottom: "1px solid rgba(241,245,249,1)",
+            borderBottom: "1px solid var(--color-border)",
           }} className="dark:border-gray-800">
             <div>
               <h1 className="text-gray-900 dark:text-white"
@@ -207,7 +207,7 @@ export function CalendarPage() {
                 {format(currentMonth, "MMMM yyyy")}
               </h1>
               {todayCount > 0 && (
-                <p style={{ fontSize: "0.75rem", color: "#6366f1", fontWeight: 600, marginTop: "0.2rem" }}>
+                <p style={{ fontSize: "0.75rem", color: "#7c6ff7", fontWeight: 600, marginTop: "0.2rem" }}>
                   {todayCount} task{todayCount !== 1 ? "s" : ""} today
                 </p>
               )}
@@ -217,7 +217,7 @@ export function CalendarPage() {
                 onClick={() => setCurrentMonth(new Date())}
                 style={{
                   padding: "0.5rem 1.125rem", borderRadius: "0.75rem",
-                  background: "rgba(99,102,241,0.1)", color: "#6366f1",
+                  background: "rgba(124,111,247,0.1)", color: "#7c6ff7",
                   border: "none", fontWeight: 700, fontSize: "0.8125rem", cursor: "pointer",
                 }}
               >
@@ -251,14 +251,14 @@ export function CalendarPage() {
           {/* Weekday headers */}
           <div style={{
             display: "grid", gridTemplateColumns: "repeat(7, 1fr)",
-            borderBottom: "1px solid rgba(241,245,249,1)", flexShrink: 0,
+            borderBottom: "1px solid var(--color-border)", flexShrink: 0,
           }} className="dark:border-gray-800">
             {WEEKDAYS.map((d, i) => (
               <div key={d} style={{
                 padding: "0.625rem 0", textAlign: "center",
                 fontSize: "0.6875rem", fontWeight: 700,
                 letterSpacing: "0.06em", textTransform: "uppercase",
-                borderRight: i < 6 ? "1px solid rgba(241,245,249,1)" : "none",
+                borderRight: i < 6 ? "1px solid var(--color-border)" : "none",
               }} className="text-gray-400 dark:text-gray-600 dark:border-gray-800">
                 <span className="hidden sm:inline">{d}</span>
                 <span className="sm:hidden">{d[0]}</span>
@@ -288,13 +288,13 @@ export function CalendarPage() {
         <div className="hidden md:flex flex-col bg-white dark:bg-gray-900" style={{
           width: "14rem", flexShrink: 0, overflow: "hidden",
           borderRadius: "1.25rem",
-          border: "1px solid rgba(226,232,240,0.8)",
+          border: "1px solid var(--color-border)",
           boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
         }}>
           {/* Sidebar header */}
           <div style={{
             padding: "1.25rem 1.125rem 1rem",
-            borderBottom: "1px solid rgba(241,245,249,1)",
+            borderBottom: "1px solid var(--color-border)",
           }} className="dark:border-gray-800">
             <p className="text-gray-900 dark:text-white"
                style={{ fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.25rem" }}>

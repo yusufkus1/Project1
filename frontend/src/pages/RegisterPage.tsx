@@ -54,7 +54,7 @@ export function RegisterPage() {
       {/* Left branding panel */}
       <div style={{
         flex: "0 0 45%",
-        background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%)",
+        background: "linear-gradient(135deg, #6c5ff5 0%, #7c6ff7 50%, #a89df9 100%)",
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
@@ -126,7 +126,7 @@ export function RegisterPage() {
         <div style={{ width: "100%", maxWidth: "400px", padding: "1rem 0" }}>
 
           <div className="lg:hidden" style={{ textAlign: "center", marginBottom: "2rem" }}>
-            <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "#6366f1", letterSpacing: "-0.02em" }}>
+            <span style={{ fontSize: "1.5rem", fontWeight: 800, color: "#7c6ff7", letterSpacing: "-0.02em" }}>
               TodoApp
             </span>
           </div>
@@ -151,7 +151,7 @@ export function RegisterPage() {
                 placeholder="Your Name"
                 {...register("name", { required: "Name is required" })}
                 style={fieldStyle(!!errors.name)}
-                onFocus={(e) => { if (!errors.name) e.target.style.borderColor = "#6366f1"; }}
+                onFocus={(e) => { if (!errors.name) e.target.style.borderColor = "#7c6ff7"; }}
                 onBlur={(e) => { if (!errors.name) e.target.style.borderColor = "#e2e8f0"; }}
               />
               {errors.name && <p style={{ fontSize: "0.75rem", color: "#ef4444", marginTop: "0.375rem" }}>{errors.name.message}</p>}
@@ -167,7 +167,7 @@ export function RegisterPage() {
                 placeholder="you@example.com"
                 {...register("email", { required: "Email is required" })}
                 style={fieldStyle(!!errors.email)}
-                onFocus={(e) => { if (!errors.email) e.target.style.borderColor = "#6366f1"; }}
+                onFocus={(e) => { if (!errors.email) e.target.style.borderColor = "#7c6ff7"; }}
                 onBlur={(e) => { if (!errors.email) e.target.style.borderColor = "#e2e8f0"; }}
               />
               {errors.email && <p style={{ fontSize: "0.75rem", color: "#ef4444", marginTop: "0.375rem" }}>{errors.email.message}</p>}
@@ -184,7 +184,7 @@ export function RegisterPage() {
                   placeholder="At least 6 characters"
                   {...register("password", { required: "Password is required", minLength: { value: 6, message: "At least 6 characters" } })}
                   style={withEyeStyle(!!errors.password)}
-                  onFocus={(e) => { if (!errors.password) e.target.style.borderColor = "#6366f1"; }}
+                  onFocus={(e) => { if (!errors.password) e.target.style.borderColor = "#7c6ff7"; }}
                   onBlur={(e) => { if (!errors.password) e.target.style.borderColor = "#e2e8f0"; }}
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} style={{
@@ -213,7 +213,7 @@ export function RegisterPage() {
                     validate: (v) => v === watch("password") || "Passwords don't match",
                   })}
                   style={withEyeStyle(!!errors.confirm)}
-                  onFocus={(e) => { if (!errors.confirm) e.target.style.borderColor = "#6366f1"; }}
+                  onFocus={(e) => { if (!errors.confirm) e.target.style.borderColor = "#7c6ff7"; }}
                   onBlur={(e) => { if (!errors.confirm) e.target.style.borderColor = "#e2e8f0"; }}
                 />
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)} style={{
@@ -234,7 +234,7 @@ export function RegisterPage() {
               disabled={mutation.isPending}
               style={{
                 width: "100%", padding: "0.8125rem",
-                background: mutation.isPending ? "#a5b4fc" : "#6366f1",
+                background: mutation.isPending ? "#c4bbfd" : "#7c6ff7",
                 color: "white", border: "none", borderRadius: "0.625rem",
                 fontSize: "0.9375rem", fontWeight: 600,
                 cursor: mutation.isPending ? "not-allowed" : "pointer",
@@ -257,7 +257,7 @@ export function RegisterPage() {
 
           <p style={{ textAlign: "center", fontSize: "0.875rem", color: "#64748b", marginTop: "1.5rem" }}>
             Already have an account?{" "}
-            <Link to="/login" style={{ color: "#6366f1", fontWeight: 600, textDecoration: "none" }}>
+            <Link to="/login" style={{ color: "#7c6ff7", fontWeight: 600, textDecoration: "none" }}>
               Sign in
             </Link>
           </p>

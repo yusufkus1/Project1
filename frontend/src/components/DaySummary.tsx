@@ -71,16 +71,16 @@ export function DaySummary({ onClose }: { onClose: () => void }) {
           </div>
 
           {/* XP banner */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "1rem 1.125rem", borderRadius: "0.875rem", background: "rgba(99,102,241,0.08)", border: "1.5px solid rgba(99,102,241,0.2)" }}>
-            <Star size={18} style={{ color: "#6366f1", flexShrink: 0 }} />
-            <p style={{ color: "#6366f1", fontWeight: 600, fontSize: "0.9375rem" }}>{xp} total XP earned — keep it up!</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "1rem 1.125rem", borderRadius: "0.875rem", background: "rgba(124,111,247,0.08)", border: "1.5px solid rgba(124,111,247,0.2)" }}>
+            <Star size={18} style={{ color: "#7c6ff7", flexShrink: 0 }} />
+            <p style={{ color: "#7c6ff7", fontWeight: 600, fontSize: "0.9375rem" }}>{xp} total XP earned — keep it up!</p>
           </div>
         </div>
 
         <div style={{ padding: "0 1.75rem 1.75rem" }}>
           <button
             onClick={onClose}
-            style={{ width: "100%", padding: "0.875rem", borderRadius: "0.875rem", border: "none", background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "white", fontWeight: 700, fontSize: "0.9375rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(99,102,241,0.3)" }}
+            style={{ width: "100%", padding: "0.875rem", borderRadius: "0.875rem", border: "none", background: "linear-gradient(135deg, #7c6ff7, #a78bfa)", color: "white", fontWeight: 700, fontSize: "0.9375rem", cursor: "pointer", boxShadow: "0 4px 12px rgba(124,111,247,0.3)" }}
           >
             Rest well 🌙
           </button>

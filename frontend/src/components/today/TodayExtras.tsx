@@ -112,7 +112,7 @@ const QUOTES = [
 
 const PRIORITY_ORDER: Record<string, number> = { CRITICAL: 0, HIGH: 1, MEDIUM: 2, LOW: 3 };
 const PRIORITY_COLOR: Record<string, string> = {
-  CRITICAL: "#ef4444", HIGH: "#f97316", MEDIUM: "#eab308", LOW: "#94a3b8",
+  CRITICAL: "#ef4444", HIGH: "#fb923c", MEDIUM: "#eab308", LOW: "#94a3b8",
 };
 const PRIORITY_LABEL: Record<string, string> = {
   CRITICAL: "Critical", HIGH: "High", MEDIUM: "Medium", LOW: "Low",
@@ -259,7 +259,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
             <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
               style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: "0.4375rem 0.75rem", borderRadius: "999px", border: "1px solid" }}>
               <span style={{ fontSize: "0.8125rem" }}>🔥</span>
-              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#f97316" }}>{streak}d</span>
+              <span style={{ fontSize: "0.8125rem", fontWeight: 600, color: "#fb923c" }}>{streak}d</span>
             </div>
           )}
         </div>
@@ -291,12 +291,12 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
       {focusTask && (
         <div style={{
           borderRadius: "0.875rem", padding: "0.875rem 1.125rem",
-          background: "rgba(99,102,241,0.06)", border: "1.5px solid rgba(99,102,241,0.2)",
+          background: "rgba(124,111,247,0.06)", border: "1.5px solid rgba(124,111,247,0.2)",
           display: "flex", alignItems: "center", gap: "0.875rem",
         }}>
-          <Zap size={18} style={{ color: "#6366f1", flexShrink: 0 }} />
+          <Zap size={18} style={{ color: "#7c6ff7", flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#6366f1", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
+            <p style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#7c6ff7", letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "0.25rem" }}>
               Top priority
             </p>
             <p className="text-gray-800 dark:text-gray-100 truncate" style={{ fontSize: "0.9375rem", fontWeight: 600 }}>
@@ -314,7 +314,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
             onClick={() => startFocus(focusTask)}
             style={{
               display: "flex", alignItems: "center", gap: "0.375rem",
-              padding: "0.5rem 0.875rem", background: "#6366f1", color: "white",
+              padding: "0.5rem 0.875rem", background: "#7c6ff7", color: "white",
               border: "none", borderRadius: "0.5rem", fontWeight: 600,
               fontSize: "0.8125rem", cursor: "pointer", flexShrink: 0,
               whiteSpace: "nowrap",
@@ -340,7 +340,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
             flex: 1, padding: "0.625rem 1rem", borderRadius: "0.625rem",
             border: "1.5px solid", fontSize: "0.9375rem", outline: "none",
           }}
-          onFocus={(e) => { e.currentTarget.style.borderColor = "#6366f1"; }}
+          onFocus={(e) => { e.currentTarget.style.borderColor = "#7c6ff7"; }}
           onBlur={(e) => { e.currentTarget.style.borderColor = ""; }}
         />
         <button
@@ -348,7 +348,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
           disabled={!quickTitle.trim() || addTask.isPending}
           style={{
             padding: "0.625rem 1rem", borderRadius: "0.625rem",
-            background: quickTitle.trim() ? "#6366f1" : "#e2e8f0",
+            background: quickTitle.trim() ? "#7c6ff7" : "#e2e8f0",
             color: quickTitle.trim() ? "white" : "#9ca3af",
             border: "none", cursor: quickTitle.trim() ? "pointer" : "default",
             display: "flex", alignItems: "center", gap: "0.25rem",

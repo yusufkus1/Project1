@@ -7,7 +7,7 @@ import { useGamificationStore } from "../store/gamification";
 import toast from "react-hot-toast";
 
 const ICONS = ["⭐", "💪", "📚", "🧘", "🏃", "💧", "🥗", "😴", "✍️", "🎯", "🎵", "🌿", "🧠", "❤️", "🚴"];
-const COLORS = ["#6366f1", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#f97316", "#ec4899", "#14b8a6", "#84cc16"];
+const COLORS = ["#7c6ff7", "#10b981", "#f59e0b", "#ef4444", "#a78bfa", "#06b6d4", "#fb923c", "#ec4899", "#14b8a6", "#84cc16"];
 
 function getLast21Days() {
   return Array.from({ length: 21 }, (_, i) => {
@@ -58,7 +58,7 @@ function HabitCard({ habit }: { habit: Habit }) {
   return (
     <div style={{
       background: "white", borderRadius: "1rem", padding: "1.25rem",
-      border: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: "1rem",
+      border: "1px solid var(--color-border)", display: "flex", flexDirection: "column", gap: "1rem",
     }} className="dark:bg-gray-900 dark:border-gray-800">
 
       {/* Header */}
@@ -76,8 +76,8 @@ function HabitCard({ habit }: { habit: Habit }) {
           </p>
           {streak > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-              <Flame size={11} color="#f97316" />
-              <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#f97316" }}>{streak} day streak</span>
+              <Flame size={11} color="#fb923c" />
+              <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#fb923c" }}>{streak} day streak</span>
             </div>
           )}
         </div>
@@ -117,7 +117,7 @@ function HabitCard({ habit }: { habit: Habit }) {
               title={day}
               style={{
                 width: "1.125rem", height: "1.125rem", borderRadius: "3px",
-                background: done ? habit.color : isToday ? `${habit.color}30` : "#f1f5f9",
+                background: done ? habit.color : isToday ? `${habit.color}30` : "var(--color-border)",
                 border: isToday ? `1.5px solid ${habit.color}` : "none",
                 transition: "background 0.15s",
                 cursor: "default",
@@ -253,7 +253,7 @@ export function HabitsPage() {
           onClick={() => setShowModal(true)}
           style={{
             display: "flex", alignItems: "center", gap: "0.5rem",
-            padding: "0.625rem 1.125rem", background: "#6366f1", color: "white",
+            padding: "0.625rem 1.125rem", background: "#7c6ff7", color: "white",
             border: "none", borderRadius: "0.75rem", fontWeight: 600,
             fontSize: "0.875rem", cursor: "pointer",
           }}
@@ -275,7 +275,7 @@ export function HabitsPage() {
           <button
             onClick={() => setShowModal(true)}
             style={{
-              padding: "0.625rem 1.5rem", background: "#6366f1", color: "white",
+              padding: "0.625rem 1.5rem", background: "#7c6ff7", color: "white",
               border: "none", borderRadius: "0.75rem", fontWeight: 600, cursor: "pointer",
             }}
           >

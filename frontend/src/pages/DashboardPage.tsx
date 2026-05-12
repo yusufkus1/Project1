@@ -38,7 +38,7 @@ export function DashboardPage() {
   const isMobile = useIsMobile();
 
   const statCards = [
-    { label: "Total Tasks",  value: stats?.total ?? 0,      icon: ListTodo,     color: "#6366f1", bg: "rgba(99,102,241,0.1)", view: "inbox"       },
+    { label: "Total Tasks",  value: stats?.total ?? 0,      icon: ListTodo,     color: "#7c6ff7", bg: "rgba(124,111,247,0.1)", view: "inbox"       },
     { label: "Completed",    value: stats?.completed ?? 0,  icon: CheckCircle,  color: "#22c55e", bg: "rgba(34,197,94,0.1)",  view: "completed"   },
     { label: "Pending",      value: stats?.pending ?? 0,    icon: Clock,        color: "#eab308", bg: "rgba(234,179,8,0.1)",  view: "pending"     },
     { label: "In Progress",  value: stats?.inProgress ?? 0, icon: TrendingUp,   color: "#3b82f6", bg: "rgba(59,130,246,0.1)", view: "in_progress" },
@@ -63,11 +63,13 @@ export function DashboardPage() {
 
       {/* Gamification hero */}
       <div style={{
-        background: "linear-gradient(135deg, #6366f1, #9333ea)",
+        background: "linear-gradient(135deg, #7c6ff7 0%, #a78bfa 60%, #c4b5fd 100%)",
         borderRadius: "1.5rem",
         padding: isMobile ? "1.5rem" : "2.5rem",
         color: "white",
-        boxShadow: "0 20px 40px rgba(99,102,241,0.3)",
+        boxShadow: "0 12px 40px rgba(124,111,247,0.25)",
+        position: "relative",
+        overflow: "hidden",
       }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1.5rem", flexWrap: "wrap" }}>
           <div style={{ flex: 1, minWidth: "180px" }}>
@@ -122,11 +124,13 @@ export function DashboardPage() {
               <button
                 key={label}
                 onClick={() => { setSelectedView(view); navigate("/"); }}
-                className="bg-white dark:bg-gray-900 hover:shadow-md transition-all"
                 style={{
-                  borderRadius: "1rem", border: "1px solid", borderColor: "var(--tw-border-color, #f1f5f9)",
+                  background: "var(--color-surface)",
+                  borderRadius: "1rem", border: "1px solid var(--color-border)",
+                  boxShadow: "var(--shadow-card)",
                   padding: isMobile ? "1rem" : "1.75rem", display: "flex", flexDirection: "column", gap: isMobile ? "0.75rem" : "1.25rem",
                   cursor: "pointer", textAlign: "left", width: "100%",
+                  transition: "box-shadow 0.2s",
                 }}
               >
                 <div style={{ width: isMobile ? "2.25rem" : "3rem", height: isMobile ? "2.25rem" : "3rem", background: bg, borderRadius: "0.75rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -143,9 +147,9 @@ export function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8">
-        <div className="bg-white dark:bg-gray-900" style={{ borderRadius: "1rem", border: "1px solid", borderColor: "rgba(241,245,249,1)", padding: "2rem" }}>
+        <div style={{ background: "var(--color-surface)", borderRadius: "1rem", border: "1px solid var(--color-border)", boxShadow: "var(--shadow-card)", padding: "2rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }}>
-            <BarChart2 size={20} color="#6366f1" />
+            <BarChart2 size={20} color="#7c6ff7" />
             <span className="text-gray-900 dark:text-white" style={{ fontWeight: 600 }}>Completion Rate</span>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -154,7 +158,7 @@ export function DashboardPage() {
               <span className="text-gray-900 dark:text-white" style={{ fontSize: "2.5rem", fontWeight: 700 }}>{completionRate}%</span>
             </div>
             <div className="bg-gray-100 dark:bg-gray-800" style={{ borderRadius: "999px", height: "1rem" }}>
-              <div style={{ background: "#6366f1", borderRadius: "999px", height: "1rem", width: `${completionRate}%`, transition: "width 0.7s ease" }} />
+              <div style={{ background: "#7c6ff7", borderRadius: "999px", height: "1rem", width: `${completionRate}%`, transition: "width 0.7s ease" }} />
             </div>
             <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.875rem" }}>
               {stats?.completed ?? 0} of {stats?.total ?? 0} tasks completed
@@ -162,16 +166,16 @@ export function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-900" style={{ borderRadius: "1rem", border: "1px solid", borderColor: "rgba(241,245,249,1)", padding: "2rem" }}>
+        <div style={{ background: "var(--color-surface)", borderRadius: "1rem", border: "1px solid var(--color-border)", boxShadow: "var(--shadow-card)", padding: "2rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }}>
-            <AlertTriangle size={20} color="#f97316" />
+            <AlertTriangle size={20} color="#fb923c" />
             <span className="text-gray-900 dark:text-white" style={{ fontWeight: 600 }}>By Priority</span>
           </div>
           {stats?.byPriority?.length ? (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {stats.byPriority.map(({ priority, _count }: { priority: string; _count: number }) => {
                 const labels: Record<string, string> = { LOW: "Low", MEDIUM: "Medium", HIGH: "High", CRITICAL: "Critical" };
-                const colors: Record<string, string> = { LOW: "#22c55e", MEDIUM: "#eab308", HIGH: "#f97316", CRITICAL: "#ef4444" };
+                const colors: Record<string, string> = { LOW: "#22c55e", MEDIUM: "#eab308", HIGH: "#fb923c", CRITICAL: "#ef4444" };
                 const pct = stats.total ? Math.round((_count / stats.total) * 100) : 0;
                 return (
                   <div key={priority} style={{ display: "flex", alignItems: "center", gap: "1rem", fontSize: "0.875rem" }}>
@@ -193,11 +197,11 @@ export function DashboardPage() {
       {/* Streak row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6">
         {[
-          { value: streak, label: "Current streak", Icon: Flame, color: "#f97316", bg: "rgba(249,115,22,0.1)" },
+          { value: streak, label: "Current streak", Icon: Flame, color: "#fb923c", bg: "rgba(251,146,60,0.1)" },
           { value: longestStreak, label: "Longest streak", Icon: Star, color: "#eab308", bg: "rgba(234,179,8,0.1)" },
           { value: tasksCompletedToday, label: "Completed today", Icon: Zap, color: "#22c55e", bg: "rgba(34,197,94,0.1)" },
         ].map(({ value, label, Icon, color, bg }) => (
-          <div key={label} className="bg-white dark:bg-gray-900" style={{ borderRadius: "1rem", border: "1px solid rgba(241,245,249,1)", padding: "1.75rem", display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <div key={label} style={{ background: "var(--color-surface)", borderRadius: "1rem", border: "1px solid var(--color-border)", boxShadow: "var(--shadow-card)", padding: "1.75rem", display: "flex", alignItems: "center", gap: "1.5rem" }}>
             <div style={{ width: "3.5rem", height: "3.5rem", background: bg, borderRadius: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <Icon size={24} style={{ color }} />
             </div>
@@ -223,7 +227,7 @@ export function DashboardPage() {
                 className={unlocked ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-900"}
                 style={{
                   borderRadius: "1rem",
-                  border: `1px solid ${unlocked ? "rgba(99,102,241,0.3)" : "rgba(241,245,249,1)"}`,
+                  border: `1px solid ${unlocked ? "rgba(124,111,247,0.3)" : "var(--color-border)"}`,
                   padding: "1.5rem",
                   display: "flex",
                   alignItems: "center",

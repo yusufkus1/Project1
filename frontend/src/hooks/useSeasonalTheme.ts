@@ -32,7 +32,7 @@ export function useSeasonalTheme(): SeasonalTheme {
       season: "autumn",
       emoji: "🍂",
       greeting: "Autumn — time to harvest results.",
-      accent: "#f97316",
+      accent: "#fb923c",
       tip: "Autumn focus: wrap up projects before year-end.",
     };
   } else {

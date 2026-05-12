@@ -120,12 +120,12 @@ export function InlineAdd({ projectId, parentId }: InlineAddProps) {
       style={{
         display: "flex", alignItems: "center", gap: "0.75rem",
         padding: "0.875rem 1.25rem", borderRadius: "0.875rem",
-        border: "1.5px solid", boxShadow: "0 4px 12px rgba(99,102,241,0.12)",
+        border: "1.5px solid", boxShadow: "0 4px 12px rgba(124,111,247,0.12)",
       }}
     >
       <div style={{
         width: "1.125rem", height: "1.125rem", borderRadius: "50%",
-        border: "2px dashed #818cf8", flexShrink: 0,
+        border: "2px dashed #a89df9", flexShrink: 0,
       }} />
       <input
         ref={inputRef}
@@ -145,8 +145,8 @@ export function InlineAdd({ projectId, parentId }: InlineAddProps) {
           style={{
             flexShrink: 0, width: "1.875rem", height: "1.875rem", borderRadius: "50%",
             border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-            background: listening ? "rgba(239,68,68,0.1)" : "rgba(99,102,241,0.1)",
-            color: listening ? "#ef4444" : "#6366f1",
+            background: listening ? "rgba(239,68,68,0.1)" : "rgba(124,111,247,0.1)",
+            color: listening ? "#ef4444" : "#7c6ff7",
             boxShadow: listening ? "0 0 0 3px rgba(239,68,68,0.15)" : "none",
             transition: "all 0.2s",
           }}

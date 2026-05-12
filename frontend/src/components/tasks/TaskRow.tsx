@@ -54,7 +54,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
         const popupId = Date.now();
         setXpPopups((prev) => [...prev, { id: popupId, amount: xpGained }]);
         setTimeout(() => setXpPopups((prev) => prev.filter((p) => p.id !== popupId)), 1200);
-        confetti({ particleCount: task.priority === "CRITICAL" ? 120 : 60, spread: 70, origin: { y: 0.6 }, colors: ["#6366f1", "#8b5cf6", "#22c55e", "#f59e0b"] });
+        confetti({ particleCount: task.priority === "CRITICAL" ? 120 : 60, spread: 70, origin: { y: 0.6 }, colors: ["#7c6ff7", "#a78bfa", "#22c55e", "#f59e0b"] });
         if ((data as { recycled?: boolean }).recycled) {
           toast("Recurring task rescheduled", { icon: "🔁", duration: 2500 });
         } else {
@@ -82,7 +82,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
       {xpPopups.map((popup) => (
         <div key={popup.id} className="animate-xp-float" style={{
           position: "absolute", right: "3rem", top: 0, zIndex: 10,
-          pointerEvents: "none", color: "#6366f1", fontSize: "0.75rem", fontWeight: 700,
+          pointerEvents: "none", color: "#7c6ff7", fontSize: "0.75rem", fontWeight: 700,
         }}>
           +{popup.amount} XP
         </div>
@@ -114,8 +114,8 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
             flexShrink: 0, width: "1.125rem", height: "1.125rem", borderRadius: "50%",
             border: "2px solid", display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", transition: "all 0.2s", background: "none", padding: 0,
-            borderColor: isDone ? "#6366f1" : isOverdue ? "#ef4444" : "#d1d5db",
-            backgroundColor: isDone ? "#6366f1" : "transparent",
+            borderColor: isDone ? "#7c6ff7" : isOverdue ? "#ef4444" : "#d1d5db",
+            backgroundColor: isDone ? "#7c6ff7" : "transparent",
           }}
         >
           {isDone && <Check size={9} strokeWidth={3} color="white" />}
@@ -162,14 +162,14 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
 
         {/* Days open — only on desktop */}
         {!isMobile && daysOpen >= 3 && (
-          <span title={`Open for ${daysOpen} days`} style={{ background: daysOpen >= 7 ? "rgba(239,68,68,0.1)" : "rgba(249,115,22,0.1)", color: daysOpen >= 7 ? "#dc2626" : "#ea580c", borderRadius: "999px", padding: "0.125rem 0.5rem", fontSize: "0.625rem", fontWeight: 700, flexShrink: 0 }}>
+          <span title={`Open for ${daysOpen} days`} style={{ background: daysOpen >= 7 ? "rgba(239,68,68,0.1)" : "rgba(251,146,60,0.1)", color: daysOpen >= 7 ? "#dc2626" : "#ea580c", borderRadius: "999px", padding: "0.125rem 0.5rem", fontSize: "0.625rem", fontWeight: 700, flexShrink: 0 }}>
             {daysOpen}d
           </span>
         )}
 
         {/* Recurrence indicator */}
         {task.recurrence && !isMobile && (
-          <Repeat2 size={12} style={{ flexShrink: 0, color: "#6366f1", opacity: 0.7 }} />
+          <Repeat2 size={12} style={{ flexShrink: 0, color: "#7c6ff7", opacity: 0.7 }} />
         )}
 
         {/* Due date */}

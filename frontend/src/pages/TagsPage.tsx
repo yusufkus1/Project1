@@ -7,7 +7,7 @@ import { Input } from "../components/ui/Input";
 import toast from "react-hot-toast";
 import { useIsMobile } from "../hooks/useIsMobile";
 
-const COLORS = ["#6366f1","#8b5cf6","#ec4899","#ef4444","#f97316","#eab308","#22c55e","#14b8a6","#3b82f6","#64748b"];
+const COLORS = ["#7c6ff7","#a78bfa","#ec4899","#ef4444","#fb923c","#eab308","#22c55e","#14b8a6","#3b82f6","#64748b"];
 
 export function TagsPage() {
   const qc = useQueryClient();
@@ -60,7 +60,7 @@ export function TagsPage() {
           onClick={openCreate}
           style={{
             display: "flex", alignItems: "center", gap: "0.5rem",
-            padding: "0.75rem 1.5rem", background: "#6366f1", color: "white",
+            padding: "0.75rem 1.5rem", background: "#7c6ff7", color: "white",
             border: "none", borderRadius: "0.75rem", fontWeight: 600,
             fontSize: "0.9375rem", cursor: "pointer", whiteSpace: "nowrap",
           }}
@@ -72,16 +72,16 @@ export function TagsPage() {
       {/* Empty state */}
       {tags.length === 0 ? (
         <div className="bg-white dark:bg-gray-900" style={{
-          borderRadius: "1.5rem", border: "1px solid rgba(241,245,249,1)",
+          borderRadius: "1.5rem", border: "1px solid var(--color-border)",
           padding: "5rem 2rem", display: "flex", flexDirection: "column",
           alignItems: "center", gap: "1.5rem",
         }}>
           <div style={{
             width: "5rem", height: "5rem", borderRadius: "1.5rem",
-            background: "rgba(99,102,241,0.1)", display: "flex",
+            background: "rgba(124,111,247,0.1)", display: "flex",
             alignItems: "center", justifyContent: "center",
           }}>
-            <Tag size={32} color="#6366f1" />
+            <Tag size={32} color="#7c6ff7" />
           </div>
           <div style={{ textAlign: "center" }}>
             <p className="text-gray-900 dark:text-white" style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "0.5rem" }}>
@@ -95,7 +95,7 @@ export function TagsPage() {
             onClick={openCreate}
             style={{
               display: "flex", alignItems: "center", gap: "0.5rem",
-              padding: "0.75rem 1.5rem", background: "#6366f1", color: "white",
+              padding: "0.75rem 1.5rem", background: "#7c6ff7", color: "white",
               border: "none", borderRadius: "0.75rem", fontWeight: 600,
               fontSize: "0.9375rem", cursor: "pointer",
             }}
@@ -110,7 +110,7 @@ export function TagsPage() {
               key={tag.id}
               className="bg-white dark:bg-gray-900 group hover:shadow-md transition-all"
               style={{
-                borderRadius: "1rem", border: "1px solid rgba(241,245,249,1)",
+                borderRadius: "1rem", border: "1px solid var(--color-border)",
                 padding: "1.5rem", display: "flex", alignItems: "center",
                 justifyContent: "space-between", gap: "1rem",
               }}
@@ -177,7 +177,7 @@ export function TagsPage() {
                 boxSizing: "border-box",
                 transition: "border-color 0.15s",
               }}
-              onFocus={(e) => { e.currentTarget.style.borderColor = "#6366f1"; }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = "#7c6ff7"; }}
               onBlur={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; }}
             />
           </div>
@@ -224,7 +224,7 @@ export function TagsPage() {
             disabled={createMutation.isPending || updateMutation.isPending || !name.trim()}
             style={{
               width: "100%", padding: "1.0625rem",
-              background: !name.trim() ? "#e5e7eb" : "#6366f1",
+              background: !name.trim() ? "#e5e7eb" : "#7c6ff7",
               color: !name.trim() ? "#9ca3af" : "white",
               border: "none", borderRadius: "0.875rem", fontWeight: 700,
               fontSize: "1rem", cursor: !name.trim() ? "not-allowed" : "pointer",

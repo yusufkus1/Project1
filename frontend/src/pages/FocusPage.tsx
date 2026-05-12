@@ -43,7 +43,7 @@ const SIZE = 280;
 const CENTER = SIZE / 2;
 
 const MODE_META: Record<FocusMode, { label: string; color: string; dimColor: string; icon: React.ReactNode }> = {
-  work:        { label: "Focus",       color: "#6366f1", dimColor: "rgba(99,102,241,0.15)",  icon: <Brain size={14} /> },
+  work:        { label: "Focus",       color: "#7c6ff7", dimColor: "rgba(124,111,247,0.15)",  icon: <Brain size={14} /> },
   short_break: { label: "Short Break", color: "#22c55e", dimColor: "rgba(34,197,94,0.15)",   icon: <Coffee size={14} /> },
   long_break:  { label: "Long Break",  color: "#3b82f6", dimColor: "rgba(59,130,246,0.15)",  icon: <Coffee size={14} /> },
 };
@@ -176,7 +176,7 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
             onClick={() => updateSettings({ soundEnabled: !settings.soundEnabled })}
             style={{
               width: "3rem", height: "1.625rem", borderRadius: "999px", border: "none", cursor: "pointer",
-              background: settings.soundEnabled ? "#6366f1" : "#e5e7eb", transition: "background 0.2s", position: "relative",
+              background: settings.soundEnabled ? "#7c6ff7" : "#e5e7eb", transition: "background 0.2s", position: "relative",
             }}
           >
             <span style={{
@@ -376,7 +376,7 @@ export function FocusPage() {
                   className="text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                   style={{
                     width: "100%", padding: "0.75rem 1rem", textAlign: "left", fontSize: "0.875rem",
-                    background: store.currentTaskId === t.id ? "rgba(99,102,241,0.06)" : "none",
+                    background: store.currentTaskId === t.id ? "rgba(124,111,247,0.06)" : "none",
                     border: "none", cursor: "pointer", borderBottom: "1px solid rgba(0,0,0,0.04)",
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}
@@ -438,10 +438,10 @@ export function FocusPage() {
         <div style={{
           display: "flex", alignItems: "center", gap: "0.75rem",
           padding: "0.875rem 1.25rem", borderRadius: "0.875rem",
-          background: "rgba(139,92,246,0.08)", border: "1.5px solid rgba(139,92,246,0.2)",
+          background: "rgba(167,139,250,0.08)", border: "1.5px solid rgba(167,139,250,0.2)",
         }}>
-          <Users size={16} style={{ color: "#8b5cf6", flexShrink: 0 }} />
-          <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "#8b5cf6" }}>
+          <Users size={16} style={{ color: "#a78bfa", flexShrink: 0 }} />
+          <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "#a78bfa" }}>
             {focuserCount} people are focusing with you right now
           </span>
         </div>
@@ -483,15 +483,15 @@ export function FocusPage() {
               : `${todayFocusMinutes}m`,
             label: "Focus today",
             icon: <Clock size={18} />,
-            color: "#6366f1",
-            bg: "rgba(99,102,241,0.1)",
+            color: "#7c6ff7",
+            bg: "rgba(124,111,247,0.1)",
           },
           {
             value: `${todayWorkSessions.length} 🍅`,
             label: "Sessions today",
             icon: <Flame size={18} />,
-            color: "#f97316",
-            bg: "rgba(249,115,22,0.1)",
+            color: "#fb923c",
+            bg: "rgba(251,146,60,0.1)",
           },
           {
             value: store.totalFocusMinutes >= 60

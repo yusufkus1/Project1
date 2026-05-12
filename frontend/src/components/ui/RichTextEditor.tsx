@@ -36,8 +36,8 @@ function ToolbarBtn({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: active ? "rgba(99,102,241,0.12)" : "transparent",
-        color: active ? "#6366f1" : "inherit",
+        background: active ? "rgba(124,111,247,0.12)" : "transparent",
+        color: active ? "#7c6ff7" : "inherit",
         transition: "background 0.12s, color 0.12s",
       }}
       className={active ? "" : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"}

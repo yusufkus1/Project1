@@ -45,7 +45,7 @@ export function TagBadge({ label, color }: BadgeProps) {
   return (
     <span
       className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold text-white"
-      style={{ backgroundColor: color ?? "#6366f1" }}
+      style={{ backgroundColor: color ?? "#7c6ff7" }}
     >
       {label}
     </span>

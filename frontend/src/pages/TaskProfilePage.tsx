@@ -49,10 +49,10 @@ function SectionHeader({ icon, label }: { icon: React.ReactNode; label: string }
     <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
       <div style={{
         width: "2rem", height: "2rem", borderRadius: "0.5rem",
-        background: "rgba(99,102,241,0.1)",
+        background: "rgba(124,111,247,0.1)",
         display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
       }}>
-        <span style={{ color: "#6366f1" }}>{icon}</span>
+        <span style={{ color: "#7c6ff7" }}>{icon}</span>
       </div>
       <span className="text-gray-800 dark:text-gray-200" style={{ fontSize: "0.9375rem", fontWeight: 700 }}>
         {label}
@@ -280,9 +280,9 @@ export function TaskProfilePage() {
                 borderRadius: "50%", border: "2.5px solid", marginTop: "0.3rem",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", transition: "all 0.2s",
-                background: isDone ? "#6366f1" : "transparent",
-                borderColor: isDone ? "#6366f1" : "#d1d5db",
-                boxShadow: isDone ? "0 0 0 4px rgba(99,102,241,0.15)" : "none",
+                background: isDone ? "#7c6ff7" : "transparent",
+                borderColor: isDone ? "#7c6ff7" : "#d1d5db",
+                boxShadow: isDone ? "0 0 0 4px rgba(124,111,247,0.15)" : "none",
               }}
             >
               {isDone && <Check size={12} strokeWidth={3} color="white" />}
@@ -311,9 +311,9 @@ export function TaskProfilePage() {
               style={{
                 display: "flex", alignItems: "center", gap: "0.5rem",
                 padding: "0.625rem 1.25rem", borderRadius: "0.75rem",
-                background: "#6366f1", color: "white", border: "none",
+                background: "#7c6ff7", color: "white", border: "none",
                 fontSize: "0.875rem", fontWeight: 600, cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(99,102,241,0.3)",
+                boxShadow: "0 4px 14px rgba(124,111,247,0.3)",
               }}
             >
               <Play size={13} fill="white" />
@@ -328,8 +328,8 @@ export function TaskProfilePage() {
               style={{
                 display: "flex", alignItems: "center", gap: "0.5rem",
                 padding: "0.625rem 1.25rem", borderRadius: "0.75rem",
-                background: "rgba(139,92,246,0.1)", color: "#8b5cf6",
-                border: "1.5px solid rgba(139,92,246,0.25)",
+                background: "rgba(167,139,250,0.1)", color: "#a78bfa",
+                border: "1.5px solid rgba(167,139,250,0.25)",
                 fontSize: "0.875rem", fontWeight: 600,
                 cursor: aiLoading ? "default" : "pointer", transition: "all 0.15s",
               }}
@@ -365,12 +365,12 @@ export function TaskProfilePage() {
             <div style={{
               marginBottom: "1.25rem", borderRadius: "1rem",
               padding: "1rem 1.25rem",
-              background: "rgba(139,92,246,0.06)",
-              border: "1.5px solid rgba(139,92,246,0.25)",
+              background: "rgba(167,139,250,0.06)",
+              border: "1.5px solid rgba(167,139,250,0.25)",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.625rem" }}>
-                <Sparkles size={14} style={{ color: "#8b5cf6" }} />
-                <span style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#8b5cf6", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <Sparkles size={14} style={{ color: "#a78bfa" }} />
+                <span style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#a78bfa", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   AI Suggestion
                 </span>
                 <button onClick={() => setAiSuggestion(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", padding: "0.125rem" }} className="text-gray-400 hover:text-gray-600">
@@ -389,7 +389,7 @@ export function TaskProfilePage() {
                 <span style={{ padding: "0.25rem 0.75rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 700, background: "rgba(245,158,11,0.1)", color: "#d97706" }}>
                   ⏱ {aiSuggestion.estimatedMinutes < 60 ? `${aiSuggestion.estimatedMinutes} min` : `${Math.floor(aiSuggestion.estimatedMinutes / 60)}h ${aiSuggestion.estimatedMinutes % 60}m`}
                 </span>
-                <span style={{ padding: "0.25rem 0.75rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 700, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>
+                <span style={{ padding: "0.25rem 0.75rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 700, background: "rgba(124,111,247,0.1)", color: "#7c6ff7" }}>
                   +{aiSuggestion.xpReward} XP on completion
                 </span>
               </div>
@@ -403,9 +403,9 @@ export function TaskProfilePage() {
                 onClick={applyAiSuggestion}
                 style={{
                   padding: "0.5rem 1.25rem", borderRadius: "0.625rem",
-                  background: "#8b5cf6", color: "white", border: "none",
+                  background: "#a78bfa", color: "white", border: "none",
                   fontSize: "0.8125rem", fontWeight: 700, cursor: "pointer",
-                  boxShadow: "0 4px 12px rgba(139,92,246,0.3)",
+                  boxShadow: "0 4px 12px rgba(167,139,250,0.3)",
                 }}
               >
                 Apply suggestion
@@ -447,11 +447,11 @@ export function TaskProfilePage() {
 
             <span style={{
               display: "flex", alignItems: "center", gap: "0.3rem",
-              background: "rgba(99,102,241,0.1)", color: "#6366f1",
+              background: "rgba(124,111,247,0.1)", color: "#7c6ff7",
               borderRadius: "999px", padding: "0.375rem 1rem",
               fontSize: "0.8125rem", fontWeight: 600,
             }}>
-              <Star size={12} fill="#6366f1" />
+              <Star size={12} fill="#7c6ff7" />
               +{XP_BY_PRIORITY[task.priority] ?? 20} XP
             </span>
 
@@ -523,15 +523,15 @@ export function TaskProfilePage() {
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
-                  <div style={{ width: "2rem", height: "2rem", borderRadius: "0.5rem", background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <span style={{ color: "#6366f1" }}><CheckSquare size={15} /></span>
+                  <div style={{ width: "2rem", height: "2rem", borderRadius: "0.5rem", background: "rgba(124,111,247,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ color: "#7c6ff7" }}><CheckSquare size={15} /></span>
                   </div>
                   <span className="text-gray-800 dark:text-gray-200" style={{ fontSize: "0.9375rem", fontWeight: 700 }}>Subtasks</span>
                 </div>
                 {totalSubs === 0 && (
                   <button
                     onClick={() => setBreakdownOpen(true)}
-                    style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", background: "rgba(99,102,241,0.1)", color: "#6366f1", fontSize: "0.8125rem", fontWeight: 600 }}
+                    style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", background: "rgba(124,111,247,0.1)", color: "#7c6ff7", fontSize: "0.8125rem", fontWeight: 600 }}
                     className="hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition"
                   >
                     <Sparkles size={13} /> Break it down
@@ -541,7 +541,7 @@ export function TaskProfilePage() {
 
               {/* Breakdown modal */}
               {breakdownOpen && (
-                <div style={{ marginBottom: "1rem", background: "rgba(99,102,241,0.05)", borderRadius: "0.875rem", padding: "1rem" }}>
+                <div style={{ marginBottom: "1rem", background: "rgba(124,111,247,0.05)", borderRadius: "0.875rem", padding: "1rem" }}>
                   <p className="text-gray-600 dark:text-gray-400" style={{ fontSize: "0.8125rem", marginBottom: "0.625rem", fontWeight: 500 }}>One step per line:</p>
                   <textarea
                     value={breakdownText}
@@ -554,7 +554,7 @@ export function TaskProfilePage() {
                   />
                   <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.625rem" }}>
                     <button onClick={() => { setBreakdownOpen(false); setBreakdownText(""); }} style={{ padding: "0.5rem 1rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.8125rem", fontWeight: 500, background: "transparent" }} className="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Cancel</button>
-                    <button onClick={bulkAddSubtasks} style={{ padding: "0.5rem 1.25rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", background: "#6366f1", color: "white", fontSize: "0.8125rem", fontWeight: 700 }}>Add steps</button>
+                    <button onClick={bulkAddSubtasks} style={{ padding: "0.5rem 1.25rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", background: "#7c6ff7", color: "white", fontSize: "0.8125rem", fontWeight: 700 }}>Add steps</button>
                   </div>
                 </div>
               )}
@@ -563,7 +563,7 @@ export function TaskProfilePage() {
                 <div style={{ marginBottom: "1rem" }}>
                   <div className="bg-gray-100 dark:bg-gray-800" style={{ borderRadius: "999px", height: "0.375rem", marginBottom: "0.5rem" }}>
                     <div style={{
-                      background: "#6366f1", borderRadius: "999px", height: "100%",
+                      background: "#7c6ff7", borderRadius: "999px", height: "100%",
                       width: `${(completedSubs / totalSubs) * 100}%`, transition: "width 0.4s",
                     }} />
                   </div>
@@ -584,8 +584,8 @@ export function TaskProfilePage() {
                     <div style={{
                       width: "1.125rem", height: "1.125rem", borderRadius: "50%", border: "2px solid", flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      background: sub.status === "COMPLETED" ? "#6366f1" : "transparent",
-                      borderColor: sub.status === "COMPLETED" ? "#6366f1" : "#d1d5db",
+                      background: sub.status === "COMPLETED" ? "#7c6ff7" : "transparent",
+                      borderColor: sub.status === "COMPLETED" ? "#7c6ff7" : "#d1d5db",
                     }}>
                       {sub.status === "COMPLETED" && <Check size={9} strokeWidth={3} color="white" />}
                     </div>
@@ -825,10 +825,10 @@ function FocusHistory({
       <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1.25rem" }}>
         <div style={{
           width: "2rem", height: "2rem", borderRadius: "0.5rem",
-          background: "rgba(99,102,241,0.1)",
+          background: "rgba(124,111,247,0.1)",
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
         }}>
-          <Timer size={15} style={{ color: "#6366f1" }} />
+          <Timer size={15} style={{ color: "#7c6ff7" }} />
         </div>
         <span className="text-gray-800 dark:text-gray-200" style={{ fontSize: "0.9375rem", fontWeight: 700, flex: 1 }}>
           Focus History
@@ -836,11 +836,11 @@ function FocusHistory({
         {isRunning && (
           <span style={{
             display: "flex", alignItems: "center", gap: "0.3rem",
-            background: "rgba(99,102,241,0.1)", color: "#6366f1",
+            background: "rgba(124,111,247,0.1)", color: "#7c6ff7",
             borderRadius: "999px", padding: "0.25rem 0.75rem",
             fontSize: "0.6875rem", fontWeight: 700,
           }}>
-            <span style={{ width: "0.4rem", height: "0.4rem", borderRadius: "50%", background: "#6366f1", animation: "pulse 2s infinite" }} />
+            <span style={{ width: "0.4rem", height: "0.4rem", borderRadius: "50%", background: "#7c6ff7", animation: "pulse 2s infinite" }} />
             In progress
           </span>
         )}
@@ -866,7 +866,7 @@ function FocusHistory({
             <div style={{
               height: "100%", borderRadius: "999px", transition: "width 0.4s ease",
               width: `${Math.min(100, Math.round((focusMins / estimatedMinutes) * 100))}%`,
-              background: focusMins > estimatedMinutes ? "#ef4444" : "#6366f1",
+              background: focusMins > estimatedMinutes ? "#ef4444" : "#7c6ff7",
             }} />
           </div>
           <p style={{ fontSize: "0.6875rem", marginTop: "0.5rem", textAlign: "right" }}
@@ -935,12 +935,12 @@ function FocusHistory({
           marginTop: "1rem", width: "100%",
           display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem",
           padding: "0.75rem 1rem", borderRadius: "0.875rem",
-          background: "rgba(99,102,241,0.08)", color: "#6366f1",
-          border: "1.5px solid rgba(99,102,241,0.2)", cursor: "pointer",
+          background: "rgba(124,111,247,0.08)", color: "#7c6ff7",
+          border: "1.5px solid rgba(124,111,247,0.2)", cursor: "pointer",
           fontSize: "0.9375rem", fontWeight: 600,
         }}
       >
-        <Play size={14} fill="#6366f1" />
+        <Play size={14} fill="#7c6ff7" />
         Start focusing on this task
       </button>
     </div>

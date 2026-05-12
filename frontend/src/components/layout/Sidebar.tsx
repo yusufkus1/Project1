@@ -38,8 +38,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   const goTo = (path: string) => { navigate(path); onClose?.(); };
 
   function NavItem({
-    icon, label, active, onClick,
-    badge,
+    icon, label, active, onClick, badge,
   }: {
     icon: React.ReactNode; label: string; active: boolean;
     onClick: () => void; badge?: number;
@@ -48,23 +47,24 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
       <button
         onClick={onClick}
         style={{
-          width: "100%", display: "flex", alignItems: "center", gap: "0.75rem",
-          padding: "0.625rem 0.875rem", borderRadius: "0.75rem",
-          fontSize: "0.875rem", fontWeight: active ? 600 : 500,
+          width: "100%", display: "flex", alignItems: "center", gap: "0.625rem",
+          padding: "0.5rem 0.75rem", borderRadius: "0.625rem",
+          fontSize: "0.875rem", fontWeight: active ? 600 : 450,
           cursor: "pointer", border: "none", textAlign: "left",
           transition: "all 0.15s",
-          background: active ? "rgba(99,102,241,0.12)" : "transparent",
-          color: active ? "#6366f1" : undefined,
+          background: active ? "rgba(124,111,247,0.1)" : "transparent",
+          color: active ? "#7c6ff7" : "inherit",
+          letterSpacing: "-0.005em",
         }}
-        className={active ? "" : "text-gray-600 dark:text-gray-400 hover:bg-gray-200/60 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200"}
+        className={active ? "" : "text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-gray-200"}
       >
-        <span style={{ flexShrink: 0, opacity: active ? 1 : 0.7 }}>{icon}</span>
+        <span style={{ flexShrink: 0, opacity: active ? 1 : 0.65, display: "flex" }}>{icon}</span>
         <span style={{ flex: 1 }}>{label}</span>
         {badge !== undefined && badge > 0 && (
           <span style={{
-            fontSize: "0.6875rem", fontWeight: 700,
-            background: active ? "#6366f1" : "rgba(156,163,175,0.2)",
-            color: active ? "white" : "#9ca3af",
+            fontSize: "0.6875rem", fontWeight: 600,
+            background: active ? "rgba(124,111,247,0.15)" : "rgba(0,0,0,0.06)",
+            color: active ? "#7c6ff7" : "#9ca3af",
             borderRadius: "999px", padding: "0.1rem 0.45rem", flexShrink: 0,
           }}>
             {badge}
@@ -80,27 +80,27 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
     label: string; onAdd?: () => void; onToggle: () => void; open: boolean;
   }) {
     return (
-      <div style={{ display: "flex", alignItems: "center", padding: "0 0.5rem", marginTop: "0.5rem", marginBottom: "0.25rem" }}>
+      <div style={{ display: "flex", alignItems: "center", padding: "0 0.5rem", marginTop: "0.625rem", marginBottom: "0.125rem" }}>
         <button
           onClick={onToggle}
           style={{
             flex: 1, display: "flex", alignItems: "center", gap: "0.375rem",
-            background: "none", border: "none", cursor: "pointer", padding: "0.25rem 0.375rem", borderRadius: "0.375rem",
+            background: "none", border: "none", cursor: "pointer", padding: "0.25rem 0.25rem", borderRadius: "0.375rem",
           }}
-          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+          className="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400"
         >
-          <span style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+          <span style={{ fontSize: "0.625rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>
             {label}
           </span>
-          <ChevronDown size={10} style={{ transform: open ? "none" : "rotate(-90deg)", transition: "transform 0.15s", marginLeft: "0.125rem" }} />
+          <ChevronDown size={9} style={{ transform: open ? "none" : "rotate(-90deg)", transition: "transform 0.15s" }} />
         </button>
         {onAdd && (
           <button
             onClick={onAdd}
             style={{ padding: "0.25rem", borderRadius: "0.375rem", background: "none", border: "none", cursor: "pointer" }}
-            className="text-gray-400 dark:text-gray-500 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+            className="text-gray-400 dark:text-gray-600 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition"
           >
-            <Plus size={13} />
+            <Plus size={12} />
           </button>
         )}
       </div>
@@ -110,84 +110,88 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   return (
     <>
     {daySummaryOpen && <DaySummary onClose={() => setDaySummaryOpen(false)} />}
-    <aside className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800" style={{
-      width: "248px", flexShrink: 0, height: "100%",
+    <aside style={{
+      width: "236px", flexShrink: 0, height: "100%",
       display: "flex", flexDirection: "column",
-      borderRight: "1px solid",
+      background: "var(--color-surface)",
+      borderRight: "1px solid var(--color-border)",
     }}>
 
       {/* ── User + XP ── */}
-      <div style={{ padding: "1.5rem 1.125rem 1rem" }}>
+      <div style={{ padding: "1.25rem 1rem 0.875rem" }}>
 
-        {/* Close button (mobile) */}
         {onClose && (
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "0.75rem" }}>
-            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "0.25rem", display: "flex", borderRadius: "0.5rem" }} className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800">
-              <X size={18} />
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "0.625rem" }}>
+            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "0.25rem", display: "flex", borderRadius: "0.5rem" }} className="text-gray-400 hover:text-gray-600 hover:bg-black/5 dark:hover:bg-white/5 transition">
+              <X size={16} />
             </button>
           </div>
         )}
 
         {/* Avatar + name */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1rem" }}>
           <div style={{
-            width: "2.375rem", height: "2.375rem", borderRadius: "0.75rem",
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+            width: "2.25rem", height: "2.25rem", borderRadius: "0.625rem",
+            background: "linear-gradient(135deg, #7c6ff7, #a78bfa)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "white", fontSize: "0.9375rem", fontWeight: 800, flexShrink: 0,
+            color: "white", fontSize: "0.875rem", fontWeight: 800, flexShrink: 0,
+            boxShadow: "0 2px 8px rgba(124,111,247,0.3)",
           }}>
             {user?.name?.[0]?.toUpperCase() ?? "U"}
           </div>
           <div style={{ minWidth: 0 }}>
-            <p className="text-gray-900 dark:text-white" style={{ fontSize: "0.9375rem", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <p style={{ fontSize: "0.875rem", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} className="text-gray-900 dark:text-white">
               {user?.name}
             </p>
-            <p style={{ fontSize: "0.75rem", color: "#6366f1", fontWeight: 600 }}>Level {level}</p>
+            <p style={{ fontSize: "0.6875rem", color: "#7c6ff7", fontWeight: 600 }}>Level {level}</p>
           </div>
         </div>
 
-        {/* XP bar */}
-        <div className="bg-gray-50 dark:bg-gray-800" style={{ borderRadius: "0.875rem", padding: "0.875rem 1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.625rem" }}>
-            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#6366f1" }}>{xp} XP</span>
-            <span className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.6875rem" }}>Next: {xpNext} XP</span>
+        {/* XP card */}
+        <div style={{
+          borderRadius: "0.75rem", padding: "0.75rem 0.875rem",
+          background: "rgba(124,111,247,0.06)",
+          border: "1px solid rgba(124,111,247,0.12)",
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+            <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#7c6ff7" }}>{xp} XP</span>
+            <span style={{ fontSize: "0.625rem", fontWeight: 500, color: "#9ca3af" }}>{xpNext} to next</span>
           </div>
-          <div className="bg-gray-200 dark:bg-gray-700" style={{ borderRadius: "999px", height: "0.375rem", overflow: "hidden" }}>
+          <div style={{ borderRadius: "999px", height: "0.3125rem", overflow: "hidden", background: "rgba(124,111,247,0.15)" }}>
             <div style={{
-              background: "linear-gradient(90deg, #6366f1, #8b5cf6)",
+              background: "linear-gradient(90deg, #7c6ff7, #a78bfa)",
               borderRadius: "999px", height: "100%",
               width: `${Math.max(2, Math.round(xpProgress * 100))}%`,
               transition: "width 0.5s ease",
             }} />
           </div>
           {streak > 0 && (
-            <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", marginTop: "0.625rem" }}>
-              <Flame size={12} color="#f97316" />
-              <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "#f97316" }}>{streak} day streak</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", marginTop: "0.5rem" }}>
+              <Flame size={11} color="#fb923c" />
+              <span style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#fb923c" }}>{streak} day streak</span>
             </div>
           )}
         </div>
       </div>
 
       {/* ── Nav ── */}
-      <nav style={{ flex: 1, overflowY: "auto", padding: "0 0.625rem 1rem", display: "flex", flexDirection: "column", gap: "0.125rem" }}>
+      <nav style={{ flex: 1, overflowY: "auto", padding: "0.25rem 0.625rem 1rem", display: "flex", flexDirection: "column", gap: "0.0625rem" }}>
 
-        <NavItem icon={<Sun size={16} />}           label="Today"        active={isViewActive("today")}     onClick={() => goToView("today")} />
-        <NavItem icon={<CalendarDays size={16} />}  label="Next 7 Days"  active={isViewActive("upcoming")}  onClick={() => goToView("upcoming")} />
-        <NavItem icon={<Inbox size={16} />}         label="Tasks"        active={isViewActive("inbox")}     onClick={() => goToView("inbox")} />
+        <NavItem icon={<Sun size={15} />}           label="Today"        active={isViewActive("today")}     onClick={() => goToView("today")} />
+        <NavItem icon={<CalendarDays size={15} />}  label="Next 7 Days"  active={isViewActive("upcoming")}  onClick={() => goToView("upcoming")} />
+        <NavItem icon={<Inbox size={15} />}         label="Tasks"        active={isViewActive("inbox")}     onClick={() => goToView("inbox")} />
 
-        <div style={{ height: "1px", margin: "0.5rem 0.25rem" }} className="bg-gray-100 dark:bg-gray-800" />
+        <div style={{ height: "1px", margin: "0.375rem 0.25rem", background: "var(--color-border)" }} />
 
-        <NavItem icon={<LayoutDashboard size={16} />} label="Dashboard"     active={isPathActive("/dashboard")} onClick={() => goTo("/dashboard")} />
-        <NavItem icon={<Calendar size={16} />}        label="Calendar"      active={isPathActive("/calendar")}  onClick={() => goTo("/calendar")} />
-        <NavItem icon={<Grid2x2 size={16} />}         label="Matrix"        active={isPathActive("/matrix")}    onClick={() => goTo("/matrix")} />
-        <NavItem icon={<Timer size={16} />}           label="Focus"         active={isPathActive("/focus")}     onClick={() => goTo("/focus")} />
-        <NavItem icon={<BarChart2 size={16} />}       label="Weekly Review" active={isPathActive("/review")}    onClick={() => goTo("/review")} />
-        <NavItem icon={<Activity size={16} />}        label="Habits"        active={isPathActive("/habits")}    onClick={() => goTo("/habits")} />
+        <NavItem icon={<LayoutDashboard size={15} />} label="Dashboard"     active={isPathActive("/dashboard")} onClick={() => goTo("/dashboard")} />
+        <NavItem icon={<Calendar size={15} />}        label="Calendar"      active={isPathActive("/calendar")}  onClick={() => goTo("/calendar")} />
+        <NavItem icon={<Grid2x2 size={15} />}         label="Matrix"        active={isPathActive("/matrix")}    onClick={() => goTo("/matrix")} />
+        <NavItem icon={<Timer size={15} />}           label="Focus"         active={isPathActive("/focus")}     onClick={() => goTo("/focus")} />
+        <NavItem icon={<BarChart2 size={15} />}       label="Weekly Review" active={isPathActive("/review")}    onClick={() => goTo("/review")} />
+        <NavItem icon={<Activity size={15} />}        label="Habits"        active={isPathActive("/habits")}    onClick={() => goTo("/habits")} />
 
-        <div style={{ height: "1px", margin: "0.5rem 0.25rem" }} className="bg-gray-100 dark:bg-gray-800" />
+        <div style={{ height: "1px", margin: "0.375rem 0.25rem", background: "var(--color-border)" }} />
 
-        {/* Lists */}
         <SectionHeader
           label="Lists"
           open={listsOpen}
@@ -199,7 +203,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           .map((p: { id: string; name: string; color: string; _count?: { tasks: number } }) => (
             <NavItem
               key={p.id}
-              icon={<span style={{ width: "0.5rem", height: "0.5rem", borderRadius: "3px", background: p.color, display: "inline-block", flexShrink: 0 }} />}
+              icon={<span style={{ width: "0.4375rem", height: "0.4375rem", borderRadius: "3px", background: p.color, display: "inline-block", flexShrink: 0 }} />}
               label={p.name}
               active={isViewActive(`project:${p.id}`)}
               onClick={() => goToView(`project:${p.id}`)}
@@ -207,10 +211,9 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             />
           ))}
 
-        {/* Tags */}
         {tags.length > 0 && (
           <>
-            <div style={{ height: "1px", margin: "0.5rem 0.25rem" }} className="bg-gray-100 dark:bg-gray-800" />
+            <div style={{ height: "1px", margin: "0.375rem 0.25rem", background: "var(--color-border)" }} />
             <SectionHeader
               label="Tags"
               open={tagsOpen}
@@ -219,7 +222,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
             {tagsOpen && tags.map((t: { id: string; name: string; color: string }) => (
               <NavItem
                 key={t.id}
-                icon={<Hash size={14} style={{ color: t.color }} />}
+                icon={<Hash size={13} style={{ color: t.color }} />}
                 label={t.name}
                 active={isViewActive(`tag:${t.id}`)}
                 onClick={() => goToView(`tag:${t.id}`)}
@@ -228,37 +231,36 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           </>
         )}
 
-        <div style={{ height: "1px", margin: "0.5rem 0.25rem" }} className="bg-gray-100 dark:bg-gray-800" />
-
-        <NavItem icon={<CheckCheck size={16} />} label="Completed" active={isViewActive("completed")} onClick={() => goToView("completed")} />
+        <div style={{ height: "1px", margin: "0.375rem 0.25rem", background: "var(--color-border)" }} />
+        <NavItem icon={<CheckCheck size={15} />} label="Completed" active={isViewActive("completed")} onClick={() => goToView("completed")} />
       </nav>
 
       {/* ── Bottom ── */}
-      <div className="border-gray-100 dark:border-gray-800" style={{ borderTop: "1px solid", padding: "0.75rem 0.625rem" }}>
+      <div style={{ borderTop: "1px solid var(--color-border)", padding: "0.5rem 0.625rem" }}>
         {[
-          { label: "End Day", icon: <Moon size={15} />, action: () => setDaySummaryOpen(true) },
-          { label: "Manage Tags", icon: <Tag size={15} />, action: () => goTo("/tags") },
-          { label: "Settings",    icon: <Settings size={15} />, action: () => goTo("/settings") },
+          { label: "End Day", icon: <Moon size={14} />, action: () => setDaySummaryOpen(true) },
+          { label: "Manage Tags", icon: <Tag size={14} />, action: () => goTo("/tags") },
+          { label: "Settings",    icon: <Settings size={14} />, action: () => goTo("/settings") },
           {
             label: theme === "light" ? "Dark Mode" : "Light Mode",
-            icon: <span style={{ fontSize: "0.9rem", lineHeight: 1 }}>{theme === "light" ? "🌙" : "☀️"}</span>,
+            icon: <span style={{ fontSize: "0.875rem", lineHeight: 1 }}>{theme === "light" ? "🌙" : "☀️"}</span>,
             action: toggleTheme,
           },
-          { label: "Sign Out", icon: <LogOut size={15} />, action: () => { logout(); navigate("/login"); onClose?.(); }, danger: true },
+          { label: "Sign Out", icon: <LogOut size={14} />, action: () => { logout(); navigate("/login"); onClose?.(); }, danger: true },
         ].map(({ label, icon, action, danger }) => (
           <button
             key={label}
             onClick={action}
             style={{
-              width: "100%", display: "flex", alignItems: "center", gap: "0.75rem",
-              padding: "0.5625rem 0.875rem", borderRadius: "0.75rem",
-              fontSize: "0.875rem", fontWeight: 500, cursor: "pointer",
+              width: "100%", display: "flex", alignItems: "center", gap: "0.625rem",
+              padding: "0.4375rem 0.75rem", borderRadius: "0.625rem",
+              fontSize: "0.8125rem", fontWeight: 500, cursor: "pointer",
               border: "none", textAlign: "left", background: "transparent",
               transition: "all 0.15s",
             }}
             className={danger
-              ? "text-gray-400 dark:text-gray-500 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
-              : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
+              ? "text-gray-400 dark:text-gray-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
+              : "text-gray-400 dark:text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-gray-200"
             }
           >
             {icon}<span>{label}</span>

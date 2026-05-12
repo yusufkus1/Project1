@@ -107,8 +107,8 @@ export function DailyRitual({ onClose }: { onClose: () => void }) {
         <div style={{ padding: "1.25rem 1.75rem 0", display: "flex", gap: "0.375rem" }}>
           {steps.map((label, i) => (
             <div key={label} style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-              <div style={{ height: "3px", borderRadius: "999px", background: i <= step ? "#6366f1" : "rgba(99,102,241,0.15)", transition: "background 0.3s" }} />
-              <span style={{ fontSize: "0.625rem", fontWeight: 600, color: i <= step ? "#6366f1" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
+              <div style={{ height: "3px", borderRadius: "999px", background: i <= step ? "#7c6ff7" : "rgba(124,111,247,0.15)", transition: "background 0.3s" }} />
+              <span style={{ fontSize: "0.625rem", fontWeight: 600, color: i <= step ? "#7c6ff7" : "#9ca3af", textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</span>
             </div>
           ))}
         </div>
@@ -156,8 +156,8 @@ export function DailyRitual({ onClose }: { onClose: () => void }) {
                       style={{
                         display: "flex", alignItems: "center", gap: "0.75rem",
                         padding: "0.75rem 1rem", borderRadius: "0.75rem", border: "1.5px solid",
-                        borderColor: selected ? "#6366f1" : "rgba(229,231,235,0.8)",
-                        background: selected ? "rgba(99,102,241,0.06)" : "transparent",
+                        borderColor: selected ? "#7c6ff7" : "rgba(229,231,235,0.8)",
+                        background: selected ? "rgba(124,111,247,0.06)" : "transparent",
                         cursor: !selected && selectedIds.length >= 3 ? "default" : "pointer",
                         opacity: !selected && selectedIds.length >= 3 ? 0.4 : 1,
                         textAlign: "left", width: "100%", transition: "all 0.15s",
@@ -165,8 +165,8 @@ export function DailyRitual({ onClose }: { onClose: () => void }) {
                     >
                       <div style={{
                         width: "1.25rem", height: "1.25rem", borderRadius: "50%", flexShrink: 0,
-                        border: "2px solid", borderColor: selected ? "#6366f1" : "#d1d5db",
-                        background: selected ? "#6366f1" : "transparent",
+                        border: "2px solid", borderColor: selected ? "#7c6ff7" : "#d1d5db",
+                        background: selected ? "#7c6ff7" : "transparent",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         transition: "all 0.15s",
                       }}>
@@ -235,9 +235,9 @@ export function DailyRitual({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
                   <div className="bg-indigo-50 dark:bg-indigo-950/30"
-                    style={{ borderRadius: "1rem", padding: "1rem 1.125rem", display: "flex", alignItems: "center", gap: "0.75rem", border: "1.5px solid rgba(99,102,241,0.2)" }}>
-                    <Zap size={18} style={{ color: "#6366f1", flexShrink: 0 }} />
-                    <p style={{ fontSize: "0.8125rem", color: "#6366f1", fontWeight: 500 }}>
+                    style={{ borderRadius: "1rem", padding: "1rem 1.125rem", display: "flex", alignItems: "center", gap: "0.75rem", border: "1.5px solid rgba(124,111,247,0.2)" }}>
+                    <Zap size={18} style={{ color: "#7c6ff7", flexShrink: 0 }} />
+                    <p style={{ fontSize: "0.8125rem", color: "#7c6ff7", fontWeight: 500 }}>
                       Tip: Focus on one task at a time. Use the Pomodoro timer for each.
                     </p>
                   </div>
@@ -260,9 +260,9 @@ export function DailyRitual({ onClose }: { onClose: () => void }) {
             onClick={() => step < 2 ? setStep(step + 1) : finish()}
             style={{
               padding: "0.625rem 1.75rem", borderRadius: "0.75rem", border: "none",
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "white",
+              background: "linear-gradient(135deg, #7c6ff7, #a78bfa)", color: "white",
               fontSize: "0.875rem", fontWeight: 700, cursor: "pointer",
-              boxShadow: "0 4px 12px rgba(99,102,241,0.3)",
+              boxShadow: "0 4px 12px rgba(124,111,247,0.3)",
             }}
           >
             {step < 2 ? "Next →" : "Start My Day 🚀"}

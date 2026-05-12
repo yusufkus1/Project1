@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { Task } from "../../api/tasks";
 
 const PRIORITY_COLOR: Record<string, string> = {
-  CRITICAL: "#ef4444", HIGH: "#f97316", MEDIUM: "#eab308", LOW: "#94a3b8",
+  CRITICAL: "#ef4444", HIGH: "#fb923c", MEDIUM: "#eab308", LOW: "#94a3b8",
 };
 const PRIORITY_RANK: Record<string, number> = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
 
@@ -52,7 +52,7 @@ export function ScheduleView({ tasks }: { tasks: Task[] }) {
           padding: "0.875rem 1.125rem", background: "none", border: "none", cursor: "pointer",
         }}
       >
-        <Clock size={15} style={{ color: "#6366f1", flexShrink: 0 }} />
+        <Clock size={15} style={{ color: "#7c6ff7", flexShrink: 0 }} />
         <span className="text-gray-700 dark:text-gray-200" style={{ fontWeight: 700, fontSize: "0.875rem", flex: 1, textAlign: "left" }}>
           Auto Schedule
         </span>

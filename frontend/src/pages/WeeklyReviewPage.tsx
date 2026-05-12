@@ -69,10 +69,10 @@ export function WeeklyReviewPage() {
 
   const isCurrentWeek = weekOffset === 0;
 
-  const statCard = (icon: React.ReactNode, label: string, value: string | number, sub?: string, color = "#6366f1") => (
+  const statCard = (icon: React.ReactNode, label: string, value: string | number, sub?: string, color = "#7c6ff7") => (
     <div style={{
       background: "white", borderRadius: "1rem", padding: "1.25rem 1.5rem",
-      border: "1px solid #f1f5f9", display: "flex", flexDirection: "column", gap: "0.5rem",
+      border: "1px solid var(--color-border)", display: "flex", flexDirection: "column", gap: "0.5rem",
     }} className="dark:bg-gray-900 dark:border-gray-800">
       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color }}>
         {icon}
@@ -96,7 +96,7 @@ export function WeeklyReviewPage() {
           </h1>
           <p style={{ fontSize: "0.9375rem", color: "#64748b" }}>
             {format(start, "MMM d")} – {format(end, "MMM d, yyyy")}
-            {isCurrentWeek && <span style={{ marginLeft: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "0.125rem 0.5rem", borderRadius: "999px" }}>This week</span>}
+            {isCurrentWeek && <span style={{ marginLeft: "0.5rem", fontSize: "0.75rem", fontWeight: 600, color: "#7c6ff7", background: "rgba(124,111,247,0.1)", padding: "0.125rem 0.5rem", borderRadius: "999px" }}>This week</span>}
           </p>
         </div>
         <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -127,7 +127,7 @@ export function WeeklyReviewPage() {
       {/* Daily activity chart */}
       <div style={{
         background: "white", borderRadius: "1rem", padding: "1.5rem",
-        border: "1px solid #f1f5f9", marginBottom: "2rem",
+        border: "1px solid var(--color-border)", marginBottom: "2rem",
       }} className="dark:bg-gray-900 dark:border-gray-800">
         <h2 style={{ fontSize: "0.875rem", fontWeight: 700, color: "#0f172a", marginBottom: "1.25rem" }} className="dark:text-white">
           Daily Activity
@@ -141,16 +141,16 @@ export function WeeklyReviewPage() {
             return (
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
                 {count > 0 && (
-                  <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: isBest ? "#6366f1" : "#94a3b8" }}>{count}</span>
+                  <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: isBest ? "#7c6ff7" : "#94a3b8" }}>{count}</span>
                 )}
                 <div style={{ width: "100%", display: "flex", alignItems: "flex-end", height: "80px" }}>
                   <div style={{
                     width: "100%", height: `${barH}px`, borderRadius: "4px 4px 2px 2px",
-                    background: count === 0 ? "#f1f5f9" : isBest ? "#6366f1" : "#a5b4fc",
+                    background: count === 0 ? "var(--color-border)" : isBest ? "#7c6ff7" : "#c4bbfd",
                     transition: "height 0.3s ease",
                   }} className={count === 0 ? "dark:bg-gray-800" : ""} />
                 </div>
-                <span style={{ fontSize: "0.6875rem", fontWeight: isToday ? 700 : 500, color: isToday ? "#6366f1" : "#94a3b8" }}>
+                <span style={{ fontSize: "0.6875rem", fontWeight: isToday ? 700 : 500, color: isToday ? "#7c6ff7" : "#94a3b8" }}>
                   {DAY_LABELS[i]}
                 </span>
               </div>
@@ -159,7 +159,7 @@ export function WeeklyReviewPage() {
         </div>
         {bestDayIdx >= 0 && completedByDay[bestDayIdx]! > 0 && (
           <p style={{ fontSize: "0.8125rem", color: "#64748b", marginTop: "1rem" }}>
-            Best day: <strong style={{ color: "#6366f1" }}>{DAY_LABELS[bestDayIdx]}</strong> with {completedByDay[bestDayIdx]} tasks
+            Best day: <strong style={{ color: "#7c6ff7" }}>{DAY_LABELS[bestDayIdx]}</strong> with {completedByDay[bestDayIdx]} tasks
           </p>
         )}
       </div>
@@ -169,7 +169,7 @@ export function WeeklyReviewPage() {
         {/* Completed tasks */}
         <div style={{
           background: "white", borderRadius: "1rem", padding: "1.5rem",
-          border: "1px solid #f1f5f9",
+          border: "1px solid var(--color-border)",
         }} className="dark:bg-gray-900 dark:border-gray-800">
           <h2 style={{ fontSize: "0.875rem", fontWeight: 700, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }} className="text-gray-800 dark:text-white">
             <CheckCircle2 size={14} color="#10b981" /> Completed ({weekCompleted.length})
@@ -196,7 +196,7 @@ export function WeeklyReviewPage() {
         {/* Overdue/needs attention */}
         <div style={{
           background: "white", borderRadius: "1rem", padding: "1.5rem",
-          border: "1px solid #f1f5f9",
+          border: "1px solid var(--color-border)",
         }} className="dark:bg-gray-900 dark:border-gray-800">
           <h2 style={{ fontSize: "0.875rem", fontWeight: 700, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }} className="text-gray-800 dark:text-white">
             <AlertCircle size={14} color="#ef4444" /> Overdue ({weekOverdue.length})
@@ -225,10 +225,10 @@ export function WeeklyReviewPage() {
       {weekFocusSessions.length > 0 && (
         <div style={{
           background: "white", borderRadius: "1rem", padding: "1.5rem",
-          border: "1px solid #f1f5f9",
+          border: "1px solid var(--color-border)",
         }} className="dark:bg-gray-900 dark:border-gray-800">
           <h2 style={{ fontSize: "0.875rem", fontWeight: 700, marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }} className="text-gray-800 dark:text-white">
-            <Target size={14} color="#6366f1" /> Focus Sessions ({weekFocusSessions.length})
+            <Target size={14} color="#7c6ff7" /> Focus Sessions ({weekFocusSessions.length})
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "200px", overflowY: "auto" }}>
             {weekFocusSessions.slice(0, 20).map((s) => (
