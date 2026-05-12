@@ -4,12 +4,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   ArrowLeft, Calendar, Clock, RefreshCw, Folder, Tag, Check,
-  Plus, Trash2, Archive, Star, CheckSquare, Timer, Play, Sparkles, X,
+  Plus, Trash2, Archive, Star, CheckSquare, Timer, Play, Sparkles, X, Loader2,
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { tasksApi, Task } from "../api/tasks";
 import { projectsApi } from "../api/projects";
 import { tagsApi } from "../api/tags";
+import { aiApi, AIAnalysis } from "../api/ai";
 import { useGamificationStore } from "../store/gamification";
 import { useFocusStore } from "../store/focus";
 import { RichTextEditor } from "../components/ui/RichTextEditor";
@@ -77,6 +78,8 @@ export function TaskProfilePage() {
   const [estimateVal, setEstimateVal] = useState<string>("");
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [breakdownText, setBreakdownText] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState<AIAnalysis | null>(null);
 
   const { data: task, isLoading } = useQuery<Task>({
     queryKey: ["task", id],
@@ -191,6 +194,33 @@ export function TaskProfilePage() {
     update.mutate({ tagIds: next });
   };
 
+  const runAiAnalysis = async () => {
+    if (!task) return;
+    setAiLoading(true);
+    setAiSuggestion(null);
+    try {
+      const desc = descriptionHtml ?? task.description ?? "";
+      const result = await aiApi.analyzeTask(task.title, desc);
+      setAiSuggestion(result);
+    } catch {
+      toast.error("AI analysis failed");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const applyAiSuggestion = () => {
+    if (!aiSuggestion) return;
+    setValue("priority", aiSuggestion.priority);
+    setEstimateVal(String(aiSuggestion.estimatedMinutes));
+    update.mutate({
+      priority: aiSuggestion.priority,
+      estimatedMinutes: aiSuggestion.estimatedMinutes,
+    });
+    toast.success(`Applied: ${aiSuggestion.priority} priority, ${aiSuggestion.estimatedMinutes}m estimate`);
+    setAiSuggestion(null);
+  };
+
   if (isLoading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "50vh" }}>
@@ -272,7 +302,7 @@ export function TaskProfilePage() {
           </div>
 
           {/* Action buttons */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", paddingLeft: "3.5rem", marginBottom: "1.625rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", paddingLeft: "3.5rem", marginBottom: "1.625rem", flexWrap: "wrap" }}>
             <button
               type="button"
               onClick={() => { setFocusTask(task.id, task.title); navigate("/focus"); }}
@@ -287,6 +317,28 @@ export function TaskProfilePage() {
               <Play size={13} fill="white" />
               Focus
             </button>
+
+            {/* AI Analyze button */}
+            <button
+              type="button"
+              onClick={runAiAnalysis}
+              disabled={aiLoading}
+              style={{
+                display: "flex", alignItems: "center", gap: "0.5rem",
+                padding: "0.625rem 1.25rem", borderRadius: "0.75rem",
+                background: "rgba(139,92,246,0.1)", color: "#8b5cf6",
+                border: "1.5px solid rgba(139,92,246,0.25)",
+                fontSize: "0.875rem", fontWeight: 600,
+                cursor: aiLoading ? "default" : "pointer", transition: "all 0.15s",
+              }}
+              title="AI analyzes this task and suggests priority + time estimate"
+            >
+              {aiLoading
+                ? <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} />
+                : <Sparkles size={14} />}
+              {aiLoading ? "Analyzing…" : "AI Analyze"}
+            </button>
+
             <button
               type="button"
               onClick={() => archiveTask.mutate()}
@@ -305,6 +357,59 @@ export function TaskProfilePage() {
               <Trash2 size={18} />
             </button>
           </div>
+
+          {/* AI suggestion card */}
+          {aiSuggestion && (
+            <div style={{
+              marginBottom: "1.25rem", borderRadius: "1rem",
+              padding: "1rem 1.25rem",
+              background: "rgba(139,92,246,0.06)",
+              border: "1.5px solid rgba(139,92,246,0.25)",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.625rem" }}>
+                <Sparkles size={14} style={{ color: "#8b5cf6" }} />
+                <span style={{ fontWeight: 700, fontSize: "0.8125rem", color: "#8b5cf6", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  AI Suggestion
+                </span>
+                <button onClick={() => setAiSuggestion(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", padding: "0.125rem" }} className="text-gray-400 hover:text-gray-600">
+                  <X size={13} />
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.625rem" }}>
+                <span style={{
+                  padding: "0.25rem 0.75rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 700,
+                  background: `${PRIORITY_COLORS[aiSuggestion.priority]?.bg}`,
+                  color: PRIORITY_COLORS[aiSuggestion.priority]?.text,
+                }}>
+                  ↑ {aiSuggestion.priority.charAt(0) + aiSuggestion.priority.slice(1).toLowerCase()} priority
+                </span>
+                <span style={{ padding: "0.25rem 0.75rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 700, background: "rgba(245,158,11,0.1)", color: "#d97706" }}>
+                  ⏱ {aiSuggestion.estimatedMinutes < 60 ? `${aiSuggestion.estimatedMinutes} min` : `${Math.floor(aiSuggestion.estimatedMinutes / 60)}h ${aiSuggestion.estimatedMinutes % 60}m`}
+                </span>
+                <span style={{ padding: "0.25rem 0.75rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 700, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}>
+                  +{aiSuggestion.xpReward} XP on completion
+                </span>
+              </div>
+
+              <p style={{ fontSize: "0.8125rem", color: "#6b7280", fontStyle: "italic", marginBottom: "0.875rem" }}>
+                {aiSuggestion.rationale}
+              </p>
+
+              <button
+                type="button"
+                onClick={applyAiSuggestion}
+                style={{
+                  padding: "0.5rem 1.25rem", borderRadius: "0.625rem",
+                  background: "#8b5cf6", color: "white", border: "none",
+                  fontSize: "0.8125rem", fontWeight: 700, cursor: "pointer",
+                  boxShadow: "0 4px 12px rgba(139,92,246,0.3)",
+                }}
+              >
+                Apply suggestion
+              </button>
+            </div>
+          )}
 
           {/* Badge pills */}
           <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "0.5rem", paddingLeft: "3.5rem" }}>

@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Mic, MicOff, Plus, Zap, X } from "lucide-react";
+import { Mic, MicOff, Plus, Zap, X, Sparkles, Loader2 } from "lucide-react";
 import { tasksApi } from "../../api/tasks";
 import { projectsApi, Project } from "../../api/projects";
+import { aiApi, AIAnalysis } from "../../api/ai";
 import confetti from "canvas-confetti";
 import toast from "react-hot-toast";
 
@@ -166,6 +167,10 @@ const PRIORITY_COLORS: Record<string, string> = {
   LOW: "#6366f1", MEDIUM: "#10b981", HIGH: "#f97316", CRITICAL: "#ef4444",
 };
 
+const PRIORITY_LABELS: Record<string, string> = {
+  LOW: "Low", MEDIUM: "Medium", HIGH: "High", CRITICAL: "Critical",
+};
+
 function PreviewTag({ children, color }: { children: React.ReactNode; color: string }) {
   return (
     <span style={{
@@ -183,6 +188,8 @@ function PreviewTag({ children, color }: { children: React.ReactNode; color: str
 export function QuickCapture({ onClose }: { onClose: () => void }) {
   const qc = useQueryClient();
   const [raw, setRaw] = useState("");
+  const [aiSuggestion, setAiSuggestion] = useState<AIAnalysis | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { data: projects = [] } = useQuery<Project[]>({
@@ -192,19 +199,37 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
 
   const parsed = parseCapture(raw, projects);
 
+  // Merge AI suggestion into parsed (AI fills gaps, manual tokens take precedence)
+  const effectivePriority = parsed._priorityToken ? parsed.priority : (aiSuggestion?.priority ?? parsed.priority);
+  const effectiveMinutes = parsed._timeToken ? parsed.estimatedMinutes : (aiSuggestion?.estimatedMinutes ?? parsed.estimatedMinutes);
+
+  const runAiAnalysis = async () => {
+    if (!parsed.title.trim()) return;
+    setAiLoading(true);
+    try {
+      const result = await aiApi.analyzeTask(parsed.title);
+      setAiSuggestion(result);
+    } catch {
+      toast.error("AI analysis failed");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const create = useMutation({
     mutationFn: () => tasksApi.create({
       title: parsed.title,
       dueDate: parsed.dueDate,
-      priority: parsed.priority as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | undefined,
+      priority: effectivePriority as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | undefined,
       projectId: parsed.projectId,
-      estimatedMinutes: parsed.estimatedMinutes,
+      estimatedMinutes: effectiveMinutes,
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
       confetti({ particleCount: 40, spread: 55, origin: { y: 0.5 }, colors: ["#6366f1", "#22c55e", "#f59e0b"] });
       toast.success("Task added!");
       setRaw("");
+      setAiSuggestion(null);
       inputRef.current?.focus();
     },
     onError: () => toast.error("Failed to add task"),
@@ -261,12 +286,32 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
           <input
             ref={inputRef}
             value={raw}
-            onChange={(e) => setRaw(e.target.value)}
+            onChange={(e) => { setRaw(e.target.value); setAiSuggestion(null); }}
             onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
             placeholder={listening ? "Listening…" : "Task title… !high #project @today ~30m"}
             className="text-gray-800 dark:text-white bg-transparent placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none"
             style={{ flex: 1, fontSize: "1.0625rem" }}
           />
+
+          {/* AI button */}
+          {parsed.title.trim() && (
+            <button
+              onClick={runAiAnalysis}
+              disabled={aiLoading}
+              title="Let AI suggest priority & time estimate"
+              style={{
+                flexShrink: 0, width: "2.25rem", height: "2.25rem", borderRadius: "50%",
+                border: "none", cursor: aiLoading ? "default" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                background: aiSuggestion ? "rgba(139,92,246,0.15)" : "rgba(139,92,246,0.1)",
+                color: "#8b5cf6",
+                boxShadow: aiSuggestion ? "0 0 0 3px rgba(139,92,246,0.2)" : "none",
+                transition: "all 0.2s",
+              }}
+            >
+              {aiLoading ? <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> : <Sparkles size={14} />}
+            </button>
+          )}
 
           {/* Mic button */}
           {supported && (
@@ -302,6 +347,28 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
             <Plus size={15} /> Add
           </button>
         </div>
+
+        {/* AI suggestion card */}
+        {aiSuggestion && (
+          <div style={{ margin: "0 1.5rem 0.75rem", borderRadius: "0.875rem", padding: "0.875rem 1rem", background: "rgba(139,92,246,0.06)", border: "1.5px solid rgba(139,92,246,0.2)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <Sparkles size={13} style={{ color: "#8b5cf6" }} />
+              <span style={{ fontSize: "0.6875rem", fontWeight: 700, color: "#8b5cf6", textTransform: "uppercase", letterSpacing: "0.06em" }}>AI Suggestion</span>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
+              <span style={{ padding: "0.2rem 0.625rem", borderRadius: "999px", background: `${PRIORITY_COLORS[aiSuggestion.priority]}18`, color: PRIORITY_COLORS[aiSuggestion.priority], fontSize: "0.75rem", fontWeight: 700 }}>
+                ↑ {PRIORITY_LABELS[aiSuggestion.priority]}
+              </span>
+              <span style={{ padding: "0.2rem 0.625rem", borderRadius: "999px", background: "rgba(245,158,11,0.12)", color: "#d97706", fontSize: "0.75rem", fontWeight: 700 }}>
+                ⏱ {aiSuggestion.estimatedMinutes < 60 ? `${aiSuggestion.estimatedMinutes}m` : `${Math.floor(aiSuggestion.estimatedMinutes / 60)}h ${aiSuggestion.estimatedMinutes % 60}m`}
+              </span>
+              <span style={{ padding: "0.2rem 0.625rem", borderRadius: "999px", background: "rgba(99,102,241,0.1)", color: "#6366f1", fontSize: "0.75rem", fontWeight: 700 }}>
+                +{aiSuggestion.xpReward} XP
+              </span>
+            </div>
+            <p style={{ fontSize: "0.75rem", color: "#6b7280", fontStyle: "italic" }}>{aiSuggestion.rationale}</p>
+          </div>
+        )}
 
         {/* Preview tags */}
         {hasPreview && (
