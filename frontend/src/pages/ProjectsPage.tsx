@@ -22,7 +22,7 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
             onClick={() => onChange(c)}
             style={{
               width: "100%", aspectRatio: "1",
-              borderRadius: "0.875rem", border: "none", cursor: "pointer",
+              borderRadius: "0.875rem", cursor: "pointer",
               backgroundColor: c,
               border: value === c ? `3px solid ${c}` : "3px solid transparent",
               outline: value === c ? `2px solid ${c}40` : "none",
