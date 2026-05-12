@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Sidebar } from "./Sidebar";
 import { TaskDetailPanel } from "../tasks/TaskDetailPanel";
+import { QuickCapture } from "../tasks/QuickCapture";
 import { useUIStore } from "../../store/ui";
 import { useTaskNotifications } from "../../hooks/useTaskNotifications";
 
@@ -21,11 +22,25 @@ export function AppLayout() {
   const setSelectedTaskId = useUIStore((s) => s.setSelectedTaskId);
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [quickCaptureOpen, setQuickCaptureOpen] = useState(false);
   useTaskNotifications();
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setQuickCaptureOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
+    <>
+    {quickCaptureOpen && <QuickCapture onClose={() => setQuickCaptureOpen(false)} />}
     <div style={{ display: "flex", height: "100svh", overflow: "hidden" }} className="bg-gray-50 dark:bg-gray-950">
 
       {/* Desktop sidebar */}
@@ -101,5 +116,6 @@ export function AppLayout() {
         </div>
       </div>
     </div>
+    </>
   );
 }

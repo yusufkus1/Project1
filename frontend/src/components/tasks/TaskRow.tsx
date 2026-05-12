@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Check, Star, Calendar, GripVertical, MoreHorizontal, Repeat2 } from "lucide-react";
-import { format, isPast, isToday, isTomorrow } from "date-fns";
+import { Check, Star, Calendar, GripVertical, MoreHorizontal, Repeat2, Zap } from "lucide-react";
+import { format, isPast, isToday, isTomorrow, differenceInDays } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { tasksApi, Task } from "../../api/tasks";
 import { useUIStore } from "../../store/ui";
 import { useGamificationStore } from "../../store/gamification";
+import confetti from "canvas-confetti";
 import toast from "react-hot-toast";
 
 const PRIORITY_FLAG: Record<string, string> = {
@@ -52,6 +53,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
         const popupId = Date.now();
         setXpPopups((prev) => [...prev, { id: popupId, amount: xpGained }]);
         setTimeout(() => setXpPopups((prev) => prev.filter((p) => p.id !== popupId)), 1200);
+        confetti({ particleCount: task.priority === "CRITICAL" ? 120 : 60, spread: 70, origin: { y: 0.6 }, colors: ["#6366f1", "#8b5cf6", "#22c55e", "#f59e0b"] });
         if ((data as { recycled?: boolean }).recycled) {
           toast("Recurring task rescheduled", { icon: "🔁", duration: 2500 });
         } else {
@@ -68,6 +70,8 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
   const isOverdue = task.dueDate && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate)) && !isDone;
   const due = task.dueDate ? dueDateLabel(task.dueDate) : null;
   const isSelected = selectedTaskId === task.id;
+  const isQuick = !isDone && task.estimatedMinutes != null && task.estimatedMinutes <= 2;
+  const daysOpen = !isDone && task.createdAt ? differenceInDays(new Date(), new Date(task.createdAt)) : 0;
 
   return (
     <div ref={setNodeRef} style={style} className="relative">
@@ -146,6 +150,20 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
             {tag.name}
           </span>
         ))}
+
+        {/* 2-min rule badge */}
+        {isQuick && (
+          <span title="Quick win — under 2 min" style={{ display: "flex", alignItems: "center", gap: "0.2rem", background: "rgba(34,197,94,0.12)", color: "#16a34a", borderRadius: "999px", padding: "0.125rem 0.5rem", fontSize: "0.625rem", fontWeight: 700, flexShrink: 0 }}>
+            <Zap size={9} fill="#16a34a" /> 2min
+          </span>
+        )}
+
+        {/* Days open */}
+        {daysOpen >= 3 && (
+          <span title={`Open for ${daysOpen} days`} style={{ background: daysOpen >= 7 ? "rgba(239,68,68,0.1)" : "rgba(249,115,22,0.1)", color: daysOpen >= 7 ? "#dc2626" : "#ea580c", borderRadius: "999px", padding: "0.125rem 0.5rem", fontSize: "0.625rem", fontWeight: 700, flexShrink: 0 }}>
+            {daysOpen}d
+          </span>
+        )}
 
         {/* Recurrence indicator */}
         {task.recurrence && (

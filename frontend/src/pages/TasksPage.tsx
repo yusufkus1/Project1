@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
@@ -8,13 +9,14 @@ import {
   SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { isToday, isFuture, isPast, format } from "date-fns";
-import { Loader2, Archive, List, LayoutGrid, Calendar } from "lucide-react";
+import { Loader2, Archive, List, LayoutGrid, Calendar, Sparkles, Zap, X } from "lucide-react";
 import { tasksApi, Task } from "../api/tasks";
 import { useUIStore, View } from "../store/ui";
 import { TaskRow } from "../components/tasks/TaskRow";
 import { InlineAdd } from "../components/tasks/InlineAdd";
 import { WeatherWidget } from "../components/WeatherWidget";
 import { TodayExtras } from "../components/today/TodayExtras";
+import confetti from "canvas-confetti";
 
 const VIEW_TITLES: Record<string, string> = {
   inbox: "Tasks", today: "Today", upcoming: "Next 7 Days",
@@ -57,6 +59,163 @@ function groupByDate(tasks: Task[]): { label: string; color: string; tasks: Task
   if (noDate.length)   groups.push({ label: "No Date",  color: "text-gray-400", tasks: noDate });
   if (upcoming.length) groups.push({ label: "Upcoming", color: "text-blue-500", tasks: upcoming });
   return groups;
+}
+
+// ─── Next Task Suggestion ─────────────────────────────────────────────────────
+const PRIORITY_RANK: Record<string, number> = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+
+function pickNextTask(tasks: Task[]): Task | null {
+  const candidates = tasks.filter((t) => t.status !== "COMPLETED");
+  if (!candidates.length) return null;
+  return candidates.sort((a, b) => {
+    const aOverdue = a.dueDate && isPast(new Date(a.dueDate)) && !isToday(new Date(a.dueDate));
+    const bOverdue = b.dueDate && isPast(new Date(b.dueDate)) && !isToday(new Date(b.dueDate));
+    if (aOverdue && !bOverdue) return -1;
+    if (!aOverdue && bOverdue) return 1;
+    const aToday = a.dueDate && isToday(new Date(a.dueDate));
+    const bToday = b.dueDate && isToday(new Date(b.dueDate));
+    if (aToday && !bToday) return -1;
+    if (!aToday && bToday) return 1;
+    const priDiff = (PRIORITY_RANK[b.priority] ?? 0) - (PRIORITY_RANK[a.priority] ?? 0);
+    if (priDiff !== 0) return priDiff;
+    if (a.estimatedMinutes && b.estimatedMinutes) return a.estimatedMinutes - b.estimatedMinutes;
+    return 0;
+  })[0] ?? null;
+}
+
+function NextTaskCard({ tasks }: { tasks: Task[] }) {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [dismissed, setDismissed] = useState(false);
+  const next = useMemo(() => pickNextTask(tasks), [tasks]);
+
+  const complete = useMutation({
+    mutationFn: () => tasksApi.update(next!.id, { status: "COMPLETED" }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["tasks"] });
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.5 }, colors: ["#6366f1", "#22c55e", "#f59e0b"] });
+      setDismissed(false);
+    },
+  });
+
+  if (!next || dismissed) return null;
+
+  const isOverdue = next.dueDate && isPast(new Date(next.dueDate)) && !isToday(new Date(next.dueDate));
+  const isQuick = next.estimatedMinutes != null && next.estimatedMinutes <= 2;
+
+  return (
+    <div style={{
+      background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+      borderRadius: "1.25rem", padding: "1.5rem 1.75rem",
+      marginBottom: "1.75rem", color: "white",
+      boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
+      position: "relative",
+    }}>
+      <button onClick={() => setDismissed(true)} style={{ position: "absolute", top: "1rem", right: "1rem", background: "rgba(255,255,255,0.15)", border: "none", borderRadius: "50%", width: "1.5rem", height: "1.5rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white" }}>
+        <X size={12} />
+      </button>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem", opacity: 0.85 }}>
+        <Sparkles size={14} />
+        <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Focus on this next</span>
+      </div>
+      <p style={{ fontSize: "1.125rem", fontWeight: 700, marginBottom: "1.125rem", lineHeight: 1.35 }}>{next.title}</p>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", flexWrap: "wrap" }}>
+        {isOverdue && <span style={{ background: "rgba(239,68,68,0.3)", borderRadius: "999px", padding: "0.25rem 0.75rem", fontSize: "0.75rem", fontWeight: 700 }}>Overdue</span>}
+        {isQuick && <span style={{ background: "rgba(34,197,94,0.25)", borderRadius: "999px", padding: "0.25rem 0.75rem", fontSize: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.25rem" }}><Zap size={10} fill="white" /> 2 min</span>}
+        {next.estimatedMinutes && !isQuick && <span style={{ opacity: 0.8, fontSize: "0.75rem" }}>~{next.estimatedMinutes}min</span>}
+        <div style={{ flex: 1 }} />
+        <button
+          onClick={() => complete.mutate()}
+          style={{ background: "rgba(255,255,255,0.2)", border: "none", borderRadius: "0.625rem", padding: "0.5rem 1rem", color: "white", fontWeight: 600, fontSize: "0.8125rem", cursor: "pointer", transition: "background 0.15s" }}
+          className="hover:bg-white/30"
+        >Done ✓</button>
+        <button
+          onClick={() => navigate(`/tasks/${next.id}`)}
+          style={{ background: "white", border: "none", borderRadius: "0.625rem", padding: "0.5rem 1rem", color: "#6366f1", fontWeight: 700, fontSize: "0.8125rem", cursor: "pointer" }}
+        >Open →</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Brain Dump ───────────────────────────────────────────────────────────────
+function BrainDump({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
+  const [lines, setLines] = useState<string[]>([""]);
+  const [saving, setSaving] = useState(false);
+  const refs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const saveAll = async () => {
+    const titles = lines.map((l) => l.trim()).filter(Boolean);
+    if (!titles.length) { onClose(); return; }
+    setSaving(true);
+    await Promise.all(titles.map((title) => tasksApi.create({ title })));
+    qc.invalidateQueries({ queryKey: ["tasks"] });
+    confetti({ particleCount: 60, spread: 65, origin: { y: 0.5 }, colors: ["#6366f1", "#22c55e"] });
+    setSaving(false);
+    onClose();
+  };
+
+  const handleKey = (e: React.KeyboardEvent, idx: number) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const next = [...lines];
+      next.splice(idx + 1, 0, "");
+      setLines(next);
+      setTimeout(() => refs.current[idx + 1]?.focus(), 0);
+    }
+    if (e.key === "Backspace" && lines[idx] === "" && lines.length > 1) {
+      e.preventDefault();
+      const next = lines.filter((_, i) => i !== idx);
+      setLines(next);
+      setTimeout(() => refs.current[Math.max(0, idx - 1)]?.focus(), 0);
+    }
+    if (e.key === "Escape") onClose();
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }} onClick={onClose} />
+      <div className="bg-white dark:bg-gray-900" style={{ position: "relative", zIndex: 1, width: "min(640px, 92vw)", borderRadius: "1.5rem", boxShadow: "0 32px 80px rgba(0,0,0,0.25)", overflow: "hidden" }}>
+        <div className="border-b border-gray-100 dark:border-gray-800" style={{ padding: "1.25rem 1.75rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <div style={{ width: "2rem", height: "2rem", borderRadius: "0.5rem", background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Zap size={15} style={{ color: "#6366f1" }} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <p className="text-gray-900 dark:text-white" style={{ fontWeight: 800, fontSize: "1rem" }}>Brain Dump</p>
+            <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.75rem" }}>Type everything on your mind — one task per line, Enter to add more</p>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", padding: "0.25rem", borderRadius: "0.5rem" }} className="text-gray-400 hover:text-gray-600"><X size={16} /></button>
+        </div>
+        <div style={{ padding: "1.5rem 1.75rem", maxHeight: "60vh", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {lines.map((line, idx) => (
+            <div key={idx} style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <span className="text-gray-200 dark:text-gray-700" style={{ fontSize: "0.8125rem", fontWeight: 700, width: "1.25rem", textAlign: "right", flexShrink: 0 }}>{idx + 1}</span>
+              <input
+                ref={(el) => { refs.current[idx] = el; }}
+                value={line}
+                onChange={(e) => { const next = [...lines]; next[idx] = e.target.value; setLines(next); }}
+                onKeyDown={(e) => handleKey(e, idx)}
+                placeholder={idx === 0 ? "What's on your mind?" : "Another task…"}
+                autoFocus={idx === 0}
+                className="text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 bg-transparent focus:outline-none"
+                style={{ flex: 1, fontSize: "1rem", border: "none", padding: "0.375rem 0" }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-gray-100 dark:border-gray-800" style={{ padding: "1rem 1.75rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <span className="text-gray-400" style={{ fontSize: "0.75rem", flex: 1 }}>{lines.filter(l => l.trim()).length} tasks ready to save</span>
+          <button onClick={onClose} style={{ padding: "0.625rem 1.25rem", borderRadius: "0.75rem", border: "1px solid", fontSize: "0.875rem", fontWeight: 500, cursor: "pointer", background: "transparent" }} className="border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400">Cancel</button>
+          <button
+            onClick={saveAll}
+            disabled={saving || !lines.some(l => l.trim())}
+            style={{ padding: "0.625rem 1.5rem", borderRadius: "0.75rem", border: "none", background: "#6366f1", color: "white", fontSize: "0.875rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 12px rgba(99,102,241,0.3)" }}
+          >{saving ? "Saving…" : `Save ${lines.filter(l => l.trim()).length} tasks`}</button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── Card Wall ────────────────────────────────────────────────────────────────
@@ -250,9 +409,11 @@ export function TasksPage() {
   );
 
   const showToggle = selectedView !== "completed" && selectedView !== "today";
+  const [brainDumpOpen, setBrainDumpOpen] = useState(false);
 
   return (
     <div className="flex flex-col max-w-3xl w-full">
+      {brainDumpOpen && <BrainDump onClose={() => setBrainDumpOpen(false)} />}
 
       {/* Header */}
       <div style={{ marginBottom: "1.75rem" }}>
@@ -261,36 +422,55 @@ export function TasksPage() {
             {title}
           </h1>
 
-          {/* View toggle */}
-          {showToggle && (
-            <div className="bg-gray-100 dark:bg-gray-800" style={{ display: "flex", borderRadius: "0.625rem", padding: "0.25rem", gap: "0.25rem", flexShrink: 0 }}>
-              {([
-                { mode: "list",  Icon: List },
-                { mode: "cards", Icon: LayoutGrid },
-              ] as const).map(({ mode, Icon }) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  style={{
-                    padding: "0.375rem 0.625rem", borderRadius: "0.4375rem",
-                    border: "none", cursor: "pointer", display: "flex",
-                    alignItems: "center", justifyContent: "center",
-                    background: viewMode === mode ? "white" : "transparent",
-                    boxShadow: viewMode === mode ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
-                    transition: "all 0.15s",
-                  }}
-                  className={viewMode === mode ? "text-gray-900 dark:text-white dark:bg-gray-700" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}
-                >
-                  <Icon size={16} />
-                </button>
-              ))}
-            </div>
-          )}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
+            {/* Brain dump button */}
+            {selectedView !== "completed" && (
+              <button
+                onClick={() => setBrainDumpOpen(true)}
+                style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.8125rem", fontWeight: 600, background: "rgba(99,102,241,0.1)", color: "#6366f1" }}
+                className="hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition"
+                title="Brain dump — rapidly add everything on your mind"
+              >
+                <Zap size={14} /> Dump
+              </button>
+            )}
+
+            {/* View toggle */}
+            {showToggle && (
+              <div className="bg-gray-100 dark:bg-gray-800" style={{ display: "flex", borderRadius: "0.625rem", padding: "0.25rem", gap: "0.25rem" }}>
+                {([
+                  { mode: "list",  Icon: List },
+                  { mode: "cards", Icon: LayoutGrid },
+                ] as const).map(({ mode, Icon }) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    style={{
+                      padding: "0.375rem 0.625rem", borderRadius: "0.4375rem",
+                      border: "none", cursor: "pointer", display: "flex",
+                      alignItems: "center", justifyContent: "center",
+                      background: viewMode === mode ? "white" : "transparent",
+                      boxShadow: viewMode === mode ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
+                      transition: "all 0.15s",
+                    }}
+                    className={viewMode === mode ? "text-gray-900 dark:text-white dark:bg-gray-700" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}
+                  >
+                    <Icon size={16} />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         {selectedView === "today" && <WeatherWidget />}
       </div>
 
       {selectedView === "today" && <TodayExtras todayTasks={filtered} />}
+
+      {/* Next task suggestion — Today + Inbox */}
+      {(selectedView === "today" || selectedView === "inbox") && !isLoading && (
+        <NextTaskCard tasks={filtered} />
+      )}
 
       {/* Add task */}
       {selectedView !== "completed" && selectedView !== "today" && (

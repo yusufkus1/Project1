@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
   ArrowLeft, Calendar, Clock, RefreshCw, Folder, Tag, Check,
-  Plus, Trash2, Archive, Star, CheckSquare, Timer, Play,
+  Plus, Trash2, Archive, Star, CheckSquare, Timer, Play, Sparkles, X,
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { tasksApi, Task } from "../api/tasks";
@@ -75,6 +75,8 @@ export function TaskProfilePage() {
   const [newSubtask, setNewSubtask] = useState("");
   const [descriptionHtml, setDescriptionHtml] = useState<string | null>(null);
   const [estimateVal, setEstimateVal] = useState<string>("");
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
+  const [breakdownText, setBreakdownText] = useState("");
 
   const { data: task, isLoading } = useQuery<Task>({
     queryKey: ["task", id],
@@ -143,6 +145,15 @@ export function TaskProfilePage() {
       setNewSubtask("");
     },
   });
+
+  const bulkAddSubtasks = async () => {
+    const titles = breakdownText.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (!titles.length) return;
+    await Promise.all(titles.map((title) => tasksApi.create({ title, parentId: id })));
+    qc.invalidateQueries({ queryKey: ["task", id] });
+    setBreakdownText("");
+    setBreakdownOpen(false);
+  };
 
   const toggleSubtask = useMutation({
     mutationFn: (sub: Task) => tasksApi.update(sub.id, {
@@ -403,7 +414,43 @@ export function TaskProfilePage() {
               className="bg-white dark:bg-gray-900"
               style={{ borderRadius: "1rem", padding: "1.75rem 2rem" }}
             >
-              <SectionHeader icon={<CheckSquare size={15} />} label="Subtasks" />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+                  <div style={{ width: "2rem", height: "2rem", borderRadius: "0.5rem", background: "rgba(99,102,241,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ color: "#6366f1" }}><CheckSquare size={15} /></span>
+                  </div>
+                  <span className="text-gray-800 dark:text-gray-200" style={{ fontSize: "0.9375rem", fontWeight: 700 }}>Subtasks</span>
+                </div>
+                {totalSubs === 0 && (
+                  <button
+                    onClick={() => setBreakdownOpen(true)}
+                    style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.375rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", background: "rgba(99,102,241,0.1)", color: "#6366f1", fontSize: "0.8125rem", fontWeight: 600 }}
+                    className="hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition"
+                  >
+                    <Sparkles size={13} /> Break it down
+                  </button>
+                )}
+              </div>
+
+              {/* Breakdown modal */}
+              {breakdownOpen && (
+                <div style={{ marginBottom: "1rem", background: "rgba(99,102,241,0.05)", borderRadius: "0.875rem", padding: "1rem" }}>
+                  <p className="text-gray-600 dark:text-gray-400" style={{ fontSize: "0.8125rem", marginBottom: "0.625rem", fontWeight: 500 }}>One step per line:</p>
+                  <textarea
+                    value={breakdownText}
+                    onChange={(e) => setBreakdownText(e.target.value)}
+                    placeholder={"Research options\nDraft outline\nReview with team\nFinalize"}
+                    autoFocus
+                    rows={5}
+                    className="bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none border-gray-200 dark:border-gray-700"
+                    style={{ width: "100%", borderRadius: "0.625rem", padding: "0.75rem", fontSize: "0.875rem", resize: "vertical", border: "1px solid", boxSizing: "border-box", lineHeight: 1.6 }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.625rem" }}>
+                    <button onClick={() => { setBreakdownOpen(false); setBreakdownText(""); }} style={{ padding: "0.5rem 1rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.8125rem", fontWeight: 500, background: "transparent" }} className="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition">Cancel</button>
+                    <button onClick={bulkAddSubtasks} style={{ padding: "0.5rem 1.25rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", background: "#6366f1", color: "white", fontSize: "0.8125rem", fontWeight: 700 }}>Add steps</button>
+                  </div>
+                </div>
+              )}
 
               {totalSubs > 0 && (
                 <div style={{ marginBottom: "1rem" }}>
