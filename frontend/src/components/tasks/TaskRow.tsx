@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -75,6 +75,22 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
   const daysOpen = !isDone && task.createdAt ? differenceInDays(new Date(), new Date(task.createdAt)) : 0;
   const isMobile = useIsMobile();
 
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(task.title);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
+  const renameTask = useMutation({
+    mutationFn: (title: string) => tasksApi.update(task.id, { title }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+
+  const commitRename = () => {
+    const trimmed = titleDraft.trim();
+    if (trimmed && trimmed !== task.title) renameTask.mutate(trimmed);
+    else setTitleDraft(task.title);
+    setEditingTitle(false);
+  };
+
   return (
     <div ref={setNodeRef} style={style} className="relative">
 
@@ -121,16 +137,31 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
           {isDone && <Check size={9} strokeWidth={3} color="white" />}
         </button>
 
-        {/* Title — click → profile page */}
-        <span
-          onClick={() => navigate(`/tasks/${task.id}`)}
-          className={`flex-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${
-            isDone ? "line-through text-gray-300 dark:text-gray-600" : "text-gray-800 dark:text-gray-100"
-          }`}
-          style={{ fontSize: "0.9375rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-        >
-          {task.title}
-        </span>
+        {/* Title — single click → profile, double click → inline edit */}
+        {editingTitle ? (
+          <input
+            ref={titleInputRef}
+            value={titleDraft}
+            autoFocus
+            onChange={(e) => setTitleDraft(e.target.value)}
+            onBlur={commitRename}
+            onKeyDown={(e) => { if (e.key === "Enter") commitRename(); if (e.key === "Escape") { setTitleDraft(task.title); setEditingTitle(false); } }}
+            onClick={(e) => e.stopPropagation()}
+            className="text-gray-800 dark:text-gray-100 bg-transparent"
+            style={{ flex: 1, fontSize: "0.9375rem", border: "none", outline: "none", borderBottom: "1.5px solid #7c6ff7", minWidth: 0, padding: "0 2px" }}
+          />
+        ) : (
+          <span
+            onClick={() => navigate(`/tasks/${task.id}`)}
+            onDoubleClick={(e) => { e.stopPropagation(); setTitleDraft(task.title); setEditingTitle(true); }}
+            className={`flex-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${
+              isDone ? "line-through text-gray-300 dark:text-gray-600" : "text-gray-800 dark:text-gray-100"
+            }`}
+            style={{ fontSize: "0.9375rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+          >
+            {task.title}
+          </span>
+        )}
 
         {/* Subtask count */}
         {task.subtasks?.length > 0 && (
