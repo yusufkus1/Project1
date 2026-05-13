@@ -78,7 +78,7 @@ export function AppLayout() {
 
         {/* Mobile top bar */}
         {isMobile && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.875rem 1rem", borderBottom: "1px solid var(--color-border)", flexShrink: 0, background: "var(--color-surface)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingTop: "calc(env(safe-area-inset-top) + 0.875rem)", paddingBottom: "0.875rem", paddingLeft: "1rem", paddingRight: "1rem", borderBottom: "1px solid var(--color-border)", flexShrink: 0, background: "var(--color-surface)" }}>
             <button
               onClick={() => setSidebarOpen(true)}
               style={{
