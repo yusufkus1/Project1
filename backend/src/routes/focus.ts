@@ -1,5 +1,5 @@
-import { Router, Request, Response } from "express";
-import { authenticate } from "../middleware/auth";
+import { Router, Response } from "express";
+import { authenticate, AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
@@ -14,19 +14,17 @@ function cleanStale() {
   }
 }
 
-router.post("/checkin", authenticate, (req: Request, res: Response) => {
-  const uid = (req as any).user.id as string;
-  activeSessions.set(uid, Date.now());
+router.post("/checkin", authenticate, (req: AuthRequest, res: Response) => {
+  activeSessions.set(req.userId!, Date.now());
   res.json({ ok: true });
 });
 
-router.delete("/checkin", authenticate, (req: Request, res: Response) => {
-  const uid = (req as any).user.id as string;
-  activeSessions.delete(uid);
+router.delete("/checkin", authenticate, (req: AuthRequest, res: Response) => {
+  activeSessions.delete(req.userId!);
   res.json({ ok: true });
 });
 
-router.get("/count", authenticate, (_req: Request, res: Response) => {
+router.get("/count", authenticate, (_req: AuthRequest, res: Response) => {
   cleanStale();
   res.json({ count: activeSessions.size });
 });
