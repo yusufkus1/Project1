@@ -8,16 +8,18 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(uuid())
-  email             String    @unique
-  password          String
-  name              String
-  avatar            String?
-  theme             String    @default("light")
-  resetToken        String?
-  resetTokenExpiry  DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  password            String?
+  name                String
+  avatar              String?
+  theme               String    @default("light")
+  resetToken          String?
+  resetTokenExpiry    DateTime?
+  googleId            String?   @unique
+  googleRefreshToken  String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   projects  Project[]
   tasks     Task[]
@@ -72,6 +74,7 @@ model Task {
   position    Int         @default(0)
   recurrence       Recurrence?
   estimatedMinutes Int?
+  googleEventId    String?
   createdAt        DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   completedAt DateTime?

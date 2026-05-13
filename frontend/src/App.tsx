@@ -22,6 +22,7 @@ import { FocusPage } from "./pages/FocusPage";
 import { WeeklyReviewPage } from "./pages/WeeklyReviewPage";
 import { HabitsPage } from "./pages/HabitsPage";
 import { SkillsPage } from "./pages/SkillsPage";
+import { AuthCallbackPage } from "./pages/AuthCallbackPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route
               element={
                 <AuthGuard>

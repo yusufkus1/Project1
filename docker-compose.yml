@@ -27,8 +27,11 @@ services:
       JWT_EXPIRES_IN: 15m
       JWT_REFRESH_EXPIRES_IN: 7d
       PORT: 3001
-      FRONTEND_URL: https://${HOST_IP:-192.168.1.77}
+      FRONTEND_URL: https://${DOMAIN:-192.168.1.77}
       UPLOADS_DIR: /app/uploads
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: https://${DOMAIN:-192.168.1.77}/api/auth/google/callback
     volumes:
       - uploads:/app/uploads
     healthcheck:
