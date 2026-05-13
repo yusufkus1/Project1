@@ -4,8 +4,6 @@ import { authenticate } from "../middleware/auth";
 
 const router = Router();
 
-const client = new Anthropic({ apiKey: process.env["ANTHROPIC_API_KEY"] });
-
 const XP_BY_PRIORITY: Record<string, number> = { LOW: 10, MEDIUM: 20, HIGH: 35, CRITICAL: 50 };
 
 router.post("/analyze-task", authenticate, async (req: Request, res: Response) => {
@@ -15,11 +13,18 @@ router.post("/analyze-task", authenticate, async (req: Request, res: Response) =
     return res.status(400).json({ error: "title is required" });
   }
 
-  if (!process.env["ANTHROPIC_API_KEY"]) {
-    return res.status(503).json({ error: "AI not configured" });
+  // User-supplied key takes priority over server env var
+  const apiKey =
+    (req.headers["x-anthropic-key"] as string | undefined)?.trim() ||
+    process.env["ANTHROPIC_API_KEY"]?.trim();
+
+  if (!apiKey) {
+    return res.status(503).json({ error: "AI not configured — add your Anthropic API key in Settings" });
   }
 
   try {
+    const client = new Anthropic({ apiKey });
+
     const message = await client.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 256,

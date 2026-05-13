@@ -7,10 +7,11 @@ import { useUIStore } from "../store/ui";
 import { useFocusStore } from "../store/focus";
 import { Input } from "../components/ui/Input";
 import {
-  User, Lock, Moon, Sun, Bell, BellOff, Timer, Droplets, Trash2,
+  User, Lock, Moon, Sun, Bell, BellOff, Timer, Droplets, Trash2, Sparkles, Eye, EyeOff,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { AI_KEY_STORAGE, getStoredAIKey } from "../api/ai";
 
 interface ProfileForm { name: string; email: string }
 interface PasswordForm { currentPassword: string; newPassword: string; confirm: string }
@@ -81,6 +82,16 @@ export function SettingsPage() {
   const isMobile = useIsMobile();
 
   const [tab, setTab] = useState<"profile" | "password">("profile");
+
+  const [aiKey, setAiKey] = useState(() => getStoredAIKey());
+  const [showAiKey, setShowAiKey] = useState(false);
+  const aiActive = aiKey.trim().startsWith("sk-ant-");
+
+  const saveAiKey = (val: string) => {
+    setAiKey(val);
+    if (val.trim()) localStorage.setItem(AI_KEY_STORAGE, val.trim());
+    else localStorage.removeItem(AI_KEY_STORAGE);
+  };
 
   const rawNotif = loadNotifSettings();
   const [notifDue, setNotifDue] = useState<boolean>(rawNotif.due ?? true);
@@ -330,6 +341,74 @@ export function SettingsPage() {
             </div>
           }
         />
+      </div>
+
+      {/* ── AI card ── */}
+      <div className="bg-white dark:bg-gray-900" style={{ ...card, padding: isMobile ? "1.25rem 1rem" : "1.75rem 2rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+          <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            AI Features
+          </p>
+          <span style={{
+            fontSize: "0.6875rem", fontWeight: 700, borderRadius: "999px",
+            padding: "0.1875rem 0.625rem",
+            background: aiActive ? "rgba(34,197,94,0.12)" : "rgba(156,163,175,0.12)",
+            color: aiActive ? "#16a34a" : "#9ca3af",
+          }}>
+            {aiActive ? "Active" : "Not configured"}
+          </span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+          <div style={{
+            width: "2.75rem", height: "2.75rem", borderRadius: "0.75rem", flexShrink: 0,
+            background: "rgba(124,111,247,0.1)", display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Sparkles size={18} color="#7c6ff7" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p className="text-gray-900 dark:text-white" style={{ fontWeight: 600, fontSize: "0.9375rem" }}>Anthropic API Key</p>
+            <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.8125rem", marginTop: "0.125rem", marginBottom: "0.875rem" }}>
+              Used to auto-analyze task priority and time estimate. Get your key at console.anthropic.com.
+            </p>
+            <div style={{ position: "relative" }}>
+              <input
+                type={showAiKey ? "text" : "password"}
+                value={aiKey}
+                onChange={(e) => saveAiKey(e.target.value)}
+                placeholder="sk-ant-api03-..."
+                style={{
+                  width: "100%", boxSizing: "border-box",
+                  padding: "0.75rem 2.75rem 0.75rem 1rem",
+                  border: `1.5px solid ${aiActive ? "rgba(34,197,94,0.4)" : "var(--color-border)"}`,
+                  borderRadius: "0.75rem", fontSize: "0.875rem", outline: "none",
+                  fontFamily: aiKey ? "monospace" : "inherit",
+                  background: "var(--color-bg)",
+                  transition: "border-color 0.15s",
+                }}
+                className="text-gray-800 dark:text-gray-200 placeholder-gray-400"
+                onFocus={(e) => { e.target.style.borderColor = "#7c6ff7"; }}
+                onBlur={(e) => { e.target.style.borderColor = aiActive ? "rgba(34,197,94,0.4)" : "var(--color-border)"; }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowAiKey(!showAiKey)}
+                style={{
+                  position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer", padding: 0, display: "flex",
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                {showAiKey ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+            {aiKey && !aiActive && (
+              <p style={{ fontSize: "0.75rem", color: "#fb923c", marginTop: "0.375rem" }}>
+                Key should start with <code style={{ fontFamily: "monospace" }}>sk-ant-</code>
+              </p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* ── Data card ── */}
