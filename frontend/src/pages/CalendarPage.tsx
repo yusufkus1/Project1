@@ -12,6 +12,7 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { tasksApi, Task } from "../api/tasks";
 import { useUIStore } from "../store/ui";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 // Softer palette — works in both light and dark
 const PILL: Record<string, { bg: string; dot: string; text: string }> = {
@@ -122,6 +123,7 @@ function DayCell({ date, tasks, isCurrentMonth }: { date: Date; tasks: Task[]; i
 // ─── Calendar Page ─────────────────────────────────────────────────────────────
 export function CalendarPage() {
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [draggingTask, setDraggingTask] = useState<Task | null>(null);
 
@@ -184,12 +186,12 @@ export function CalendarPage() {
   const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
-    <div style={{ display: "flex", height: "100%", gap: "1.25rem", padding: "0.25rem", overflow: "hidden" }}>
+    <div style={{ display: "flex", height: isMobile ? "auto" : "100%", gap: "1.25rem", padding: "0.25rem", overflow: isMobile ? "visible" : "hidden" }}>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 
         {/* ── Main calendar card ── */}
         <div className="bg-white dark:bg-gray-900" style={{
-          flex: 1, display: "flex", flexDirection: "column", overflow: "hidden",
+          flex: 1, display: "flex", flexDirection: "column", overflow: isMobile ? "visible" : "hidden",
           borderRadius: "1.25rem",
           border: "1px solid var(--color-border)",
           boxShadow: "0 2px 16px rgba(0,0,0,0.06)",
@@ -267,7 +269,7 @@ export function CalendarPage() {
           </div>
 
           {/* Grid */}
-          <div style={{ flex: 1, overflowY: "auto" }}>
+          <div style={isMobile ? {} : { flex: 1, overflowY: "auto" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
               {days.map((date) => {
                 const key = format(date, "yyyy-MM-dd");
