@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY tsconfig.json ./
 COPY src ./src/
-RUN npm run build && npx prisma generate
+RUN NODE_OPTIONS="--max-old-space-size=512" npm run build && npx prisma generate
 
 FROM node:20-slim
 WORKDIR /app
