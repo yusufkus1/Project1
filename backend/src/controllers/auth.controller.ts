@@ -42,7 +42,7 @@ export async function login(req: Request, res: Response): Promise<void> {
   try {
     const { email, password } = req.body as { email: string; password: string };
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || !user.password || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       res.status(401).json({ error: "Geçersiz email veya şifre" });
       return;
     }

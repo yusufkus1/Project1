@@ -30,7 +30,7 @@ export async function changePassword(req: AuthRequest, res: Response): Promise<v
   try {
     const { currentPassword, newPassword } = req.body as { currentPassword: string; newPassword: string };
     const user = await prisma.user.findUnique({ where: { id: req.userId } });
-    if (!user || !user.password || !(await bcrypt.compare(currentPassword, user.password))) {
+    if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
       res.status(400).json({ error: "Mevcut şifre yanlış" }); return;
     }
     const hashed = await bcrypt.hash(newPassword, 12);
