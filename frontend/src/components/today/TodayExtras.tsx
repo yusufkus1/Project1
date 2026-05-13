@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Play, Plus, Zap, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { tasksApi, Task } from "../../api/tasks";
+import { skillsApi, Skill, parseDays } from "../../api/skills";
 import { useFocusStore } from "../../store/focus";
 import { useGamificationStore } from "../../store/gamification";
 import { useSeasonalTheme } from "../../hooks/useSeasonalTheme";
@@ -176,6 +177,10 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const focusStore = useFocusStore();
+
+  const dow = (new Date().getDay() + 6) % 7;
+  const { data: allSkills = [] } = useQuery<Skill[]>({ queryKey: ["skills"], queryFn: skillsApi.getAll });
+  const todaySkills = allSkills.filter((s) => parseDays(s).includes(dow));
   const { streak } = useGamificationStore();
   const seasonal = useSeasonalTheme();
   const [quickTitle, setQuickTitle] = useState("");
@@ -327,7 +332,7 @@ export function TodayExtras({ todayTasks }: { todayTasks: Task[] }) {
       )}
 
       {/* ── Auto schedule ── */}
-      <ScheduleView tasks={todayTasks} />
+      <ScheduleView tasks={todayTasks} skills={todaySkills} />
 
       {/* ── Quick add ── */}
       <form onSubmit={handleQuickAdd} style={{ display: "flex", gap: "0.5rem" }}>

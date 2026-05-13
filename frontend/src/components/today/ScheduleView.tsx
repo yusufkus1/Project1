@@ -2,44 +2,67 @@ import { useState } from "react";
 import { format, addMinutes, setHours, setMinutes } from "date-fns";
 import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { Task } from "../../api/tasks";
+import { Skill } from "../../api/skills";
 
 const PRIORITY_COLOR: Record<string, string> = {
   CRITICAL: "#ef4444", HIGH: "#fb923c", MEDIUM: "#eab308", LOW: "#94a3b8",
 };
 const PRIORITY_RANK: Record<string, number> = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
 
-interface Block {
-  task: Task;
+interface ScheduleBlock {
+  id: string;
+  label: string;
+  duration: number;
+  color: string;
+  badge?: string;
   startTime: Date;
   endTime: Date;
 }
 
-function buildSchedule(tasks: Task[], startHour = 9): Block[] {
-  const pending = [...tasks]
-    .filter((t) => t.status !== "COMPLETED")
-    .sort((a, b) => (PRIORITY_RANK[b.priority] ?? 0) - (PRIORITY_RANK[a.priority] ?? 0));
+function buildSchedule(tasks: Task[], skills: Skill[], startHour = 9): ScheduleBlock[] {
+  const items: { id: string; label: string; duration: number; color: string; badge?: string; rank: number }[] = [];
 
-  const blocks: Block[] = [];
+  tasks
+    .filter((t) => t.status !== "COMPLETED")
+    .forEach((t) => items.push({
+      id: t.id,
+      label: t.title,
+      duration: t.estimatedMinutes ?? 30,
+      color: PRIORITY_COLOR[t.priority] ?? "#94a3b8",
+      badge: t.priority,
+      rank: PRIORITY_RANK[t.priority] ?? 0,
+    }));
+
+  skills.forEach((s) => items.push({
+    id: `skill-${s.id}`,
+    label: s.name,
+    duration: s.duration,
+    color: s.color,
+    badge: "Skill",
+    rank: 2,
+  }));
+
+  items.sort((a, b) => b.rank - a.rank);
+
+  const blocks: ScheduleBlock[] = [];
   let cursor = setMinutes(setHours(new Date(), startHour), 0);
 
-  for (const task of pending) {
-    const duration = task.estimatedMinutes ?? 30;
-    const end = addMinutes(cursor, duration);
-    blocks.push({ task, startTime: cursor, endTime: end });
-    // 5 min buffer between tasks
+  for (const item of items) {
+    const end = addMinutes(cursor, item.duration);
+    blocks.push({ ...item, startTime: cursor, endTime: end });
     cursor = addMinutes(end, 5);
   }
 
   return blocks;
 }
 
-export function ScheduleView({ tasks }: { tasks: Task[] }) {
+export function ScheduleView({ tasks, skills = [] }: { tasks: Task[]; skills?: Skill[] }) {
   const [open, setOpen] = useState(false);
 
   const pending = tasks.filter((t) => t.status !== "COMPLETED");
-  if (pending.length === 0) return null;
+  if (pending.length === 0 && skills.length === 0) return null;
 
-  const blocks = buildSchedule(pending);
+  const blocks = buildSchedule(pending, skills);
 
   return (
     <div className="bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800"
@@ -64,9 +87,8 @@ export function ScheduleView({ tasks }: { tasks: Task[] }) {
 
       {open && (
         <div style={{ padding: "0 1.125rem 1rem", display: "flex", flexDirection: "column", gap: "0.375rem" }}>
-          {blocks.map(({ task, startTime, endTime }, i) => (
-            <div key={task.id} style={{ display: "flex", gap: "0.875rem", alignItems: "stretch" }}>
-              {/* Time column */}
+          {blocks.map(({ id, label, duration, color, badge, startTime, endTime }, i) => (
+            <div key={id} style={{ display: "flex", gap: "0.875rem", alignItems: "stretch" }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, width: "3rem" }}>
                 <span className="text-gray-400" style={{ fontSize: "0.6875rem", fontWeight: 600, whiteSpace: "nowrap" }}>
                   {format(startTime, "HH:mm")}
@@ -76,25 +98,31 @@ export function ScheduleView({ tasks }: { tasks: Task[] }) {
                 )}
               </div>
 
-              {/* Task block */}
               <div style={{
                 flex: 1, borderRadius: "0.625rem", padding: "0.5rem 0.75rem",
-                background: `${PRIORITY_COLOR[task.priority] ?? "#94a3b8"}0d`,
-                borderLeft: `3px solid ${PRIORITY_COLOR[task.priority] ?? "#94a3b8"}`,
+                background: `${color}0d`,
+                borderLeft: `3px solid ${color}`,
                 marginBottom: i < blocks.length - 1 ? "0.25rem" : 0,
               }}>
-                <p className="text-gray-800 dark:text-gray-100"
-                  style={{ fontSize: "0.8125rem", fontWeight: 600, lineHeight: 1.3, marginBottom: "0.125rem" }}>
-                  {task.title}
-                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.125rem" }}>
+                  <p className="text-gray-800 dark:text-gray-100"
+                    style={{ fontSize: "0.8125rem", fontWeight: 600, lineHeight: 1.3, flex: 1 }}>
+                    {label}
+                  </p>
+                  {badge === "Skill" && (
+                    <span style={{ fontSize: "0.625rem", fontWeight: 700, padding: "0.1rem 0.4rem", borderRadius: "999px", background: `${color}20`, color }}>
+                      Skill
+                    </span>
+                  )}
+                </div>
                 <p className="text-gray-400" style={{ fontSize: "0.6875rem" }}>
-                  {format(startTime, "HH:mm")} – {format(endTime, "HH:mm")} · {task.estimatedMinutes ?? 30}m
+                  {format(startTime, "HH:mm")} – {format(endTime, "HH:mm")} · {duration}m
                 </p>
               </div>
             </div>
           ))}
           <p className="text-gray-400" style={{ fontSize: "0.6875rem", textAlign: "center", marginTop: "0.5rem" }}>
-            Schedule starts at 9:00 AM · 5 min buffer between tasks
+            Schedule starts at 9:00 AM · 5 min buffer between blocks
           </p>
         </div>
       )}
