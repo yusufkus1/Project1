@@ -107,8 +107,64 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
     setEditingTitle(true);
   };
 
+  // ── Swipe ──
+  const swipeStartX = useRef<number | null>(null);
+  const [swipeX, setSwipeX] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const THRESHOLD = 80;
+
+  const deleteTask = useMutation({
+    mutationFn: () => tasksApi.update(task.id, { isArchived: true }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["tasks"] }); toast("Task deleted", { icon: "🗑️" }); },
+  });
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    if (!isMobile) return;
+    swipeStartX.current = e.touches[0]!.clientX;
+    setSwiping(true);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (swipeStartX.current === null) return;
+    const dx = e.touches[0]!.clientX - swipeStartX.current;
+    setSwipeX(Math.max(-120, Math.min(120, dx)));
+  };
+
+  const onTouchEnd = () => {
+    if (swipeX > THRESHOLD) {
+      toggleDone.mutate();
+    } else if (swipeX < -THRESHOLD) {
+      deleteTask.mutate();
+    }
+    setSwipeX(0);
+    setSwiping(false);
+    swipeStartX.current = null;
+  };
+
   return (
-    <div ref={setNodeRef} style={style} className="relative">
+    <div ref={setNodeRef} style={style} className="relative overflow-hidden">
+
+      {/* Swipe backgrounds */}
+      {isMobile && (
+        <>
+          <div style={{
+            position: "absolute", inset: 0, background: "#22c55e",
+            display: "flex", alignItems: "center", paddingLeft: "1.25rem",
+            opacity: swipeX > 20 ? Math.min(1, swipeX / THRESHOLD) : 0,
+            transition: swiping ? "none" : "opacity 0.2s",
+          }}>
+            <Check size={22} color="white" strokeWidth={3} />
+          </div>
+          <div style={{
+            position: "absolute", inset: 0, background: "#ef4444",
+            display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: "1.25rem",
+            opacity: swipeX < -20 ? Math.min(1, -swipeX / THRESHOLD) : 0,
+            transition: swiping ? "none" : "opacity 0.2s",
+          }}>
+            <span style={{ color: "white", fontSize: "1.25rem" }}>🗑️</span>
+          </div>
+        </>
+      )}
 
       {/* XP popup */}
       {xpPopups.map((popup) => (
@@ -121,10 +177,17 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
       ))}
 
       <div
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
         className={`group flex items-center gap-3 border-b border-gray-50 dark:border-gray-800/60 last:border-b-0 transition-colors ${
           isSelected ? "bg-indigo-50/60 dark:bg-indigo-900/10" : "hover:bg-gray-50 dark:hover:bg-gray-800/30"
         }`}
-        style={{ padding: "0.9rem 1.25rem", paddingLeft: depth > 0 ? "3rem" : "1.25rem" }}
+        style={{
+          padding: "0.9rem 1.25rem", paddingLeft: depth > 0 ? "3rem" : "1.25rem",
+          transform: swipeX !== 0 ? `translateX(${swipeX}px)` : undefined,
+          transition: swiping ? "none" : "transform 0.25s ease",
+        }}
       >
         {/* Drag handle — hidden on mobile */}
         {depth === 0 && !isMobile && (
