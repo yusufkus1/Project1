@@ -244,7 +244,7 @@ export function TaskProfilePage() {
   const totalSubs = task.subtasks?.length ?? 0;
 
   const fieldInput: React.CSSProperties = {
-    width: "100%", maxWidth: "100%", boxSizing: "border-box",
+    width: "100%", minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
     fontSize: "0.9375rem", padding: "0.875rem 1.125rem",
     borderRadius: "0.875rem", outline: "none",
     transition: "border-color 0.15s", border: "1px solid",
@@ -494,7 +494,7 @@ export function TaskProfilePage() {
         </div>
 
         {/* ── Two-column layout ─────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6" style={{ marginBottom: "3rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "1.5rem", marginBottom: "3rem" }}>
 
           {/* ── Left: Notes · Attachments · Subtasks ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -633,7 +633,7 @@ export function TaskProfilePage() {
             {/* Metadata card */}
             <div
               className="bg-white dark:bg-gray-900"
-              style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem" }}
+              style={{ borderRadius: "1rem", padding: isMobile ? "1.125rem 1rem" : "1.75rem 2rem", overflow: "hidden" }}
             >
               <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
