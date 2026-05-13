@@ -78,6 +78,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(task.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const renameTask = useMutation({
     mutationFn: (title: string) => tasksApi.update(task.id, { title }),
@@ -89,6 +90,21 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
     if (trimmed && trimmed !== task.title) renameTask.mutate(trimmed);
     else setTitleDraft(task.title);
     setEditingTitle(false);
+  };
+
+  const handleTitleClick = () => {
+    if (clickTimer.current) return;
+    clickTimer.current = setTimeout(() => {
+      clickTimer.current = null;
+      navigate(`/tasks/${task.id}`);
+    }, 220);
+  };
+
+  const handleTitleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (clickTimer.current) { clearTimeout(clickTimer.current); clickTimer.current = null; }
+    setTitleDraft(task.title);
+    setEditingTitle(true);
   };
 
   return (
@@ -152,8 +168,8 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
           />
         ) : (
           <span
-            onClick={() => navigate(`/tasks/${task.id}`)}
-            onDoubleClick={(e) => { e.stopPropagation(); setTitleDraft(task.title); setEditingTitle(true); }}
+            onClick={handleTitleClick}
+            onDoubleClick={handleTitleDoubleClick}
             className={`flex-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${
               isDone ? "line-through text-gray-300 dark:text-gray-600" : "text-gray-800 dark:text-gray-100"
             }`}
