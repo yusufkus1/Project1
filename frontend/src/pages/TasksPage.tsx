@@ -370,12 +370,13 @@ function TodaySkills() {
   });
 
   const todaySkills = skills.filter((s) => parseDays(s).includes(dow));
-  if (todaySkills.length === 0) return null;
 
   const toggle = useMutation({
     mutationFn: (id: string) => skillsApi.toggle(id, today),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["skills"] }),
   });
+
+  if (todaySkills.length === 0) return null;
 
   function fmtDuration(min: number) {
     if (min < 60) return `${min}m`;
