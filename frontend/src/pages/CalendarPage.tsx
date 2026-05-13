@@ -191,7 +191,10 @@ export function CalendarPage() {
 
         {/* ── Main calendar card ── */}
         <div className="bg-white dark:bg-gray-900" style={{
-          flex: 1, minWidth: 0, display: "flex", flexDirection: "column", overflow: isMobile ? "visible" : "hidden",
+          flex: 1, minWidth: 0, display: "flex", flexDirection: "column",
+          overflow: isMobile ? "visible" : "hidden",
+          alignSelf: isMobile ? "flex-start" : undefined,
+          width: isMobile ? "100%" : undefined,
           borderRadius: "1.25rem",
           border: "1px solid var(--color-border)",
           boxShadow: "0 2px 16px rgba(0,0,0,0.06)",

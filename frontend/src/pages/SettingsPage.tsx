@@ -312,20 +312,23 @@ export function SettingsPage() {
           Focus Timer
         </p>
 
-        <SettingRow
-          icon={<Timer size={18} color="#10b981" />}
-          color="#10b981"
-          bg="rgba(16,185,129,0.1)"
-          title="Default Session Duration"
-          subtitle="How long each focus session lasts"
-          right={
-            <div style={{ display: "flex", gap: "0.375rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", padding: "1.25rem 0" }}>
+          <div style={{
+            width: "2.75rem", height: "2.75rem", borderRadius: "0.75rem", flexShrink: 0,
+            background: "rgba(16,185,129,0.1)", display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Timer size={18} color="#10b981" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p className="text-gray-900 dark:text-white" style={{ fontWeight: 600, fontSize: "0.9375rem" }}>Default Session Duration</p>
+            <p className="text-gray-500 dark:text-gray-400" style={{ fontSize: "0.8125rem", marginTop: "0.125rem", marginBottom: "0.875rem" }}>How long each focus session lasts</p>
+            <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
               {FOCUS_OPTIONS.map((mins) => (
                 <button
                   key={mins}
                   onClick={() => updateSettings({ workDuration: mins })}
                   style={{
-                    padding: "0.375rem 0.75rem",
+                    padding: "0.375rem 0.875rem",
                     borderRadius: "0.5rem",
                     border: "1.5px solid",
                     borderColor: focusSettings.workDuration === mins ? "#7c6ff7" : "rgba(229,231,235,1)",
@@ -339,8 +342,8 @@ export function SettingsPage() {
                 </button>
               ))}
             </div>
-          }
-        />
+          </div>
+        </div>
       </div>
 
       {/* ── AI card ── */}
