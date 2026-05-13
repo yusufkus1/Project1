@@ -241,9 +241,11 @@ export function TaskProfilePage() {
   const totalSubs = task.subtasks?.length ?? 0;
 
   const fieldInput: React.CSSProperties = {
-    width: "100%", fontSize: "0.9375rem", padding: "0.875rem 1.125rem",
+    width: "100%", maxWidth: "100%", boxSizing: "border-box",
+    fontSize: "0.9375rem", padding: "0.875rem 1.125rem",
     borderRadius: "0.875rem", outline: "none",
     transition: "border-color 0.15s", border: "1px solid",
+    display: "block",
   };
 
   return (
