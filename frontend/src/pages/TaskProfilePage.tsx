@@ -640,13 +640,14 @@ export function TaskProfilePage() {
 
                 <div>
                   <SectionHeader icon={<Calendar size={15} />} label="Due Date" />
-                  <div style={{ overflow: "hidden", borderRadius: "0.875rem" }}>
+                  <div className="border-gray-200 dark:border-gray-700"
+                    style={{ overflow: "hidden", borderRadius: "0.875rem", border: "1px solid" }}>
                     <input
                       type="datetime-local"
                       {...register("dueDate")}
                       onBlur={handleSubmit(save)}
-                      className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
-                      style={fieldInput}
+                      className="bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                      style={{ ...fieldInput, border: "none", borderRadius: 0 }}
                     />
                   </div>
                 </div>
@@ -655,13 +656,14 @@ export function TaskProfilePage() {
 
                 <div>
                   <SectionHeader icon={<Clock size={15} />} label="Reminder" />
-                  <div style={{ overflow: "hidden", borderRadius: "0.875rem" }}>
+                  <div className="border-gray-200 dark:border-gray-700"
+                    style={{ overflow: "hidden", borderRadius: "0.875rem", border: "1px solid" }}>
                     <input
                       type="datetime-local"
                       {...register("reminder")}
                       onBlur={handleSubmit(save)}
-                      className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
-                      style={fieldInput}
+                      className="bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+                      style={{ ...fieldInput, border: "none", borderRadius: 0 }}
                     />
                   </div>
                 </div>
