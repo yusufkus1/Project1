@@ -5,6 +5,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+ENV PATH /app/node_modules/.bin:$PATH
 RUN npm run build
 
 FROM nginx:alpine

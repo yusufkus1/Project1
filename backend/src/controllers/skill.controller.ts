@@ -37,14 +37,14 @@ export async function createSkill(req: AuthRequest, res: Response): Promise<void
 
 export async function updateSkill(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const skill = await prisma.skill.findFirst({ where: { id: req.params["id"], userId: req.userId } });
+    const skill = await prisma.skill.findFirst({ where: { id: req.params["id"] as string, userId: req.userId } });
     if (!skill) { res.status(404).json({ error: "Not found" }); return; }
 
     const { name, color, duration, days } = req.body as {
       name?: string; color?: string; duration?: number; days?: number[];
     };
     const updated = await prisma.skill.update({
-      where: { id: req.params["id"] },
+      where: { id: req.params["id"] as string },
       data: {
         ...(name !== undefined && { name: name.trim() }),
         ...(color !== undefined && { color }),
@@ -59,16 +59,16 @@ export async function updateSkill(req: AuthRequest, res: Response): Promise<void
 
 export async function deleteSkill(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const skill = await prisma.skill.findFirst({ where: { id: req.params["id"], userId: req.userId } });
+    const skill = await prisma.skill.findFirst({ where: { id: req.params["id"] as string, userId: req.userId } });
     if (!skill) { res.status(404).json({ error: "Not found" }); return; }
-    await prisma.skill.update({ where: { id: req.params["id"] }, data: { isArchived: true } });
+    await prisma.skill.update({ where: { id: req.params["id"] as string }, data: { isArchived: true } });
     res.json({ ok: true });
   } catch { res.status(500).json({ error: "Server error" }); }
 }
 
 export async function toggleSession(req: AuthRequest, res: Response): Promise<void> {
   try {
-    const skill = await prisma.skill.findFirst({ where: { id: req.params["id"], userId: req.userId } });
+    const skill = await prisma.skill.findFirst({ where: { id: req.params["id"] as string, userId: req.userId } });
     if (!skill) { res.status(404).json({ error: "Not found" }); return; }
 
     const date = (req.body as { date?: string }).date ?? new Date().toISOString().slice(0, 10);
