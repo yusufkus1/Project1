@@ -245,7 +245,8 @@ export function TaskProfilePage() {
 
   const fieldInput: React.CSSProperties = {
     width: "100%", minWidth: 0, maxWidth: "100%", boxSizing: "border-box",
-    fontSize: "0.9375rem", padding: "0.875rem 1.125rem",
+    fontSize: isMobile ? "0.8125rem" : "0.9375rem",
+    padding: isMobile ? "0.75rem 0.875rem" : "0.875rem 1.125rem",
     borderRadius: "0.875rem", outline: "none",
     transition: "border-color 0.15s", border: "1px solid",
     display: "block",
@@ -639,26 +640,30 @@ export function TaskProfilePage() {
 
                 <div>
                   <SectionHeader icon={<Calendar size={15} />} label="Due Date" />
-                  <input
-                    type="datetime-local"
-                    {...register("dueDate")}
-                    onBlur={handleSubmit(save)}
-                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
-                    style={fieldInput}
-                  />
+                  <div style={{ overflow: "hidden", borderRadius: "0.875rem" }}>
+                    <input
+                      type="datetime-local"
+                      {...register("dueDate")}
+                      onBlur={handleSubmit(save)}
+                      className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
+                      style={fieldInput}
+                    />
+                  </div>
                 </div>
 
                 <Divider />
 
                 <div>
                   <SectionHeader icon={<Clock size={15} />} label="Reminder" />
-                  <input
-                    type="datetime-local"
-                    {...register("reminder")}
-                    onBlur={handleSubmit(save)}
-                    className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
-                    style={fieldInput}
-                  />
+                  <div style={{ overflow: "hidden", borderRadius: "0.875rem" }}>
+                    <input
+                      type="datetime-local"
+                      {...register("reminder")}
+                      onBlur={handleSubmit(save)}
+                      className="bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 focus:border-indigo-400 dark:focus:border-indigo-500"
+                      style={fieldInput}
+                    />
+                  </div>
                 </div>
 
                 <Divider />
