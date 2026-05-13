@@ -280,7 +280,7 @@ export function FocusPage() {
   const meta = MODE_META[mode];
 
   return (
-    <div style={{ maxWidth: "40rem", margin: "0 auto", display: "flex", flexDirection: "column", gap: isMobile ? "1.5rem" : "2.5rem" }}>
+    <div style={{ maxWidth: "40rem", display: "flex", flexDirection: "column", gap: isMobile ? "1.5rem" : "2.5rem" }}>
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

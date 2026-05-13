@@ -86,7 +86,7 @@ export function WeeklyReviewPage() {
   );
 
   return (
-    <div style={{ maxWidth: "56rem", margin: "0 auto" }}>
+    <div style={{ maxWidth: "56rem" }}>
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem" }}>

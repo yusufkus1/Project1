@@ -237,7 +237,7 @@ export function HabitsPage() {
   const totalDoneToday = habits.filter((h) => h.logs.some((l) => l.date === format(new Date(), "yyyy-MM-dd"))).length;
 
   return (
-    <div style={{ maxWidth: "56rem", margin: "0 auto" }}>
+    <div style={{ maxWidth: "56rem" }}>
 
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "2rem" }}>
