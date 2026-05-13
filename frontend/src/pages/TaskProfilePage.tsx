@@ -204,8 +204,11 @@ export function TaskProfilePage() {
       const desc = descriptionHtml ?? task.description ?? "";
       const result = await aiApi.analyzeTask(task.title, desc);
       setAiSuggestion(result);
-    } catch {
-      toast.error("AI analysis failed");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        "AI analysis failed";
+      toast.error(msg);
     } finally {
       setAiLoading(false);
     }

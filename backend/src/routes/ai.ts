@@ -74,9 +74,18 @@ Guidelines:
       xpReward: XP_BY_PRIORITY[priority],
       rationale: parsed.rationale ?? "",
     });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("AI analyze error:", err);
-    return res.status(500).json({ error: "AI analysis failed" });
+    // Surface Anthropic API errors so the client can show a useful message
+    const message =
+      err instanceof Error ? err.message : "AI analysis failed";
+    const status =
+      message.includes("401") || message.toLowerCase().includes("authentication")
+        ? 401
+        : message.includes("429")
+        ? 429
+        : 500;
+    return res.status(status).json({ error: message });
   }
 });
 

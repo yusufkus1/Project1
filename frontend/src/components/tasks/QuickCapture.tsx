@@ -209,8 +209,11 @@ export function QuickCapture({ onClose }: { onClose: () => void }) {
     try {
       const result = await aiApi.analyzeTask(parsed.title);
       setAiSuggestion(result);
-    } catch {
-      toast.error("AI analysis failed");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+        "AI analysis failed";
+      toast.error(msg);
     } finally {
       setAiLoading(false);
     }
