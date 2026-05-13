@@ -253,27 +253,22 @@ export function CalendarPage() {
             </div>
           </div>
 
-          {/* Weekday headers */}
-          <div style={{
-            display: "grid", gridTemplateColumns: "repeat(7, 1fr)",
-            borderBottom: "1px solid var(--color-border)", flexShrink: 0,
-          }} className="dark:border-gray-800">
-            {WEEKDAYS.map((d, i) => (
-              <div key={d} style={{
-                padding: "0.625rem 0", textAlign: "center",
-                fontSize: "0.6875rem", fontWeight: 700,
-                letterSpacing: "0.06em", textTransform: "uppercase",
-                borderRight: i < 6 ? "1px solid var(--color-border)" : "none",
-              }} className="text-gray-400 dark:text-gray-600 dark:border-gray-800">
-                <span className="hidden sm:inline">{d}</span>
-                <span className="sm:hidden">{d[0]}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Grid */}
+          {/* Single unified grid — headers + cells in one grid guarantees column alignment */}
           <div style={isMobile ? {} : { flex: 1, overflowY: "auto" }}>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
+              {/* Weekday header row */}
+              {WEEKDAYS.map((d, i) => (
+                <div key={d} style={{
+                  padding: "0.625rem 0", textAlign: "center",
+                  fontSize: "0.6875rem", fontWeight: 700,
+                  letterSpacing: "0.06em", textTransform: "uppercase",
+                  borderBottom: "1px solid var(--color-border)",
+                  borderRight: i < 6 ? "1px solid var(--color-border)" : "none",
+                }} className="text-gray-400 dark:text-gray-600 dark:border-gray-800">
+                  {isMobile ? d[0] : d}
+                </div>
+              ))}
+              {/* Day cells */}
               {days.map((date) => {
                 const key = format(date, "yyyy-MM-dd");
                 return (
