@@ -23,6 +23,7 @@ model User {
   tasks     Task[]
   tags      Tag[]
   habits    Habit[]
+  skills    Skill[]
 
   @@map("users")
 }
@@ -141,6 +142,36 @@ model HabitLog {
 
   @@unique([habitId, date])
   @@map("habit_logs")
+}
+
+model Skill {
+  id         String         @id @default(uuid())
+  name       String
+  color      String         @default("#7c6ff7")
+  duration   Int            // minutes per session
+  days       String         // JSON: [0,1,2,3,4,5,6] — 0=Mon … 6=Sun
+  isArchived Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  userId   String
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions SkillSession[]
+
+  @@map("skills")
+}
+
+model SkillSession {
+  id        String   @id @default(uuid())
+  date      String   // "YYYY-MM-DD"
+  createdAt DateTime @default(now())
+
+  skillId String
+  skill   Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  userId  String
+
+  @@unique([skillId, date])
+  @@map("skill_sessions")
 }
 
 enum Priority {

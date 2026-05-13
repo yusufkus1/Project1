@@ -3,7 +3,7 @@ import {
   Sun, CalendarDays, CheckCheck, Tag, Settings,
   Plus, Hash, LogOut, LayoutDashboard, Calendar,
   ChevronDown, Flame, Grid2x2, Timer, X, BarChart2,
-  Activity, Inbox, Moon,
+  Activity, Inbox, Moon, Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { projectsApi } from "../../api/projects";
@@ -189,6 +189,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
         <NavItem icon={<Timer size={15} />}           label="Focus"         active={isPathActive("/focus")}     onClick={() => goTo("/focus")} />
         <NavItem icon={<BarChart2 size={15} />}       label="Weekly Review" active={isPathActive("/review")}    onClick={() => goTo("/review")} />
         <NavItem icon={<Activity size={15} />}        label="Habits"        active={isPathActive("/habits")}    onClick={() => goTo("/habits")} />
+        <NavItem icon={<Zap size={15} />}            label="Skills"        active={isPathActive("/skills")}    onClick={() => goTo("/skills")} />
 
         <div style={{ height: "1px", margin: "0.375rem 0.25rem", background: "var(--color-border)" }} />
 

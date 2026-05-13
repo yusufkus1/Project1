@@ -11,6 +11,7 @@ import {
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { tasksApi, Task } from "../api/tasks";
+import { skillsApi, Skill, parseDays } from "../api/skills";
 import { useUIStore } from "../store/ui";
 import { useIsMobile } from "../hooks/useIsMobile";
 
@@ -65,12 +66,48 @@ function TaskPill({ task, overlay = false }: { task: Task; overlay?: boolean }) 
   );
 }
 
+// ─── Skill Pill ───────────────────────────────────────────────────────────────
+function SkillPill({ skill, date }: { skill: Skill; date: string }) {
+  const qc = useQueryClient();
+  const done = skill.sessions.some((s) => s.date === date);
+  const toggle = useMutation({
+    mutationFn: () => skillsApi.toggle(skill.id, date),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["skills"] }),
+  });
+  return (
+    <div
+      onClick={(e) => { e.stopPropagation(); toggle.mutate(); }}
+      style={{
+        display: "flex", alignItems: "center", gap: "0.3rem",
+        padding: "0.2rem 0.5rem", borderRadius: "999px",
+        background: done ? skill.color + "33" : skill.color + "18",
+        border: `1.5px solid ${done ? skill.color : "transparent"}`,
+        cursor: "pointer", opacity: done ? 1 : 0.75,
+        transition: "all 0.15s",
+      }}
+    >
+      <span style={{ width: "0.375rem", height: "0.375rem", borderRadius: "50%", background: skill.color, flexShrink: 0 }} />
+      <span style={{ fontSize: "0.6rem", fontWeight: 700, color: skill.color, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        {skill.name}
+      </span>
+    </div>
+  );
+}
+
 // ─── Day Cell ─────────────────────────────────────────────────────────────────
-function DayCell({ date, tasks, isCurrentMonth }: { date: Date; tasks: Task[]; isCurrentMonth: boolean }) {
+function DayCell({ date, tasks, skills, isCurrentMonth }: { date: Date; tasks: Task[]; skills: Skill[]; isCurrentMonth: boolean }) {
   const { setNodeRef, isOver } = useDroppable({ id: format(date, "yyyy-MM-dd") });
   const today = isToday(date);
-  const visible = tasks.slice(0, 3);
-  const overflow = tasks.length - 3;
+  // day-of-week: date-fns getDay() returns 0=Sun..6=Sat, convert to 0=Mon..6=Sun
+  const dow = (date.getDay() + 6) % 7;
+  const dateStr = format(date, "yyyy-MM-dd");
+  const scheduledSkills = skills.filter((s) => parseDays(s).includes(dow));
+  const allItems = tasks.length + scheduledSkills.length;
+  const maxVisible = 3;
+  const visibleTasks = tasks.slice(0, Math.min(tasks.length, maxVisible));
+  const remainingSlots = maxVisible - visibleTasks.length;
+  const visibleSkills = scheduledSkills.slice(0, remainingSlots);
+  const overflow = allItems - visibleTasks.length - visibleSkills.length;
 
   return (
     <div
@@ -109,7 +146,8 @@ function DayCell({ date, tasks, isCurrentMonth }: { date: Date; tasks: Task[]; i
 
       {/* Pills */}
       <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", overflow: "hidden" }}>
-        {visible.map((t) => <TaskPill key={t.id} task={t} />)}
+        {visibleTasks.map((t) => <TaskPill key={t.id} task={t} />)}
+        {visibleSkills.map((s) => <SkillPill key={s.id} skill={s} date={dateStr} />)}
         {overflow > 0 && (
           <span style={{ fontSize: "0.625rem", fontWeight: 600, color: "#9ca3af", paddingLeft: "0.25rem" }}>
             +{overflow}
@@ -130,6 +168,11 @@ export function CalendarPage() {
   const { data } = useQuery({
     queryKey: ["tasks"],
     queryFn: () => tasksApi.getAll({ isArchived: false, limit: 500 }),
+  });
+
+  const { data: skills = [] } = useQuery<Skill[]>({
+    queryKey: ["skills"],
+    queryFn: skillsApi.getAll,
   });
 
   const updateTask = useMutation({
@@ -276,6 +319,7 @@ export function CalendarPage() {
                     key={key}
                     date={date}
                     tasks={tasksByDate[key] ?? []}
+                    skills={skills}
                     isCurrentMonth={isSameMonth(date, currentMonth)}
                   />
                 );

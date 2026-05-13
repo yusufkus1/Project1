@@ -21,6 +21,7 @@ import { EisenhowerPage } from "./pages/EisenhowerPage";
 import { FocusPage } from "./pages/FocusPage";
 import { WeeklyReviewPage } from "./pages/WeeklyReviewPage";
 import { HabitsPage } from "./pages/HabitsPage";
+import { SkillsPage } from "./pages/SkillsPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -79,6 +80,7 @@ export default function App() {
               <Route path="/focus" element={<FocusPage />} />
               <Route path="/review" element={<WeeklyReviewPage />} />
               <Route path="/habits" element={<HabitsPage />} />
+              <Route path="/skills" element={<SkillsPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
