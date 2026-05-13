@@ -13,6 +13,7 @@ import { isToday, isFuture, isPast, format } from "date-fns";
 import { Loader2, Archive, List, LayoutGrid, Calendar, Sparkles, Zap, X, AlertTriangle } from "lucide-react";
 import { tasksApi, Task } from "../api/tasks";
 import { skillsApi, Skill, parseDays } from "../api/skills";
+import { habitsApi, Habit } from "../api/habits";
 import { useUIStore, View } from "../store/ui";
 import { TaskRow } from "../components/tasks/TaskRow";
 import { InlineAdd } from "../components/tasks/InlineAdd";
@@ -433,6 +434,69 @@ function TodaySkills() {
   );
 }
 
+// ─── Today Habits ─────────────────────────────────────────────────────────────
+function TodayHabits() {
+  const qc = useQueryClient();
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: habits = [] } = useQuery<Habit[]>({
+    queryKey: ["habits"],
+    queryFn: habitsApi.getAll,
+  });
+
+  const toggle = useMutation({
+    mutationFn: (id: string) => habitsApi.toggle(id, today),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["habits"] }),
+  });
+
+  const active = habits.filter((h) => !h.isArchived);
+  if (active.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: "1.5rem" }}>
+      <p style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.5rem" }}
+         className="text-gray-400 dark:text-gray-600">
+        Habits
+      </p>
+      <div className="bg-white dark:bg-gray-900"
+           style={{ borderRadius: "0.875rem", border: "1px solid var(--color-border)", overflow: "hidden" }}>
+        {active.map((habit, i) => {
+          const done = habit.logs.some((l) => l.date === today);
+          return (
+            <div key={habit.id}
+                 style={{
+                   display: "flex", alignItems: "center", gap: "0.75rem",
+                   padding: "0.75rem 1rem",
+                   borderTop: i > 0 ? "1px solid var(--color-border)" : "none",
+                 }}>
+              <span style={{ fontSize: "1rem", lineHeight: 1 }}>{habit.icon}</span>
+              <span className="text-gray-800 dark:text-gray-200" style={{ flex: 1, fontSize: "0.875rem", fontWeight: 600 }}>
+                {habit.title}
+              </span>
+              <button
+                onClick={() => toggle.mutate(habit.id)}
+                style={{
+                  width: "1.75rem", height: "1.75rem", borderRadius: "50%", flexShrink: 0,
+                  border: `2px solid ${done ? habit.color : "#d1d5db"}`,
+                  background: done ? habit.color : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                {done && (
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export function TasksPage() {
   const qc = useQueryClient();
@@ -562,6 +626,7 @@ export function TasksPage() {
 
       {selectedView === "today" && <TodayExtras todayTasks={filtered} />}
       {selectedView === "today" && <TodaySkills />}
+      {selectedView === "today" && <TodayHabits />}
 
       {/* Next task suggestion — Today + Inbox */}
       {(selectedView === "today" || selectedView === "inbox") && !isLoading && (
