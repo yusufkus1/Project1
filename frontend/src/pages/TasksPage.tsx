@@ -12,6 +12,7 @@ import {
 import { isToday, isFuture, isPast, format } from "date-fns";
 import { Loader2, Archive, List, LayoutGrid, Calendar, Sparkles, Zap, X, AlertTriangle } from "lucide-react";
 import { tasksApi, Task } from "../api/tasks";
+import { skillsApi, Skill, parseDays } from "../api/skills";
 import { useUIStore, View } from "../store/ui";
 import { TaskRow } from "../components/tasks/TaskRow";
 import { InlineAdd } from "../components/tasks/InlineAdd";
@@ -357,6 +358,80 @@ function CardWall({ tasks }: { tasks: Task[] }) {
   );
 }
 
+// ─── Today Skills ─────────────────────────────────────────────────────────────
+function TodaySkills() {
+  const qc = useQueryClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const dow = (new Date().getDay() + 6) % 7; // Mon=0…Sun=6
+
+  const { data: skills = [] } = useQuery<Skill[]>({
+    queryKey: ["skills"],
+    queryFn: skillsApi.getAll,
+  });
+
+  const todaySkills = skills.filter((s) => parseDays(s).includes(dow));
+  if (todaySkills.length === 0) return null;
+
+  const toggle = useMutation({
+    mutationFn: (id: string) => skillsApi.toggle(id, today),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["skills"] }),
+  });
+
+  function fmtDuration(min: number) {
+    if (min < 60) return `${min}m`;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return m ? `${h}h ${m}m` : `${h}h`;
+  }
+
+  return (
+    <div style={{ marginBottom: "1.5rem" }}>
+      <p style={{ fontSize: "0.6875rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: "0.5rem" }}
+         className="text-gray-400 dark:text-gray-600">
+        Skills
+      </p>
+      <div className="bg-white dark:bg-gray-900"
+           style={{ borderRadius: "0.875rem", border: "1px solid var(--color-border)", overflow: "hidden" }}>
+        {todaySkills.map((skill, i) => {
+          const done = skill.sessions.some((s) => s.date === today);
+          return (
+            <div key={skill.id}
+                 style={{
+                   display: "flex", alignItems: "center", gap: "0.75rem",
+                   padding: "0.75rem 1rem",
+                   borderTop: i > 0 ? "1px solid var(--color-border)" : "none",
+                 }}>
+              <div style={{ width: "0.5rem", height: "0.5rem", borderRadius: "50%", background: skill.color, flexShrink: 0 }} />
+              <span className="text-gray-800 dark:text-gray-200" style={{ flex: 1, fontSize: "0.875rem", fontWeight: 600 }}>
+                {skill.name}
+              </span>
+              <span className="text-gray-400" style={{ fontSize: "0.75rem", fontWeight: 500 }}>
+                {fmtDuration(skill.duration)}
+              </span>
+              <button
+                onClick={() => toggle.mutate(skill.id)}
+                style={{
+                  width: "1.75rem", height: "1.75rem", borderRadius: "50%", flexShrink: 0,
+                  border: `2px solid ${done ? skill.color : "#d1d5db"}`,
+                  background: done ? skill.color : "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                {done && (
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export function TasksPage() {
   const qc = useQueryClient();
@@ -485,6 +560,7 @@ export function TasksPage() {
       </div>
 
       {selectedView === "today" && <TodayExtras todayTasks={filtered} />}
+      {selectedView === "today" && <TodaySkills />}
 
       {/* Next task suggestion — Today + Inbox */}
       {(selectedView === "today" || selectedView === "inbox") && !isLoading && (
