@@ -1,4 +1,5 @@
-FROM node:20-alpine AS builder
+# Builder runs on amd64 — vite/rolldown has no arm/v7 native binding
+FROM --platform=linux/amd64 node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./

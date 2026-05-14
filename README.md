@@ -92,21 +92,42 @@ Press `Ctrl+C` to stop both servers.
 
 ## Docker (Self-hosted)
 
-```bash
-# Copy and edit the env file
-cp backend/.env.example backend/.env
-
-docker compose up -d
-```
-
-The app will be available on port **80** (HTTP) and **443** (HTTPS if certs are placed in `./certs/`).
-
-To apply updates:
+### Option A — Build locally (requires a capable machine, not recommended on Raspberry Pi)
 
 ```bash
-git pull
 docker compose up -d --build
 ```
+
+### Option B — Pre-built images via GHCR (recommended for Raspberry Pi 3 / low-memory devices)
+
+Images are cross-compiled for `linux/arm/v7` on a Mac and pushed to GitHub Container Registry. The target device only pulls and runs — it never builds.
+
+**On your build machine (Mac/Linux with Docker):**
+
+```bash
+# One-time setup
+docker buildx create --name rpi3builder --driver docker-container --platform linux/arm/v7 --use
+docker buildx inspect --bootstrap rpi3builder
+
+# Log in to GHCR (needs a GitHub PAT with write:packages scope)
+echo "YOUR_PAT" | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+
+# Build & push
+bash deploy.sh
+```
+
+**On the Raspberry Pi:**
+
+Create a `.env` file (see variables below), then:
+
+```bash
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
+```
+
+To apply future updates: run `bash deploy.sh` on the build machine, then `pull` + `up -d` on the Pi.
+
+The app will be available on port **80** (HTTP) and **443** (HTTPS if certs are placed in `./certs/`).
 
 | Variable | Default | Description |
 |----------|---------|-------------|
