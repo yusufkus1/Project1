@@ -107,63 +107,84 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
     setEditingTitle(true);
   };
 
-  // ── Swipe ──
-  const swipeStartX = useRef<number | null>(null);
-  const [swipeX, setSwipeX] = useState(0);
-  const [swiping, setSwiping] = useState(false);
-  const THRESHOLD = 80;
+  // ── Swipe (iOS style — sola kaydır, sağda butonlar) ──
+  const ACTION_W = 112;
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const isHorizDrag = useRef(false);
+  const [slideX, setSlideX] = useState(0);
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const deleteTask = useMutation({
     mutationFn: () => tasksApi.update(task.id, { isArchived: true }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["tasks"] }); toast("Task deleted", { icon: "🗑️" }); },
   });
 
+  const closeActions = () => { setSlideX(0); setActionsOpen(false); };
+
   const onTouchStart = (e: React.TouchEvent) => {
     if (!isMobile) return;
-    swipeStartX.current = e.touches[0]!.clientX;
-    setSwiping(true);
+    touchStartX.current = e.touches[0]!.clientX;
+    touchStartY.current = e.touches[0]!.clientY;
+    isHorizDrag.current = false;
+    // long press → title edit
+    longPressTimer.current = setTimeout(() => {
+      longPressTimer.current = null;
+      setTitleDraft(task.title);
+      setEditingTitle(true);
+    }, 600);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    if (swipeStartX.current === null) return;
-    const dx = e.touches[0]!.clientX - swipeStartX.current;
-    setSwipeX(Math.max(-120, Math.min(120, dx)));
+    if (touchStartX.current === null) return;
+    const dx = e.touches[0]!.clientX - touchStartX.current;
+    const dy = e.touches[0]!.clientY - touchStartY.current!;
+    if (!isHorizDrag.current) {
+      if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
+      if (Math.abs(dy) > Math.abs(dx)) { // dikey scroll
+        if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+        return;
+      }
+      isHorizDrag.current = true;
+    }
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+    const base = actionsOpen ? -ACTION_W : 0;
+    setSlideX(Math.max(-ACTION_W, Math.min(0, base + dx)));
   };
 
   const onTouchEnd = () => {
-    if (swipeX > THRESHOLD) {
-      toggleDone.mutate();
-    } else if (swipeX < -THRESHOLD) {
-      deleteTask.mutate();
-    }
-    setSwipeX(0);
-    setSwiping(false);
-    swipeStartX.current = null;
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+    if (!isHorizDrag.current) { touchStartX.current = null; return; }
+    if (slideX < -ACTION_W / 2) { setSlideX(-ACTION_W); setActionsOpen(true); }
+    else { closeActions(); }
+    touchStartX.current = null;
   };
 
   return (
     <div ref={setNodeRef} style={style} className="relative overflow-hidden">
 
-      {/* Swipe backgrounds */}
+      {/* Action buttons — revealed on swipe left */}
       {isMobile && (
-        <>
-          <div style={{
-            position: "absolute", inset: 0, background: "#22c55e",
-            display: "flex", alignItems: "center", paddingLeft: "1.25rem",
-            opacity: swipeX > 20 ? Math.min(1, swipeX / THRESHOLD) : 0,
-            transition: swiping ? "none" : "opacity 0.2s",
-          }}>
-            <Check size={22} color="white" strokeWidth={3} />
-          </div>
-          <div style={{
-            position: "absolute", inset: 0, background: "#ef4444",
-            display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: "1.25rem",
-            opacity: swipeX < -20 ? Math.min(1, -swipeX / THRESHOLD) : 0,
-            transition: swiping ? "none" : "opacity 0.2s",
-          }}>
-            <span style={{ color: "white", fontSize: "1.25rem" }}>🗑️</span>
-          </div>
-        </>
+        <div style={{
+          position: "absolute", right: 0, top: 0, bottom: 0,
+          width: ACTION_W, display: "flex",
+        }}>
+          <button
+            onClick={() => { toggleDone.mutate(); closeActions(); }}
+            style={{ flex: 1, background: "#4ade80", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.25rem" }}
+          >
+            <Check size={18} color="white" strokeWidth={2.5} />
+            <span style={{ fontSize: "0.625rem", color: "white", fontWeight: 700 }}>{isDone ? "Undo" : "Done"}</span>
+          </button>
+          <button
+            onClick={() => { deleteTask.mutate(); closeActions(); }}
+            style={{ flex: 1, background: "#f87171", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.25rem" }}
+          >
+            <span style={{ fontSize: "1rem" }}>🗑️</span>
+            <span style={{ fontSize: "0.625rem", color: "white", fontWeight: 700 }}>Delete</span>
+          </button>
+        </div>
       )}
 
       {/* XP popup */}
@@ -185,8 +206,9 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
         }`}
         style={{
           padding: "0.9rem 1.25rem", paddingLeft: depth > 0 ? "3rem" : "1.25rem",
-          transform: swipeX !== 0 ? `translateX(${swipeX}px)` : undefined,
-          transition: swiping ? "none" : "transform 0.25s ease",
+          transform: slideX !== 0 ? `translateX(${slideX}px)` : undefined,
+          transition: isHorizDrag.current ? "none" : "transform 0.25s ease",
+          background: "var(--color-surface)",
         }}
       >
         {/* Drag handle — hidden on mobile */}
@@ -216,7 +238,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
           {isDone && <Check size={9} strokeWidth={3} color="white" />}
         </button>
 
-        {/* Title — single click → profile, double click → inline edit */}
+        {/* Title — desktop: single click → profile, double click → edit | mobile: tap → profile, long press → edit */}
         {editingTitle ? (
           <input
             ref={titleInputRef}
@@ -231,8 +253,13 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
           />
         ) : (
           <span
-            onClick={handleTitleClick}
-            onDoubleClick={handleTitleDoubleClick}
+            onClick={isMobile ? undefined : handleTitleClick}
+            onDoubleClick={isMobile ? undefined : handleTitleDoubleClick}
+            onTouchEnd={(e) => {
+              if (editingTitle || isHorizDrag.current) return;
+              e.stopPropagation();
+              navigate(`/tasks/${task.id}`);
+            }}
             className={`flex-1 cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors ${
               isDone ? "line-through text-gray-300 dark:text-gray-600" : "text-gray-800 dark:text-gray-100"
             }`}
