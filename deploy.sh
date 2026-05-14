@@ -1,27 +1,24 @@
 #!/bin/bash
-# Deploy to Raspberry Pi
-# Usage: bash deploy.sh [rpi-user@192.168.1.77]
+set -e
 
-RPI=${1:-"pi@192.168.1.77"}
-APP_DIR="/home/pi/Project1"
+REGISTRY="ghcr.io/yusufkus1"
+BACKEND_IMAGE="$REGISTRY/project1-backend:latest"
+FRONTEND_IMAGE="$REGISTRY/project1-frontend:latest"
 
-echo "Deploying to $RPI..."
+echo "🔨 Building images for linux/arm/v7 (RPI3)..."
 
-ssh "$RPI" "
-  set -e
-  if [ ! -d '$APP_DIR' ]; then
-    git clone https://github.com/yusufkus1/Project1.git '$APP_DIR'
-  fi
-  cd '$APP_DIR'
-  git pull origin main
-  if [ ! -f .env ]; then
-    cp .env.example .env
-    echo 'IMPORTANT: Edit $APP_DIR/.env with your secrets before first run!'
-    exit 1
-  fi
-  docker compose down --remove-orphans
-  docker compose up -d --build
-  docker compose ps
-"
+docker buildx build \
+  --platform linux/arm/v7 \
+  --tag "$BACKEND_IMAGE" \
+  --push \
+  ./backend
 
-echo "Done. App running at http://192.168.1.77"
+docker buildx build \
+  --platform linux/arm/v7 \
+  --tag "$FRONTEND_IMAGE" \
+  --push \
+  ./frontend
+
+echo ""
+echo "✅ Images pushed! RPI3'te çalıştır:"
+echo "  docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d"
