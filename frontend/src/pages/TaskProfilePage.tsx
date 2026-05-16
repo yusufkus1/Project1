@@ -133,9 +133,10 @@ export function TaskProfilePage() {
       qc.invalidateQueries({ queryKey: ["task", id] });
       qc.invalidateQueries({ queryKey: ["tasks"] });
       if (task?.status !== "COMPLETED") {
-        const { xpGained, leveledUp, newAchievements } = completeTask(task?.priority ?? "MEDIUM");
+        const { xpGained, leveledUp, newAchievements, weeklyBonusGranted } = completeTask(task?.priority ?? "MEDIUM");
         toast.success(`+${xpGained} XP`, { icon: "⚡" });
         if (leveledUp) toast("Level up!", { icon: "⬆️", duration: 3000 });
+        if (weeklyBonusGranted) toast.success("Weekly goal reached! +100 XP", { icon: "🏆", duration: 4000 });
         newAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
       } else {
         undoTask(task?.priority ?? "MEDIUM");

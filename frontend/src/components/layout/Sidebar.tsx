@@ -23,10 +23,12 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
   const [tagsOpen, setTagsOpen] = useState(true);
   const [daySummaryOpen, setDaySummaryOpen] = useState(false);
 
-  const { xp, streak, getLevel, getXPProgress, getXPForNextLevel } = useGamificationStore();
+  const { xp, streak, getLevel, getXPProgress, getXPForNextLevel, getCurrentWeekXP } = useGamificationStore();
   const level = getLevel();
   const xpProgress = getXPProgress();
   const xpNext = getXPForNextLevel();
+  const weekXP = getCurrentWeekXP();
+  const WEEKLY_GOAL = 300;
 
   const { data: projects = [] } = useQuery({ queryKey: ["projects"], queryFn: projectsApi.getAll });
   const { data: tags = [] } = useQuery({ queryKey: ["tags"], queryFn: tagsApi.getAll });
@@ -171,6 +173,25 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
               <span style={{ fontSize: "0.6875rem", fontWeight: 600, color: "#fb923c" }}>{streak} day streak</span>
             </div>
           )}
+
+          {/* Weekly XP goal */}
+          <div style={{ marginTop: "0.625rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
+              <span style={{ fontSize: "0.625rem", fontWeight: 600, color: "#9ca3af" }}>This week</span>
+              <span style={{ fontSize: "0.625rem", fontWeight: 700, color: weekXP >= WEEKLY_GOAL ? "#22c55e" : "#7c6ff7" }}>
+                {weekXP}/{WEEKLY_GOAL} XP
+              </span>
+            </div>
+            <div style={{ borderRadius: "999px", height: "0.25rem", overflow: "hidden", background: "rgba(124,111,247,0.12)" }}>
+              <div style={{
+                background: weekXP >= WEEKLY_GOAL ? "#22c55e" : "linear-gradient(90deg, #7c6ff7, #a78bfa)",
+                borderRadius: "999px",
+                height: "100%",
+                width: `${Math.min(100, Math.round((weekXP / WEEKLY_GOAL) * 100))}%`,
+                transition: "width 0.5s ease",
+              }} />
+            </div>
+          </div>
         </div>
       </div>
 

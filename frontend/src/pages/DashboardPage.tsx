@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { usersApi } from "../api/users";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAuthStore } from "../store/auth";
-import { useGamificationStore, ACHIEVEMENTS } from "../store/gamification";
+import { useGamificationStore, ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES, WEEKLY_XP_GOAL } from "../store/gamification";
 import { useUIStore } from "../store/ui";
 import {
   CheckCircle, Clock, AlertTriangle, ListTodo, TrendingUp,
-  BarChart2, Zap, Flame, Trophy, Star,
+  BarChart2, Zap, Flame, Trophy, Star, Target, Timer,
 } from "lucide-react";
 
 const LEVEL_TITLES: Record<number, string> = {
@@ -26,13 +26,17 @@ export function DashboardPage() {
 
   const {
     xp, streak, longestStreak, totalTasksCompleted, tasksCompletedToday,
-    unlockedAchievements, getLevel, getXPProgress, getXPForCurrentLevel, getXPForNextLevel,
+    focusSessionsCompleted, unlockedAchievements,
+    getLevel, getXPProgress, getXPForCurrentLevel, getXPForNextLevel,
+    getStreakMultiplier, getCurrentWeekXP,
   } = useGamificationStore();
 
   const level = getLevel();
   const xpProgress = getXPProgress();
   const xpCurrent = getXPForCurrentLevel();
   const xpNext = getXPForNextLevel();
+  const multiplier = getStreakMultiplier();
+  const weekXP = getCurrentWeekXP();
   const levelTitle = LEVEL_TITLES[level] ?? "Grandmaster";
   const completionRate = stats?.total ? Math.round((stats.completed / stats.total) * 100) : 0;
   const isMobile = useIsMobile();
@@ -44,8 +48,6 @@ export function DashboardPage() {
     { label: "In Progress",  value: stats?.inProgress ?? 0, icon: TrendingUp,   color: "#3b82f6", bg: "rgba(59,130,246,0.1)", view: "in_progress" },
     { label: "Overdue",      value: stats?.overdue ?? 0,    icon: AlertTriangle, color:"#ef4444", bg: "rgba(239,68,68,0.1)",  view: "overdue"     },
   ] as const;
-
-  const card = "background:var(--card-bg,white); border:1px solid var(--card-border,#f1f5f9); border-radius:1rem;";
 
   return (
     <div style={{ maxWidth: "64rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
@@ -78,6 +80,11 @@ export function DashboardPage() {
               <span style={{ background: "rgba(255,255,255,0.2)", padding: "0.375rem 0.875rem", borderRadius: "999px", fontSize: "0.8125rem", fontWeight: 600 }}>
                 {levelTitle}
               </span>
+              {multiplier > 1 && (
+                <span style={{ background: "rgba(251,191,36,0.35)", padding: "0.25rem 0.625rem", borderRadius: "999px", fontSize: "0.75rem", fontWeight: 700, color: "#fef08a" }}>
+                  ⚡ {multiplier}x XP
+                </span>
+              )}
             </div>
             <p style={{ color: "rgba(199,210,254,1)", fontSize: "0.875rem", marginBottom: "2rem" }}>{xp} XP total</p>
             <div>
@@ -194,12 +201,13 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* Streak row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-6">
+      {/* Stats row: streak + focus + weekly goal */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6">
         {[
-          { value: streak, label: "Current streak", Icon: Flame, color: "#fb923c", bg: "rgba(251,146,60,0.1)" },
-          { value: longestStreak, label: "Longest streak", Icon: Star, color: "#eab308", bg: "rgba(234,179,8,0.1)" },
-          { value: tasksCompletedToday, label: "Completed today", Icon: Zap, color: "#22c55e", bg: "rgba(34,197,94,0.1)" },
+          { value: streak,               label: "Current streak",    Icon: Flame,  color: "#fb923c", bg: "rgba(251,146,60,0.1)" },
+          { value: longestStreak,         label: "Longest streak",   Icon: Star,   color: "#eab308", bg: "rgba(234,179,8,0.1)" },
+          { value: tasksCompletedToday,   label: "Completed today",  Icon: Zap,    color: "#22c55e", bg: "rgba(34,197,94,0.1)" },
+          { value: focusSessionsCompleted,label: "Focus sessions",   Icon: Timer,  color: "#7c6ff7", bg: "rgba(124,111,247,0.1)" },
         ].map(({ value, label, Icon, color, bg }) => (
           <div key={label} style={{ background: "var(--color-surface)", borderRadius: "1rem", border: "1px solid var(--color-border)", boxShadow: "var(--shadow-card)", padding: "1.75rem", display: "flex", alignItems: "center", gap: "1.5rem" }}>
             <div style={{ width: "3.5rem", height: "3.5rem", background: bg, borderRadius: "0.875rem", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -213,34 +221,81 @@ export function DashboardPage() {
         ))}
       </div>
 
-      {/* Achievements */}
+      {/* Weekly XP goal */}
+      <div style={{ background: "var(--color-surface)", borderRadius: "1rem", border: "1px solid var(--color-border)", boxShadow: "var(--shadow-card)", padding: "1.75rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
+          <Target size={20} color="#7c6ff7" />
+          <span className="text-gray-900 dark:text-white" style={{ fontWeight: 600 }}>Weekly XP Goal</span>
+          <span className="text-gray-400 dark:text-gray-500" style={{ marginLeft: "auto", fontSize: "0.875rem", fontWeight: 600 }}>
+            {weekXP} / {WEEKLY_XP_GOAL} XP
+          </span>
+        </div>
+        <div className="bg-gray-100 dark:bg-gray-800" style={{ borderRadius: "999px", height: "0.875rem" }}>
+          <div style={{
+            background: weekXP >= WEEKLY_XP_GOAL ? "#22c55e" : "linear-gradient(90deg, #7c6ff7, #a78bfa)",
+            borderRadius: "999px",
+            height: "0.875rem",
+            width: `${Math.min(100, Math.round((weekXP / WEEKLY_XP_GOAL) * 100))}%`,
+            transition: "width 0.7s ease",
+          }} />
+        </div>
+        <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.8125rem", marginTop: "0.75rem" }}>
+          {weekXP >= WEEKLY_XP_GOAL
+            ? "🏆 Weekly goal reached! +100 XP bonus claimed"
+            : `${WEEKLY_XP_GOAL - weekXP} XP to go · complete the goal to earn +100 XP bonus`}
+        </p>
+      </div>
+
+      {/* Achievements — grouped by category */}
       <div>
         <h2 className="text-gray-900 dark:text-white" style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "2rem" }}>
           Achievements
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5">
-          {ACHIEVEMENTS.map((a) => {
-            const unlocked = unlockedAchievements.includes(a.id);
+        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
+          {ACHIEVEMENT_CATEGORIES.map((cat) => {
+            const catAchievements = ACHIEVEMENTS.filter((a) => a.category === cat.key);
+            const unlockedCount = catAchievements.filter((a) => unlockedAchievements.includes(a.id)).length;
             return (
-              <div
-                key={a.id}
-                className={unlocked ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-900"}
-                style={{
-                  borderRadius: "1rem",
-                  border: `1px solid ${unlocked ? "rgba(124,111,247,0.3)" : "var(--color-border)"}`,
-                  padding: "1.5rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1.25rem",
-                  opacity: unlocked ? 1 : 0.4,
-                  filter: unlocked ? "none" : "grayscale(1)",
-                  transition: "all 0.2s",
-                }}
-              >
-                <span style={{ fontSize: "2.25rem" }}>{a.icon}</span>
-                <div>
-                  <p className={unlocked ? "text-gray-900 dark:text-white" : "text-gray-400"} style={{ fontWeight: 600 }}>{a.title}</p>
-                  <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.8125rem", marginTop: "0.25rem" }}>{a.description}</p>
+              <div key={cat.key}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+                  <span style={{ fontSize: "1rem" }}>{cat.icon}</span>
+                  <span className="text-gray-700 dark:text-gray-300" style={{ fontWeight: 700, fontSize: "0.9375rem" }}>{cat.label}</span>
+                  <span className="text-gray-400 dark:text-gray-600" style={{ fontSize: "0.75rem", marginLeft: "0.25rem" }}>
+                    {unlockedCount}/{catAchievements.length}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {catAchievements.map((a) => {
+                    const unlocked = unlockedAchievements.includes(a.id);
+                    return (
+                      <div
+                        key={a.id}
+                        className={unlocked ? "bg-white dark:bg-gray-900" : "bg-gray-50 dark:bg-gray-900"}
+                        style={{
+                          borderRadius: "1rem",
+                          border: `1px solid ${unlocked ? "rgba(124,111,247,0.3)" : "var(--color-border)"}`,
+                          padding: "1.25rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "1rem",
+                          opacity: unlocked ? 1 : 0.45,
+                          filter: unlocked ? "none" : "grayscale(1)",
+                          transition: "all 0.2s",
+                        }}
+                      >
+                        <span style={{ fontSize: "2rem", flexShrink: 0 }}>{a.icon}</span>
+                        <div>
+                          <p className={unlocked ? "text-gray-900 dark:text-white" : "text-gray-400"} style={{ fontWeight: 600, fontSize: "0.875rem" }}>{a.title}</p>
+                          <p className="text-gray-400 dark:text-gray-500" style={{ fontSize: "0.75rem", marginTop: "0.125rem" }}>{a.description}</p>
+                        </div>
+                        {unlocked && (
+                          <span style={{ marginLeft: "auto", fontSize: "0.625rem", fontWeight: 700, color: "#7c6ff7", background: "rgba(124,111,247,0.1)", padding: "0.2rem 0.5rem", borderRadius: "999px", flexShrink: 0 }}>
+                            DONE
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );

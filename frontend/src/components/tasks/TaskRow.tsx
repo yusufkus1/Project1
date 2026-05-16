@@ -50,7 +50,7 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["tasks"] });
       if (task.status !== "COMPLETED") {
-        const { xpGained, leveledUp, newAchievements } = completeTask(task.priority);
+        const { xpGained, leveledUp, newAchievements, multiplier, weeklyBonusGranted } = completeTask(task.priority);
         const popupId = Date.now();
         setXpPopups((prev) => [...prev, { id: popupId, amount: xpGained }]);
         setTimeout(() => setXpPopups((prev) => prev.filter((p) => p.id !== popupId)), 1200);
@@ -59,6 +59,8 @@ export function TaskRow({ task, depth = 0 }: { task: Task; depth?: number }) {
           toast("Recurring task rescheduled", { icon: "🔁", duration: 2500 });
         } else {
           if (leveledUp) toast("Level up!", { icon: "⬆️", duration: 3000 });
+          if (multiplier > 1) toast(`${multiplier}x XP streak bonus!`, { icon: "⚡", duration: 2500 });
+          if (weeklyBonusGranted) toast.success("Weekly goal reached! +100 XP", { icon: "🏆", duration: 4000 });
           newAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
         }
       } else {

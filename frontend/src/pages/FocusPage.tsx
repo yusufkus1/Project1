@@ -196,7 +196,7 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
 // ─── Focus Page ─────────────────────────────────────────────────────────────
 export function FocusPage() {
   const store = useFocusStore();
-  const { addXP, getLevel } = useGamificationStore();
+  const { addXP, completeFocusSession, getLevel } = useGamificationStore();
   const [showSettings, setShowSettings] = useState(false);
   const [showTaskPicker, setShowTaskPicker] = useState(false);
   const [, forceRender] = useState(0);
@@ -236,8 +236,10 @@ export function FocusPage() {
 
           if (result.type === "work") {
             const { xpGained, leveledUp } = addXP(settings.xpPerSession);
+            const { newAchievements } = completeFocusSession();
             toast.success(`+${xpGained} XP — session complete!`, { icon: "🍅", duration: 4000 });
             if (leveledUp) toast(`Level ${getLevel()}!`, { icon: "⬆️", duration: 4000 });
+            newAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
           } else {
             toast("Break over — ready to focus!", { icon: "💪", duration: 3000 });
           }
@@ -420,8 +422,10 @@ export function FocusPage() {
               const result = store.skip();
               if (result?.recorded && result.type === "work") {
                 const { xpGained, leveledUp } = addXP(settings.xpPerSession);
+                const { newAchievements } = completeFocusSession();
                 toast.success(`+${xpGained} XP — session complete!`, { icon: "🍅", duration: 3000 });
                 if (leveledUp) toast(`Level ${getLevel()}!`, { icon: "⬆️", duration: 4000 });
+                newAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
               }
             }}
             className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition"

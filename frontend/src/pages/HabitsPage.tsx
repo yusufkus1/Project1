@@ -6,6 +6,13 @@ import { habitsApi, Habit } from "../api/habits";
 import { useGamificationStore } from "../store/gamification";
 import toast from "react-hot-toast";
 
+interface HabitCardProps {
+  habit: Habit;
+  allHabits: Habit[];
+  totalHabits: number;
+  totalDoneToday: number;
+}
+
 const ICONS = ["⭐", "💪", "📚", "🧘", "🏃", "💧", "🥗", "😴", "✍️", "🎯", "🎵", "🌿", "🧠", "❤️", "🚴"];
 const COLORS = ["#7c6ff7", "#10b981", "#f59e0b", "#ef4444", "#a78bfa", "#06b6d4", "#fb923c", "#ec4899", "#14b8a6", "#84cc16"];
 
@@ -30,9 +37,9 @@ function getStreak(logs: { date: string }[]): number {
   return streak;
 }
 
-function HabitCard({ habit }: { habit: Habit }) {
+function HabitCard({ habit, allHabits, totalHabits, totalDoneToday }: HabitCardProps) {
   const qc = useQueryClient();
-  const { addXP } = useGamificationStore();
+  const { addXP, checkHabitStreak, checkPerfectDay, tasksCompletedToday } = useGamificationStore();
   const days = getLast21Days();
   const today = format(new Date(), "yyyy-MM-dd");
   const logSet = new Set(habit.logs.map((l) => l.date));
@@ -46,6 +53,20 @@ function HabitCard({ habit }: { habit: Habit }) {
       if (data.done) {
         addXP(5);
         toast.success(`+5 XP · ${habit.icon} ${habit.title}`, { duration: 1800 });
+
+        // This habit's new streak after toggling on today
+        const thisHabitNewStreak = streak + 1;
+        const maxStreak = Math.max(
+          thisHabitNewStreak,
+          ...allHabits.filter((h) => h.id !== habit.id).map((h) => getStreak(h.logs))
+        );
+        const habitAchievements = checkHabitStreak(maxStreak);
+        habitAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
+
+        const newTotalDoneToday = totalDoneToday + 1;
+        const { bonusGranted, newAchievements } = checkPerfectDay(tasksCompletedToday, totalHabits, newTotalDoneToday);
+        newAchievements.forEach((a) => toast(`${a.icon} ${a.title} unlocked!`, { duration: 3500 }));
+        if (bonusGranted) toast.success("+50 XP · Perfect Day! ✨", { duration: 4000 });
       }
     },
   });
@@ -284,7 +305,15 @@ export function HabitsPage() {
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-          {habits.map((h) => <HabitCard key={h.id} habit={h} />)}
+          {habits.map((h) => (
+            <HabitCard
+              key={h.id}
+              habit={h}
+              allHabits={habits}
+              totalHabits={habits.length}
+              totalDoneToday={totalDoneToday}
+            />
+          ))}
         </div>
       )}
 
