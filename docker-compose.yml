@@ -49,11 +49,8 @@ services:
         condition: service_healthy
     volumes:
       - uploads:/app/uploads:ro
-      - pistorage_certs:/etc/nginx/certs:ro
+      - ./certs:/etc/nginx/certs:ro
 
 volumes:
   postgres_data:
   uploads:
-  pistorage_certs:
-    external: true
-    name: pistorage_pistorage_certs
