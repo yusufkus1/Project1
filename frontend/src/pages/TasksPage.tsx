@@ -20,6 +20,7 @@ import { InlineAdd } from "../components/tasks/InlineAdd";
 import { WeatherWidget } from "../components/WeatherWidget";
 import { TodayExtras } from "../components/today/TodayExtras";
 import { PanicMode } from "../components/PanicMode";
+import { ImportNotesModal } from "../components/ImportNotesModal";
 import confetti from "canvas-confetti";
 
 const VIEW_TITLES: Record<string, string> = {
@@ -555,12 +556,14 @@ export function TasksPage() {
   const showToggle = selectedView !== "completed" && selectedView !== "today";
   const [brainDumpOpen, setBrainDumpOpen] = useState(false);
   const [panicOpen, setPanicOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const isMobile = useIsMobile();
 
   return (
     <div className="flex flex-col max-w-3xl w-full">
       {brainDumpOpen && <BrainDump onClose={() => setBrainDumpOpen(false)} />}
       {panicOpen && <PanicMode tasks={allTasks} onClose={() => setPanicOpen(false)} />}
+      {importOpen && <ImportNotesModal onClose={() => setImportOpen(false)} />}
 
       {/* Header */}
       <div style={{ marginBottom: "1.75rem" }}>
@@ -570,6 +573,18 @@ export function TasksPage() {
           </h1>
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.375rem", flexShrink: 0 }}>
+            {/* Import from notes button */}
+            {selectedView !== "completed" && (
+              <button
+                onClick={() => setImportOpen(true)}
+                style={{ display: "flex", alignItems: "center", gap: "0.3rem", padding: isMobile ? "0.4375rem 0.625rem" : "0.5rem 0.875rem", borderRadius: "0.625rem", border: "none", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600, background: "rgba(124,111,247,0.1)", color: "#7c6ff7" }}
+                className="hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition"
+                title="Import tasks from notes"
+              >
+                <Sparkles size={13} /> {isMobile ? "" : "Import"}
+              </button>
+            )}
+
             {/* Brain dump button */}
             {selectedView !== "completed" && (
               <button
